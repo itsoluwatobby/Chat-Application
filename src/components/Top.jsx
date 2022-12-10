@@ -9,6 +9,10 @@ export const Top = () => {
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
         <Link to='/'><p>Itsoluwatobby</p></Link>
       </div>
+      <ul className='button-top'>
+        <li><Link to='login'>Login</Link></li>
+        <li><Link to='register'>Register</Link></li>
+      </ul>
     </TopComponent>
   )
 }
@@ -16,6 +20,9 @@ export const Top = () => {
 const TopComponent = styled.div`
 padding: 8px 10px;
 box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
+display: flex;
+align-items: center;
+justify-content: space-between;
   
   .logo{
     display: flex;
@@ -33,6 +40,31 @@ box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
       cursor: pointer;
       text-decoration: none;
       color: white;
+    }
+  }
+
+  ul{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    
+    li{
+      padding: 0.3rem;
+      font-size: 17px;
+      border-radius: 5px;
+      border: none;
+      color: lightgray;
+      cursor: pointer;
+
+      &:focus{
+        outline: none
+      }
+
+      &:hover{
+        color: rgba(255,255,255,0.35);
+      }
     }
   }
 `
