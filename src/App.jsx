@@ -3,15 +3,24 @@ import { Route, Routes } from 'react-router-dom'
 import { Register } from './pages/Register'
 import styled from 'styled-components'
 import { Layout } from './components/Layout'
+import { Login } from './pages/Login'
+import { PublicRoute } from './components/PublicRoute'
+import { Home } from './pages/Home'
+import { Chat } from './pages/Chat'
 
 export const App = () => {
   return (
     <Container>
       <Routes>
         <Route path='/' element={<Layout />}>
+          <Route path='chat' element={<Chat />} />
         </Route>
         
-        <Route path='/register' element={<Register />} />
+        <Route element={<PublicRoute />}>
+          <Route index element={<Home />} />
+          <Route path='register' element={<Register />} />
+          <Route path='login' element={<Login />} />
+        </Route>
       
       </Routes>
     </Container>

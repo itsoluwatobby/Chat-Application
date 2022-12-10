@@ -1,22 +1,28 @@
 import {RiWhatsappFill} from 'react-icons/ri'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import { Search } from './Search'
 
-export const Top = () => {
+export const Main = () => {
   return (
-    <TopComponent>
+    <MainPage>
       <div className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
         <Link to='/'><p>Itsoluwatobby</p></Link>
       </div>
-    </TopComponent>
+      <Search />
+    </MainPage>
   )
 }
 
-const TopComponent = styled.div`
-padding: 8px 10px;
-box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
-  
+const MainPage = styled.div`
+height: 100%;
+display: flex;
+flex-grow: 2;
+flex-direction: column;
+gap: 0.8rem;
+padding: 0.6rem;
+
   .logo{
     display: flex;
     align-items: center;
