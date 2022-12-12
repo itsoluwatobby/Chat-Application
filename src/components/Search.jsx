@@ -3,29 +3,51 @@ import {MdMoreHoriz} from 'react-icons/md'
 import {CiSearch} from 'react-icons/ci';
 import styled from 'styled-components';
 import {RiWhatsappFill} from 'react-icons/ri'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import {useSelector ,useDispatch} from 'react-redux'
+import { getCurrentUser, logoutUser } from '../features/authSlice';
+import { useChatContext } from '../hooks/useChatContext';
 
 export const Search = () => {
-  return (
-    <SearchComponent>
-      <div className='logo'>
+  const dispatch = useDispatch()
+  const {setChatId, setMessageBody, setClick} = useChatContext()
+  const currentUser = useSelector(getCurrentUser);
+  const navigate = useNavigate()
+
+  const handleLogout = async() => {
+    await dispatch(logoutUser(currentUser?._id))
+    setChatId('')
+    setMessageBody({})
+    navigate('/')
+  }
+
+  let searchContent = (
+    <>
+      <div onClick={() => setClick(false)} className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
         <Link to='/'><p>Itsoluwatobby</p></Link>
+        <button onClick={handleLogout} className='logout'>Logout</button>
       </div>
       <div className='topbar'>
-        <p>Chats</p>
+        <p onClick={() => setClick(false)}>Chats</p>
         <div>
-          <FiEdit className='edit'/>
+          <FiEdit onClick={() => setClick(true)} className='edit'/>
           <MdMoreHoriz className='more'/>
         </div>
       </div>
-      <div className='search'>
+      <div onClick={() => setClick(false)} className='search'>
         <input 
           type="text" 
           placeholder='Search or start a new chat'
         />
         <CiSearch className='field'/>
       </div>
+    </>
+  )
+
+  return (
+    <SearchComponent>
+      {searchContent}
     </SearchComponent>
   )
 }
@@ -38,16 +60,41 @@ width: 100%;
 gap: 0.7rem;
 position: sticky;
 top: 0;
-background-color: rgba(25,30,28);;
+background-color: rgba(25,30,28);
+border-radius: ${props => !props.newConversation && '10px'};
+box-shadow: ${props => props.newConversation && '2px 4px 16px rgba(0,0,0,0.3)'};
 z-index: 50;
+
+  .new-chat{
+    margin-top: 1rem;
+    font-weight: 600;
+  }
 
   .logo{
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 50;
+
+    .logout{
+      position: absolute;
+      right: 0.1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.35rem;
+      border: none;
+      background-color: rgba(255,0,0,0.7);
+
+      &:focus{
+        outline: none
+      }
+
+      &:hover{
+        background-color: rgba(255,0,0,0.8);
+      }
+    }
 
     .whatsapp-logo{
       color: green;

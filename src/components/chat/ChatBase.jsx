@@ -3,11 +3,12 @@ import {BiSend} from 'react-icons/bi'
 import {BsEmojiSmile} from 'react-icons/bs'
 import {HiOutlineMicrophone} from 'react-icons/hi'
 import styled from 'styled-components'
-import { useState } from 'react'
 import { useChatContext } from '../../hooks/useChatContext'
 
-export const ChatBase = () => {
-  const {message, setMessage} = useChatContext('')
+export const ChatBase = ({sendMessage}) => {
+  const {message, setMessage} = useChatContext()
+  
+  const onMessageChange = e => setMessage(e.target.value)
 
   return (
     <ChatBaseComponent>
@@ -16,9 +17,9 @@ export const ChatBase = () => {
       <input 
         type="text" 
         placeholder='Type a message...'
-        onChange={e => setMessage(e.target.value)}
+        onChange={onMessageChange}
       />
-      {message ? <BiSend className='icon'/> : <HiOutlineMicrophone className='icon'/>}
+      {message ? <BiSend onClick={sendMessage} className='icon'/> : <HiOutlineMicrophone className='icon'/>}
     </ChatBaseComponent>
   )
 }
@@ -42,6 +43,7 @@ bottom: 0;
     height: 100%;
     padding: 0 0.2rem;
     background-color: transparent;
+    color: white;
 
     &:focus{
       outline: none;

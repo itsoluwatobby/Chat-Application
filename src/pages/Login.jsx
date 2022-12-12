@@ -1,13 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {useDispatch} from 'react-redux'
+import { loginUser } from '../features/authSlice'
 import styled from 'styled-components'
+import { useChatContext } from '../hooks/useChatContext'
 
 export const Login = () => {
+  const [email, setEmail] = useState('')
+  const {setLoggedIn} = useChatContext()
+  const [password, setPassword] = useState('')
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const canSubmit = [email, password].every(Boolean)
+  const onPasswordChange = e => setPassword(e.target.value)
+  const onEmailChange = e => setEmail(e.target.value)
 
   const handleLogin = async(e) => {
     e.preventDefault()
-    navigate('/chat')
+    try{
+        if(canSubmit){
+          await dispatch(loginUser({password, email})).unwrap()
+          setLoggedIn(prev => !prev)
+          navigate('/chat')
+          setPassword('')
+          setEmail('')
+        }else return
+    }
+    catch(error){
+      console.log(error)
+    }
   }
 
   return (
@@ -22,12 +44,14 @@ export const Login = () => {
               type="text" 
               autoComplete='off'
               autoFocus 
+              onChange={onEmailChange}
               placeholder='John Doe'/>
           </div>
           <div className='form-input'>
             <label htmlFor="password">Password:</label>
             <input 
               type="password" 
+              onChange={onPasswordChange}
               placeholder='12doe77john'/>
           </div>
           <button>Sign in</button>

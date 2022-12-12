@@ -1,15 +1,20 @@
 import {CiSearch} from 'react-icons/ci';
+import {CgProfile} from 'react-icons/cg';
 import {VscDeviceCameraVideo} from 'react-icons/vsc';
 import {HiOutlinePhone} from 'react-icons/hi';
 import {AiOutlineLine} from 'react-icons/ai';
+import {FaTimesCircle} from 'react-icons/fa';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
+import { useChatContext } from '../../hooks/useChatContext';
 
-export const ChatHeading = ({conversation}) => {
+export const ChatHeading = ({user}) => {
   const [width, setWidth] = useState(undefined)
+  const {setChatId} = useChatContext()
+
 
   useEffect(() => {
-    const widthListener = () => setWidth(window.innerWidth);
+    const widthListener = () => setWidth(prev => prev = window.innerWidth);
     window.addEventListener('resize', widthListener)
 
     return () => {
@@ -22,12 +27,15 @@ export const ChatHeading = ({conversation}) => {
   return (
     <Heading>
       <div>  
-        <img src={conversation?.picture} alt={conversation?.name} 
-          className='profile-picture'
-        />
+      {user?.profilePicture 
+          ? 
+            <img src={user?.profilePicture} alt={user.username} 
+              className='profile-picture'/> 
+            : <CgProfile className='pics'/>
+      }
         <div className='detail'>
-          <p className='text-edit'>{(width > 408 || width === 'undefined') ? conversation?.name : conversation?.name?.slice(0, 4)+'...'}</p>
-          <p className='base text-edit'>{(width > 408 || width === 'undefined') ? 'last seen at' : 'last...'} {width > 408 ? conversation?.lastSeen : ''}</p>
+          <p className='text-edit'>{(width > 408 || width === 'undefined') ? user?.username : user?.username?.slice(0, 4)+'...'}</p>
+          <p className='base text-edit'>{(width > 408 || width === 'undefined') ? 'last seen at' : 'last...'} {width > 408 ? user?.lastSeen : ''}</p>
         </div>
       </div>
       <div className='endtag'>
@@ -35,6 +43,9 @@ export const ChatHeading = ({conversation}) => {
         <HiOutlinePhone className='icon'/>
         <AiOutlineLine className='line'/>
         <CiSearch className='icon'/>
+        <FaTimesCircle 
+          onClick={() => setChatId('')}
+          title='Exit Chat' className='icon'/>
       </div>
     </Heading>
   )
@@ -58,6 +69,11 @@ background-color: #333;
     gap: 1rem;
     width: 100%;
     white-space: nowrap;
+
+    .pics{
+      font-size: 3.6rem;
+      color: gray;
+    }
 
     .profile-picture{
       width: 3rem;
@@ -91,7 +107,7 @@ background-color: #333;
   .endtag{
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.3rem;
 
     .icon{
       font-size: 40px;
@@ -106,6 +122,7 @@ background-color: #333;
 
     .line{
       font-size: 30px;
+      color: gray;
       transform: rotatez(270deg);
     }
   }
