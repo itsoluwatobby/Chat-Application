@@ -28,11 +28,11 @@
 
 * [x] Last seen
 
-* [-] User profile page
+  &#x2612; User profile page
 
-* [-] Creating rooms
+  &#x2612; Creating rooms
 
-* [-] User status update
+  &#x2612; User status update
 
 ***
 *image preview*
