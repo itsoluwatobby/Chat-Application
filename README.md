@@ -18,21 +18,21 @@
 ---
 **FEATURES**
 
-[*] user registration
+* [x] user registration page
 
-[*] user login
+* [x] user login page
 
-[*] creation of conversation between users
+* [x] creation of conversation between users
 
-[*] conversation deletion
+* [x] conversation deletion
 
-[*] Last seen
+* [x] Last seen
 
-[x] User profile page
+* [-] User profile page
 
-[x] Creating rooms
+* [-] Creating rooms
 
-[x] User status update
+* [-] User status update
 
 ***
 *image preview*
