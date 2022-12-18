@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import {useDispatch, useSelector} from 'react-redux'
-import { registerUser } from '../features/authSlice'
 import { CgProfile } from 'react-icons/cg';
 import { BsImageFill } from 'react-icons/bs';
+import { axiosAuth } from '../app/axiosAuth'
 
 export const Register = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [image, setImage] = useState('')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
-  const dispatch = useDispatch()
 
   const canSubmit = [username, email, password].every(Boolean)
   const onUsernameChange = e => setUsername(e.target.value)
@@ -40,27 +38,33 @@ export const Register = () => {
       return url
     }catch(error){
       !error.response && setError('No server response')
-      error.response && setError(error.message)
     }finally{
       setLoading(false)
     }
   }
 
   const handleRegister = async(e) => {
+    setError('')
     e.preventDefault()
+    if(!canSubmit) return
+    setLoading(true)
     try{
-        if(canSubmit){
-          const profilePicture = await uploadImage()
-          console.log({profilePicture})
-          await dispatch(registerUser({username, password, email, profilePicture})).unwrap()
-          navigate('/login')
-          setPassword('')
-          setUsername('')
-          setEmail('')
-        }else return
+      const profilePicture = await uploadImage()
+      await axiosAuth.post('/register', {
+        username, password, email, profilePicture
+      })
+      setPassword('')
+      setUsername('')
+      setEmail('')
+      navigate('/login')
     }
     catch(error){
-      console.log(error)
+      let errorMessage;
+      error?.response?.status === 409 ? errorMessage = 'email taken' :
+      error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+      setError(errorMessage)
+    }finally{
+      setLoading(false)
     }
   }
 
@@ -70,6 +74,8 @@ export const Register = () => {
         <h1>This is where the world connects better</h1>
         <form onSubmit={handleRegister}>
           <h2>Sign Up</h2>
+          {loading && <p className='loading'>In progress...</p>}
+          {error && <p className='error'>{error}</p>}
           {image ? <img src={URL.createObjectURL(image)} alt={image.originalFilename} 
             className='profile-picture'/> : <CgProfile className='pics'/>}
             {loading && <p className='upload'>uploading image...</p>}
@@ -80,15 +86,17 @@ export const Register = () => {
               autoComplete='off'
               autoFocus 
               id='username'
+              onFocus={() => setError('')}
               onChange={onUsernameChange}
               placeholder='John Doe'/>
           </div>
           <div className='form-input'>
             <label htmlFor="email">Email:</label>
             <input 
-              type="text" 
+              type="email" 
               autoComplete='off'
               id='email'
+              onFocus={() => setError('')}
               onChange={onEmailChange}
               placeholder='JohnDoe@gmail.com'/>
           </div>
@@ -97,6 +105,7 @@ export const Register = () => {
             <input 
               type="password" 
               id='password'
+              onFocus={() => setError('')}
               onChange={onPasswordChange}
               placeholder='12doe77john'/>
           </div>
@@ -104,6 +113,7 @@ export const Register = () => {
             <input 
               type="file" 
               id='image'
+              onFocus={() => setError('')}
               onChange={onImageChange}
               accept= 'image/png'
               hidden
@@ -152,6 +162,22 @@ font-size: 18px;
 
         h2{
           text-transform: capitalize;
+        }
+
+        .error{
+          text-align: center;
+          text-transform: capitalize;
+          font-family: cursive;
+          color: red;
+          letter-spacing: 4px;
+        }
+        
+        .loading{
+          text-align: center;
+          text-transform: capitalize;
+          font-family: cursive;
+          color: teal;
+          letter-spacing: 4px;
         }
 
         .upload{

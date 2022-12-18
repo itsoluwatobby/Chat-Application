@@ -4,28 +4,42 @@ import {CiSearch} from 'react-icons/ci';
 import styled from 'styled-components';
 import {RiWhatsappFill} from 'react-icons/ri'
 import { Link, useNavigate } from 'react-router-dom'
-import {useSelector ,useDispatch} from 'react-redux'
-import { getCurrentUser, logoutUser } from '../features/authSlice';
 import { useChatContext } from '../hooks/useChatContext';
+import { axiosAuth } from '../app/axiosAuth';
 
 export const Search = () => {
-  const dispatch = useDispatch()
-  const {setChatId, setMessageBody, setClick} = useChatContext()
-  const currentUser = useSelector(getCurrentUser);
+  const {setChatId, setMessageBody, currentUser, setClick, setConversation} = useChatContext()
+  const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()
 
   const handleLogout = async() => {
-    await dispatch(logoutUser(currentUser?._id))
-    setChatId('')
-    setMessageBody({})
-    navigate('/')
+    try{
+      await axiosAuth.get(`/logout/${currentUserId}`)
+      setChatId({})
+      setMessageBody({})
+      setConversation([])
+      localStorage.setItem('isLoggedIn', false)
+      localStorage.removeItem('userId')
+      navigate('/')
+    }catch(error) {
+      setChatId({})
+      setConversation([])
+      setMessageBody({})
+      localStorage.setItem('isLoggedIn', false)
+      localStorage.removeItem('userId')
+      navigate('/')
+      let errorMessage;
+      error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+      return errorMessage
+    }
   }
+
 
   let searchContent = (
     <>
       <div onClick={() => setClick(false)} className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
-        <Link to='/'><p>Itsoluwatobby</p></Link>
+        <Link to='/'><p>{currentUser?.username || 'Itsoluwatobby'}</p></Link>
         <button onClick={handleLogout} className='logout'>Logout</button>
       </div>
       <div className='topbar'>
@@ -61,8 +75,6 @@ gap: 0.7rem;
 position: sticky;
 top: 0;
 background-color: rgba(25,30,28);
-border-radius: ${props => !props.newConversation && '10px'};
-box-shadow: ${props => props.newConversation && '2px 4px 16px rgba(0,0,0,0.3)'};
 z-index: 50;
 
   .new-chat{

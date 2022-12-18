@@ -16,7 +16,8 @@ export const ChatBase = ({sendMessage}) => {
       <IoIosAttach className='icon'/>
       <input 
         type="text" 
-        placeholder='Type a message...'
+        placeholder='say your hello...'
+        value={message}
         onChange={onMessageChange}
       />
       {message ? <BiSend onClick={sendMessage} className='icon'/> : <HiOutlineMicrophone className='icon'/>}
@@ -26,7 +27,7 @@ export const ChatBase = ({sendMessage}) => {
 
 const ChatBaseComponent = styled.div`
 flex-grow: none;
-height: 50px;
+height: 65px;
 width: 100%;
 display: flex;
 padding: 0.4rem 0.1rem;
@@ -44,6 +45,7 @@ bottom: 0;
     padding: 0 0.2rem;
     background-color: transparent;
     color: white;
+    font-size: 15px;
 
     &:focus{
       outline: none;

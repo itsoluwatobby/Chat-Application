@@ -6,11 +6,12 @@ import {AiOutlineLine} from 'react-icons/ai';
 import {FaTimesCircle} from 'react-icons/fa';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
+import {format} from 'date-fns';
 import { useChatContext } from '../../hooks/useChatContext';
 
 export const ChatHeading = ({user}) => {
   const [width, setWidth] = useState(undefined)
-  const {setChatId} = useChatContext()
+  const {setChatId, formatDate} = useChatContext()
 
 
   useEffect(() => {
@@ -35,7 +36,11 @@ export const ChatHeading = ({user}) => {
       }
         <div className='detail'>
           <p className='text-edit'>{(width > 408 || width === 'undefined') ? user?.username : user?.username?.slice(0, 4)+'...'}</p>
-          <p className='base text-edit'>{(width > 408 || width === 'undefined') ? 'last seen at' : 'last...'} {width > 408 ? user?.lastSeen : ''}</p>
+          { user?.status !== 'online' ?
+            <p className='base text-edit'>{(width > 408 || width === 'undefined') ? 'last seen ' : 'last...'} {width > 408 ? user?.lastSeen ? formatDate(user?.lastSeen) : '' : format(new Date(), 'p')}</p>
+            :
+            <p className='status text-edit'>online</p>
+          }
         </div>
       </div>
       <div className='endtag'>
@@ -44,7 +49,7 @@ export const ChatHeading = ({user}) => {
         <AiOutlineLine className='line'/>
         <CiSearch className='icon'/>
         <FaTimesCircle 
-          onClick={() => setChatId('')}
+          onClick={() => setChatId({})}
           title='Exit Chat' className='icon'/>
       </div>
     </Heading>
@@ -94,6 +99,10 @@ background-color: #333;
       .base{
         color: lightgray;
         font-size: 15px;
+      }
+
+      .status{
+        color: lightgreen;
       }
     }
 

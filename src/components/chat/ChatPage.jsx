@@ -1,125 +1,81 @@
 import { useChatContext } from '../../hooks/useChatContext';
 import styled from 'styled-components'
 import { ChatHeading } from './ChatHeading'
-import {useSelector, useDispatch} from 'react-redux'
-import { getAllUsers, getCurrentUser} from '../../features/authSlice';
 import { EmptyChat } from '../EmptyChat';
 import { ChatBody } from './ChatBody';
 import { ChatBase } from './ChatBase';
-import { useEffect, useRef } from 'react';
-import {io} from 'socket.io-client'
-import { createConversation, getConversation, selectConversation } from '../../features/messageSlice';
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+import {format} from 'date-fns';
+import { axiosAuth } from '../../app/axiosAuth';
 
 let socket;
 
 export const ChatPage = () => {
-  const {chatId, setMessages, setClick, messageBody, setMessageBody, setMessage, message, setResponse} = useChatContext()
-  //const targetUser = useSelector(state => getSingleUser(state, chatId));
-  const messageRef = useRef();
-  const currentUser = useSelector(getCurrentUser)
-  const currentConvo = useSelector(selectConversation)
-  const dispatch = useDispatch()
+  const {chatId, setMessages, setClick, result, setMessage, message, currentUser, setResponse} = useChatContext()
+  const currentUserId = localStorage.getItem('userId') || ''
+  const [targetUser, setTargetUser] = useState({});
+  const [received, setReceived] = useState({});
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    if(currentUser) socket = io('http://localhost:5000')
-  }, [currentUser])
+    if(currentUserId) socket = io.connect('http://localhost:5000')
+  }, [currentUserId])
 
   useEffect(() => {
-    messageRef?.current?.scrollIntoView({ behaviour: 'smooth' })
-  }, [])
+    const foundUser = result.find(user => user._id === chatId.userId)
+    setTargetUser(foundUser)
+  }, [chatId.userId])
 
-  //CREATE A CONVERSATION
-  // useEffect(() => {
-  //   let isMounted = true
+  useEffect(() => {
+    socket.emit('start-conversation', chatId?.convoId)
+  }, [chatId])
 
-  //   const getConversation = async() => {
-  //     const newConversation = {userId: currentUser?._id, friendId: chatId}
-  //     try{
-  //       await dispatch(createConversation(newConversation))
-  //     }catch(error){
-  //       console.log(error)
-  //     }
-  //   }
-  //   chatId && getConversation()
-
-  //   return () => isMounted = false
-
-  // }, [chatId])
-
-  // useEffect(() => {
-  //   let isMounted = true
-  //   const fetchConversation = async() => {
-  //     try{
-  //       await dispatch(getConversation())
-  //     }catch(error){
-  //       console.log(error)
-  //     }
-  //   }
-  //   fetchConversation()
-
-  //   return () => isMounted = false
-
-  // }, [chatId])
-  
-  // useEffect(() => {
-  //   if(chatId && currentConvo){
-  //     socket.on('connect', () => {
-  //       socket.emit('start-conversation', currentConvo?._id, (res) => {
-  //         setResponse(res)
-  //       })
-        
-  //       socket.on('disconnect', () => {
-  //         console.log('user left')
-  //       })
-  //     })
-  //   }else return
-  // }, [currentConvo])
-
-    useEffect(() => {
-      let isMounted = true
-      const fetchUsers = async() => {
-        try{
-          isMounted && await dispatch(getAllUsers()).unwrap()
-        }catch(error){
-          console.log(error)
-        }
-      }
-      fetchUsers()
-  
-      return () => isMounted = false
-  
-    }, [currentUser])
+  const createMessage = async(initialState) => {
+    console.log({initialState})
+    try{
+      const messages = await axiosAuth.post('/createMessage', initialState)
+      return messages.data
+    }catch(error) {
+      let errorMessage;
+      error.response.status === 500 ? errorMessage = 'internal error' : 
+      errorMessage = 'no server response'
+      setError(errorMessage)
+    }
+  }
 
   //receive message
   useEffect(() => {
     let isMounted = true
-    if(isMounted){
-      socket.on('newMessage', data => {
+    const newMessage = async() => {
+      socket.on('newMessage', (data) => { 
         setMessages(prev => [...prev, data])
+        //setReceived(data)
       })
-    }else return
+    }
+    newMessage()
     return () => isMounted = false
-  }, [messageBody])
+  }, [socket])
 
-  const sendMessage = () => {
-    const newMessage = { senderId: currentUser._id, username: currentUser.username, text: message }
-    socket.emit('create-message', newMessage)
-    setMessageBody(newMessage)
+  const sendMessage = async() => {
+    const newMessage = { 
+      conversationId: chatId?.convoId,
+      senderId: currentUserId, username: currentUser?.username, 
+      text: message, dateTime: format(new Date(), 'p')
+    }
+    await socket.emit('create-message', newMessage)
+    //setMessages(prev => [...prev, newMessage])
+    await createMessage(newMessage)
     setMessage('')
-    console.log(messageBody)
   }
-
-  // //, (res) => {
-  //   setResponse(res)
-  // }
 
   return (
     <ChatMessage onClick={() => setClick(false)}>
-      {chatId ?
+      {chatId?.userId ?
         <>
-          <ChatHeading user={targetUser || 'no'}/>
-          <ChatBody />
-          <ChatBase messageRef={messageRef} sendMessage={sendMessage}/>
+          <ChatHeading user={targetUser}/>
+          <ChatBody socket={socket}/>
+          <ChatBase sendMessage={sendMessage}/>
         </>
         :
         <EmptyChat />
@@ -137,8 +93,7 @@ background-color: #333333;
 justify-content: space-between;
 padding: 0;
 align-items: center;
-overflow-y: scroll;
-overflow-x: hidden;
+overflow: hidden;
 
   @media (max-width: 468px){
     flex-grow: 7;
@@ -155,4 +110,14 @@ overflow-x: hidden;
   &::-webkit-scrollbar-thumb {
     background: lightgray;
   }
+
+  // @media (max-width: 908px){
+  //   flex-grow: none;
+  //   min-width: 450px;
+  // }
+
+  // @media (max-width: 468px){
+  //   flex-grow: none;
+  //   max-width: 150px;
+  // }
 `

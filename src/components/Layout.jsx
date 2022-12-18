@@ -1,17 +1,6 @@
-import {Outlet, useLocation} from 'react-router-dom'
-import styled from 'styled-components'
+import {Outlet, Navigate, useLocation} from 'react-router-dom';
 
 export const Layout = () => {
-  const {pathname} = useLocation()
-  // const path = ['/register', '/login']
-
-  return (
-    <Main>
-      <Outlet />
-    </Main>
-  )
+  
+  return <Outlet /> 
 }
-
-const Main = styled.div`
-
-`

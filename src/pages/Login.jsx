@@ -1,16 +1,19 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import {useDispatch} from 'react-redux'
-import { loginUser } from '../features/authSlice'
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
+import { axiosAuth } from '../app/axiosAuth'
 
 export const Login = () => {
   const [email, setEmail] = useState('')
-  const {setLoggedIn} = useChatContext()
+  const {setLoggedIn, setCurrentUser} = useChatContext()
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState('')
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const location = useLocation()
+
+  const from = location?.state?.from?.pathname || '/chat'
 
   const canSubmit = [email, password].every(Boolean)
   const onPasswordChange = e => setPassword(e.target.value)
@@ -18,17 +21,25 @@ export const Login = () => {
 
   const handleLogin = async(e) => {
     e.preventDefault()
+    setError('')
+    if(!canSubmit) return
+    setLoading('In progress...')
     try{
-        if(canSubmit){
-          await dispatch(loginUser({password, email})).unwrap()
-          setLoggedIn(prev => !prev)
-          navigate('/chat')
-          setPassword('')
-          setEmail('')
-        }else return
-    }
-    catch(error){
-      console.log(error)
+      const res = await axiosAuth.post('/login', {password, email})
+      setLoggedIn(true)
+      setCurrentUser(res?.data)
+      localStorage.setItem('isLoggedIn', true)
+      localStorage.setItem('userId', res?.data._id)
+      setPassword('')
+      setEmail('')
+      navigate(from, { replace: true })
+    }catch(error){
+      let errorMessage;
+      error?.response?.status === 403 ? errorMessage = 'bad credentials' :
+      error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+      setError(errorMessage)
+    }finally{
+      setLoading('')
     }
   }
 
@@ -38,23 +49,17 @@ export const Login = () => {
         <h1>This is where the world connects better</h1>
         <form onSubmit={handleLogin}>
           <h2>Sign In</h2>
+          {loading && <p className='loading'>{loading}</p>}
+          {!loading && error && <p className='error'>{error}</p>}
           <div className='form-input'>
-            <label htmlFor="username">Username:</label>
-            <input 
-              type="text" 
-              autoComplete='off'
-              autoFocus 
-              onChange={onEmailChange}
-              placeholder='John Doe'/>
+            <label htmlFor="email">Email:</label>
+            <input type="email" onFocus={() => setError('')} autoComplete='off' autoFocus required onChange={onEmailChange} placeholder='John Doe'/>
           </div>
           <div className='form-input'>
             <label htmlFor="password">Password:</label>
-            <input 
-              type="password" 
-              onChange={onPasswordChange}
-              placeholder='12doe77john'/>
+            <input type="password" onFocus={() => setError('')} onChange={onPasswordChange} required placeholder='12doe77john'/>
           </div>
-          <button>Sign in</button>
+          <button disabled={!canSubmit}>Sign in</button>
           <p>Don't have an account? <Link to='/register'>Register here</Link></p>
         </form>
       </div>
@@ -74,7 +79,7 @@ font-size: 18px;
     width: 100%;
     align-items: flex-start;
     margin-top: 5rem;
-    gap: 2rem;
+    gap: 1.5rem;
 
       h1{
         text-align: center;
@@ -90,6 +95,22 @@ font-size: 18px;
         border-radius: 10px; 
         padding: 1rem 1.5rem;
         gap: 0.7rem;
+
+        .error{
+          text-align: center;
+          text-transform: capitalize;
+          font-family: cursive;
+          color: red;
+          letter-spacing: 4px;
+        }
+        
+        .loading{
+          text-align: center;
+          text-transform: capitalize;
+          font-family: cursive;
+          color: teal;
+          letter-spacing: 4px;
+        }
 
         h2{
           text-transform: capitalize;

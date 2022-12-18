@@ -1,73 +1,66 @@
 import styled from 'styled-components'
 import { Conversations } from './Conversations'
 import { Search } from './Search'
-import {useDispatch, useSelector} from 'react-redux'
 import {useChatContext} from '../hooks/useChatContext'
 import { useEffect, useState } from 'react'
-import { getAllUsers, getCurrentUser, selectAllUsers, userError } from '../features/authSlice'
-import { messageError } from '../features/messageSlice'
+import { axiosAuth } from '../app/axiosAuth'
 
 export const Main = () => {
-  const {setChatId, loggedIn, setClick} = useChatContext()
-  const dispatch = useDispatch()
-  const currentUser = useSelector(getCurrentUser);
-  const error = useSelector(messageError)
-  const userErrors = useSelector(userError)
-  const allUsers = useSelector(selectAllUsers)
-  const [users, setUsers] = useState([])
-  console.log(allUsers)
-
-  // useEffect(() => {
-  //   dispatch(getConversation(conversation))
-  // }, [conversation])
-
-  useEffect(() => {
-    const userInConvo = allUsers.map(
-      user => currentUser.conversationId.map(
-        current => user.conversationId.includes(current)))
-    setUsers(userInConvo)
-  }, [currentUser])
+  const {setChatId, loggedIn, setClick, setMessages, conversation, setConversation} = useChatContext()
+  const currentUserId = localStorage.getItem('userId')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     let isMounted = true
-
-    const fetchUsers = async() => {
+    const fetchUsersInConversation = async() => {
+      setLoading(true)
       try{
-        isMounted && await dispatch(getAllUsers())
+        const res = await axiosAuth.get(`/usersInConversation/${currentUserId}`)
+        setConversation(res?.data)
       }catch(error){
-        console.log(error)
+        let errorMessage;
+        error?.response?.status === 400 ? errorMessage = 'userId required' :
+        error?.response?.status === 404 ? errorMessage = 'No conversations, start a new conversation' :
+        error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+        setError(errorMessage)
+      }finally{
+        setLoading(false)
       }
     }
-    fetchUsers()
+    fetchUsersInConversation()
 
     return () => isMounted = false
+  }, [loggedIn, currentUserId])
 
-  }, [loggedIn])
+  const startChat = (userId, convoId) =>{
+    setChatId({userId, convoId})
+    setMessages([])
+  }
 
-  // const filteredConversation = conversations?.filter(convo => convo._id !== currentUser._id)
+  let content;
+
+  loading ? content = <p className='loading'>loading your conversation...</p> :
+  conversation.length ? content = (
+              <>
+                {
+                  conversation.map(user => (
+                    <div
+                      key={user?._id} 
+                      onClick={() => startChat(user?._id, user?.convoId)}
+                    >
+                      <Conversations user={user}/>
+                    </div>
+                    ))
+                  }
+              </>)
+              : !error ? content = <p>No conversations, start a new conversation</p> : ''
 
   return (
     <MainPage>
-      
       <Search />
-      {userErrors ? 
-        <p>{userErrors}</p> 
-      :
-      <>
-        {!users ? 
-          <p>No conversations, start a new conversation</p>
-        :
-        users?.map(user => (
-          <div
-            key={user?.email} 
-            onClick={() => setChatId(user?._id)}
-          >
-            <Conversations user={user}/>
-          </div>
-        )
-        )}
-      </>
-      }
+      {!conversation.length && error && <p>{error}</p>}
+      {content}
     </MainPage>
   )
 }
@@ -77,9 +70,25 @@ height: 100%;
 display: flex;
 flex-grow: 2.5;
 flex-direction: column;
-gap: 0.8rem;
-padding: 0 0.6rem;
+gap: 0.2rem;
+padding: 0 0.2rem;
 overflow-y: scroll;
+
+.error{
+  text-align: center;
+  text-transform: capitalize;
+  font-family: cursive;
+  color: red;
+  margin-top: 1rem;
+}
+
+.loading{
+  text-align: center;
+  text-transform: capitalize;
+  font-family: cursive;
+  color: teal;
+  margin-top: 1rem;
+}
 
   &::-webkit-scrollbar{
     width: 2px;
@@ -95,7 +104,7 @@ overflow-y: scroll;
 
   @media (max-width: 908px){
     flex-grow: none;
-    min-width: 270px;
+    min-width: 250px;
   }
 
   @media (max-width: 468px){

@@ -1,67 +1,70 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import { axiosAuth } from '../../app/axiosAuth'
 import { useChatContext } from '../../hooks/useChatContext'
-import {useSelector, useDispatch} from 'react-redux'
-import { getCurrentUser } from '../../features/authSlice'
-import { getAllMessages, getMessages, messageError, messageLoading, selectConversation } from '../../features/messageSlice'
 
-export const ChatBody = () => {
-  const [count,  setCount] = useState(0);
-  const {messages, setMessages, chatId} = useChatContext()
-  const currentUser = useSelector(getCurrentUser)
-  const currentConversation = useSelector(selectConversation)
-  const allMessages = useSelector(getAllMessages)
-  const loading = useSelector(messageLoading)
-  const errorMessage = useSelector(messageError)
-  const dispatch = useDispatch()
+export const ChatBody = ({socket}) => {
+  const {messages, setMessages, chatId, currentUser, num} = useChatContext()
+  const currentUserId = localStorage.getItem('userId')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null);
+  const messageRef = useRef();
 
-  // const userMessages = messages.filter(msg => {
-  //   const ans = msg?.senderId !== currentUser._id ? true : false
-  //   return ans
-  // })
-
-  console.log('messages',allMessages)
-  console.log({chatId})
-  console.log(currentConversation)
-
-  const reload = () => setCount(prev => prev + 1)
+  useEffect(() => {
+    messageRef?.current?.scrollIntoView({ behaviour: 'smooth' })
+  }, [socket])
 
   useEffect(() => {
     let isMounted = true
-
+    const controller = new AbortController();
+    setLoading(true)
     const fetchMessages = async() => {
       try{
-        isMounted && await dispatch(getMessages(currentConversation?._id)).unwrap()
-        reload()
-      }catch(error){
-        console.log(errorMessage)
+        const messages = await axiosAuth.get(`/messages/${chatId?.convoId}`, {
+          signal: controller.signal
+        })
+        setMessages([...messages.data])
+      }catch(error) {
+        let errorMessage;
+        error?.response?.status === 404 ? errorMessage = 'Say hello to start a conversation' :
+        error?.response?.status === 500 ? errorMessage = 'internal error' : 
+        errorMessage = 'no server response'
+        setError(errorMessage)
+      }finally{
+        setLoading(false)
       }
     }
-    currentConversation && fetchMessages()
+    fetchMessages()
 
-    return () => isMounted = false
-
-  }, [currentConversation?._id])
-
-  useEffect(() => {
-    let isMounted = true
-    isMounted && setMessages(prev => [...prev, allMessages])
-    return () => isMounted = false
-  }, [count])
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
+  }, [chatId, num])
+  
+  const content = (
+            <>
+              {
+                messages.map((message, index) =>
+                  <div 
+                    className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
+                    key={index}>
+                    <p>{message?.text}</p>
+                    <span>{message?.dateTime}</span>
+                  </div>
+                )
+              }
+            </>
+          )
 
   return (
-    <ChatBodyComponent user={false}>
-      {loading && <p>loading messages...</p>}
-      {!loading && errorMessage && <p>{errorMessage}</p>}
-      {messages?.length >= 1 ? (
-          messages.map(message =>
-            <div key={message?._id}>
-              <p>{message?.text}</p>
-              <span>{message?.createdAt}</span>
-            </div>
-          )
-        ) : <p>Start a conversation</p>
-      }
+    <ChatBodyComponent ref={messageRef}>
+      {/* {loading && <p>in progress...</p>}
+      {!loading && error && <p className='start'>{error}</p>} */}
+      {
+        messages?.length ? content 
+          :
+            <p className='start'>Start a conversation</p> }
     </ChatBodyComponent>
 
   )
@@ -69,19 +72,40 @@ export const ChatBody = () => {
 
 const ChatBodyComponent = styled.div`
 width: 100%;
+height: 100%;
 display: flex;
 flex-direction: column;
 gap: 1rem;
 padding: 0.5rem 0.7rem;
-align-items: ${props => props.user ? 'flex-start' : 'flex-end'};
+overflow-y: scroll;
+overflow-x: hidden;
+
+.start{
+  margin: auto;
+  font-family: cursive;
+  word-spacing: 5px;
+  letter-spacing: 5px;
+  color: gray;
+  text-align: center;
+}
+
+  .owner{
+    background-color: red;
+    align-self: flex-end;
+  }
+
+  .friend{
+    background-color: gray;
+    align-self: flex-start;
+  }
 
   div{
     display: flex;
     flex-direction: column;
     max-width: 70%;
+    min-width: 40%;
     border-radius: 10px;
     padding: 0.3rem 0.5rem;
-    background-color: ${props => props.user === 1 ? 'green' : 'rgba(255,255,255,0.09)'};
 
     p{
       white-space: wrap;
@@ -92,5 +116,17 @@ align-items: ${props => props.user ? 'flex-start' : 'flex-end'};
       color: lightgray;
       text-align: right;
     }
+  }
+
+  &::-webkit-scrollbar{
+    width: 1px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: lightgray;
   }
 `

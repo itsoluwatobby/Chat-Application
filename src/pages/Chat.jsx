@@ -8,7 +8,7 @@ import { useChatContext } from '../hooks/useChatContext';
 
 
 export const Chat = () => {
-  const {click, setClick} = useChatContext()
+  const {click} = useChatContext()
    
   return (
     <ChatApp>
