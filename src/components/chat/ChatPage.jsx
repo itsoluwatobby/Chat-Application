@@ -12,10 +12,9 @@ import { axiosAuth } from '../../app/axiosAuth';
 let socket;
 
 export const ChatPage = () => {
-  const {chatId, setMessages, setClick, result, setMessage, message, currentUser, setResponse} = useChatContext()
+  const {chatId, setMessages,messages, setClick, result, setMessage, message, currentUser, setResponse} = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
-  const [received, setReceived] = useState({});
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -46,25 +45,21 @@ export const ChatPage = () => {
 
   //receive message
   useEffect(() => {
-    let isMounted = true
-    const newMessage = async() => {
       socket.on('newMessage', (data) => { 
-        setMessages(prev => [...prev, data])
-        //setReceived(data)
+        setMessages(data)
+        //setMessages(prev => [...prev, data])
       })
-    }
-    newMessage()
-    return () => isMounted = false
-  }, [socket])
+  }, [])
 
+  
   const sendMessage = async() => {
     const newMessage = { 
       conversationId: chatId?.convoId,
       senderId: currentUserId, username: currentUser?.username, 
       text: message, dateTime: format(new Date(), 'p')
     }
-    await socket.emit('create-message', newMessage)
-    //setMessages(prev => [...prev, newMessage])
+    await socket.emit('create-message', [...messages, newMessage])
+    //[...messages, newMessage]
     await createMessage(newMessage)
     setMessage('')
   }

@@ -59,14 +59,12 @@ export const ChatBody = ({socket}) => {
 
   return (
     <ChatBodyComponent ref={messageRef}>
-      {/* {loading && <p>in progress...</p>}
-      {!loading && error && <p className='start'>{error}</p>} */}
+      {/*{!loading && error && <p className='start'>{error}</p>} */}
       {
         messages?.length ? content 
           :
-            <p className='start'>Start a conversation</p> }
+            <p className='start'>{loading ? 'loading messages...' : 'Start a conversation'}</p> }
     </ChatBodyComponent>
-
   )
 }
 
@@ -92,11 +90,26 @@ overflow-x: hidden;
   .owner{
     background-color: red;
     align-self: flex-end;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.2);
+
+    span{
+      font-size: 13px;
+      color: lightgray;
+      text-align: right;
+    }
   }
 
   .friend{
     background-color: gray;
     align-self: flex-start;
+    text-align: right;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
+
+    span{
+      font-size: 13px;
+      color: lightgray;
+      text-align: left;
+    }
   }
 
   div{
@@ -109,12 +122,6 @@ overflow-x: hidden;
 
     p{
       white-space: wrap;
-    }
-
-    span{
-      font-size: 13px;
-      color: lightgray;
-      text-align: right;
     }
   }
 

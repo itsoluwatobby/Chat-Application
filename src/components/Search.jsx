@@ -6,6 +6,7 @@ import {RiWhatsappFill} from 'react-icons/ri'
 import { Link, useNavigate } from 'react-router-dom'
 import { useChatContext } from '../hooks/useChatContext';
 import { axiosAuth } from '../app/axiosAuth';
+import { useEffect, useState } from 'react';
 
 export const Search = () => {
   const {setChatId, setMessageBody, currentUser, setClick, setConversation} = useChatContext()

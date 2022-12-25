@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useChatContext } from '../../hooks/useChatContext'
 import { SearchCon } from './SearchCon'
 import { Users } from './Users';
-import { useGetOthers } from '../../hooks/useGetOthers,'
+import { useGetOthers } from '../../hooks/useGetOthers'
 import { axiosAuth } from '../../app/axiosAuth';
 
 export const AddNewConversation = () => {
-  const {searchUsers, refresh, setConversation} = useChatContext()
+  const {searchUsers, refresh, setConversation, conversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [result] = useGetOthers(currentUserId)
   const [loading, setLoading] = useState(false)
@@ -31,8 +31,8 @@ export const AddNewConversation = () => {
     }
   }
 
-  const filteredSearch = Array.isArray(result) && result.filter(user => (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
-
+  const filteredSearch = Array.isArray(result) && result.filter((user, i) => !conversation[i]?.conversationId.includes(user?.conversationId[i]) && (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
+  
   return (
     <NewConversation>
       <SearchCon />
@@ -56,11 +56,10 @@ const NewConversation = styled.div`
   top: 4rem;
   transform: translate(90%);
   width: 18.5em;
-  height: 25em;
   background-color: rgba(15,25,20);
   border-radius: 10px;
   overflow-y: scroll;
-  padding: 0 0 0.3rem 0;
+  padding: 0.2rem 0 0.3rem 0;
 
     .error{
       text-align: center;

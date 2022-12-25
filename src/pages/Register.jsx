@@ -27,29 +27,13 @@ export const Register = () => {
     }
   }, [image])
 
-  const uploadImage = async () => {
-    const data = new FormData()
-    data.append('file', image)
-    data.append('upload_preset', 'dwb3ksib')
-    try{
-      setLoading(true)
-      const response = await axios.post('https://api.cloudinary.com/v1_1/dr8necpxh/image/upload', data)
-      const url = response.data?.url
-      return url
-    }catch(error){
-      !error.response && setError('No server response')
-    }finally{
-      setLoading(false)
-    }
-  }
-
   const handleRegister = async(e) => {
     setError('')
     e.preventDefault()
     if(!canSubmit) return
     setLoading(true)
     try{
-      const profilePicture = await uploadImage()
+      const profilePicture = ''
       await axiosAuth.post('/register', {
         username, password, email, profilePicture
       })

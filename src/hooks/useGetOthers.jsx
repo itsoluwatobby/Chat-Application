@@ -16,7 +16,7 @@ export const useGetOthers = (loggedInUser) => {
         const res = await axiosAuth.get('/', {
           signal: controller.signal
         })
-        setUsers(res?.data)
+        isMounted && setUsers(res?.data)
         refresh()
       }catch(error) {
         let errorMessage;

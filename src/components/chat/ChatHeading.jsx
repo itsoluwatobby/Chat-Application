@@ -11,7 +11,7 @@ import { useChatContext } from '../../hooks/useChatContext';
 
 export const ChatHeading = ({user}) => {
   const [width, setWidth] = useState(undefined)
-  const {setChatId, formatDate} = useChatContext()
+  const {setChatId, formatDate, setMessages} = useChatContext()
 
 
   useEffect(() => {
@@ -24,6 +24,11 @@ export const ChatHeading = ({user}) => {
     }
 
   }, [width])
+
+  const closeChat = () => {
+    setChatId({})
+    setMessages([])
+  }
   
   return (
     <Heading>
@@ -49,7 +54,7 @@ export const ChatHeading = ({user}) => {
         <AiOutlineLine className='line'/>
         <CiSearch className='icon'/>
         <FaTimesCircle 
-          onClick={() => setChatId({})}
+          onClick={closeChat}
           title='Exit Chat' className='icon'/>
       </div>
     </Heading>
