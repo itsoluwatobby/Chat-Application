@@ -31,10 +31,8 @@ export const ChatPage = () => {
   }, [chatId])
 
   const createMessage = async(initialState) => {
-    console.log({initialState})
     try{
-      const messages = await axiosAuth.post('/createMessage', initialState)
-      return messages.data
+      await axiosAuth.post('/createMessage', initialState)
     }catch(error) {
       let errorMessage;
       error.response.status === 500 ? errorMessage = 'internal error' : 

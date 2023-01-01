@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { axiosAuth } from '../../app/axiosAuth'
 import { useChatContext } from '../../hooks/useChatContext'
@@ -8,11 +8,9 @@ export const ChatBody = ({socket}) => {
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
-  const messageRef = useRef();
-
-  useEffect(() => {
-    messageRef?.current?.scrollIntoView({ behaviour: 'smooth' })
-  }, [socket])
+  const messageRef = useCallback(node => {
+    node && node.scrollIntoView({ smooth: true })
+  }, []);
 
   useEffect(() => {
     let isMounted = true
@@ -42,6 +40,8 @@ export const ChatBody = ({socket}) => {
     }
   }, [chatId, num])
   
+  //console lastMessage => messages.
+
   const content = (
             <>
               {

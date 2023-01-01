@@ -5,17 +5,19 @@ import { ChatPage } from '../components/chat/ChatPage';
 import { Left } from '../components/Left';
 import { Main } from '../components/Main';
 import { useChatContext } from '../hooks/useChatContext';
-
+import { useGetOthers } from '../hooks/useGetOthers';
 
 export const Chat = () => {
-  const {click, open} = useChatContext()
-   
+  const {click, open} = useChatContext();
+  const currentUserId = localStorage.getItem('userId');
+  const [result] = useGetOthers(currentUserId)
+     
   return (
     <ChatApp>
       <Left />
       <Main />
       <ChatPage />
-      {click && <AddNewConversation /> || open && <GroupConvo /> }
+      {click && <AddNewConversation result={result}/> || open && <GroupConvo result={result}/> }
     </ChatApp>
   )
 }

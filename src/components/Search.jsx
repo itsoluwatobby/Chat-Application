@@ -9,7 +9,7 @@ import { axiosAuth } from '../app/axiosAuth';
 import { useEffect, useState } from 'react';
 
 export const Search = () => {
-  const {setChatId, setMessageBody, setCurrentUser, currentUser, setOpen, setClick, setConversation} = useChatContext()
+  const {setChatId, setMessageBody, onSearchChange, search, setCurrentUser, currentUser, setOpen, setClick, setConversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()
 
@@ -45,7 +45,7 @@ export const Search = () => {
         setOpen(false)  
       }} className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
-        <Link to='/'><p>{currentUser?.username || 'Itsoluwatobby'}</p></Link>
+        <Link to='/'><p className='logged_user'>{currentUser?.username || 'Itsoluwatobby'}</p></Link>
         <button onClick={handleLogout} className='logout'>Logout</button>
       </div>
       <div className='topbar'>
@@ -68,6 +68,8 @@ export const Search = () => {
         <input 
           type="text" 
           placeholder='Search or start a new chat'
+          value={search}
+          onChange={onSearchChange}
         />
         <CiSearch className='field'/>
       </div>
@@ -104,6 +106,10 @@ z-index: 50;
     position: relative;
     top: 0;
     z-index: 50;
+
+    .logged_user{
+      text-transform: uppercase;
+    }
 
     .logout{
       position: absolute;

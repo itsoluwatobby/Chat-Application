@@ -6,12 +6,15 @@ import { useChatContext } from '../hooks/useChatContext'
 
 export const Left = () => {
   const {currentUser} = useChatContext()
+  const isOnline = currentUser?.status === 'online' ? true : undefined 
  
   return (
     <LeftSection>
       <div className='top'>
         <BsChatText title='Chats' className='chat'/>
-        <HiOutlineStatusOnline title='Status' className='status'/>
+        <span className={isOnline && 'status'}>
+          <HiOutlineStatusOnline title='Status' className='status'/>
+        </span>
       </div>
       <div className='base'>
         <FiSettings title='Settings' className='settings'/>
@@ -49,14 +52,32 @@ align-items: center;
       }
     }
 
-    .status{
-      font-size: 40px;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 5px;
+    span{
+      position: relative;
 
-      &:hover{
-        background-color: rgba(255,255,255,0.1);
+      .status{
+        font-size: 40px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 5px;
+  
+        &:hover{
+          background-color: rgba(255,255,255,0.1);
+        }
+      }
+    }
+
+    .status{
+
+      &:after{
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 100%;
+        background-color: #4CBB17;
+        position: absolute;
+        right: 0.5rem;
+        top: 0.6rem;
       }
     }
   }

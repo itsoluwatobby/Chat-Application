@@ -3,13 +3,11 @@ import styled from 'styled-components'
 import { useChatContext } from '../../hooks/useChatContext'
 import { SearchCon } from './SearchCon'
 import { Users } from './Users';
-import { useGetOthers } from '../../hooks/useGetOthers'
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const AddNewConversation = () => {
+export const AddNewConversation = ({ result }) => {
   const {searchUsers, refresh, setConversation, conversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId')
-  const [result] = useGetOthers(currentUserId)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
     

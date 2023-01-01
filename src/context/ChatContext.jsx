@@ -21,14 +21,38 @@ export const ChatContextProvider = ({children}) => {
   const [open, setOpen] = useState(false);
   const [proceed, setProceed] = useState(false);
   const [isNext, setIsNext] = useState(false);
+  const [search, setSearch] = useState('');
+  const [newGroup, setNewGroup] = useState([]);
   const currentUserId = localStorage.getItem('userId');
 
   const refresh = () => setNum(prev => prev + 1)
+  const onSearchChange = e => setSearch(e.target.value);
 
   const formatDate = (date) => {
     const dateTime = parseISO(date)
     return formatDistanceToNow(dateTime) + ' ago'
   }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const getUser = async() => {
+      try{
+        const res = await axiosAuth.get(`/${currentUserId}`, {
+          signal: controller.signal
+        })
+        setCurrentUser(res?.data)
+      }catch(error){
+        let errorMessage;
+        error?.response?.status === 400 ? errorMessage = 'userId required' :
+        error?.response?.status === 404 ? errorMessage = 'user not found' :
+        error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+      }
+    }
+    currentUserId && getUser()
+
+    return () => controller.abort()
+  }, [conversation])
+
   
   useEffect(() => {
     let isMounted = true
@@ -49,7 +73,7 @@ export const ChatContextProvider = ({children}) => {
         setErrors(errorMessage)
       }
     }
-    fetchUsers()
+    currentUserId && fetchUsers();
 
     return () => {
       controller.abort()
@@ -71,7 +95,7 @@ export const ChatContextProvider = ({children}) => {
   // }
   
   const value = {
-    chatId, setChatId, message, setMessage, messages, loggedIn, setLoggedIn, setMessages, messageBody, setMessageBody, click, setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, formatDate, currentUser, setCurrentUser, refresh, num, conversation, setConversation, result, open, setOpen, proceed, setProceed, isNext, setIsNext
+    chatId, setChatId, message, setMessage, messages, loggedIn, setLoggedIn, setMessages, messageBody, setMessageBody, click, setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, formatDate, currentUser, setCurrentUser, refresh, num, conversation, setConversation, result, open, setOpen, proceed, setProceed, isNext, setIsNext, onSearchChange, search, newGroup, setNewGroup
   }
 
   return (

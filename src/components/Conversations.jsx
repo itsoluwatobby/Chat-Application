@@ -7,8 +7,10 @@ import { useChatContext } from '../hooks/useChatContext';
 import { axiosAuth } from '../app/axiosAuth';
 import { BiRefresh } from 'react-icons/bi';
 
-export const Conversations = ({user}) => {
-  const {setClick, setOpen, setChatId, conversation, refresh, setConversation, formatDate} = useChatContext()
+export const Conversations = ({ user, groupConvo }) => {
+  const {
+    setClick, setOpen, setChatId, conversation, refresh, setConversation, formatDate, chatId
+  } = useChatContext()
   const [reveal, setReveal] = useState(false);
   const currentUserId = localStorage.getItem('userId')
   const [error, setError] = useState(null)
@@ -31,7 +33,8 @@ export const Conversations = ({user}) => {
   }
   
   return (
-    <Conversation onClick={() => {
+    <Conversation
+    onClick={() => {
       setError('')
       setClick(false)
       setOpen(false)

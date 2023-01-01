@@ -1,20 +1,44 @@
 import {CiSearch} from 'react-icons/ci';
 import {FaArrowLeft} from 'react-icons/fa';
 import {TiGroupOutline} from 'react-icons/ti';
+import {BsPersonCircle} from 'react-icons/bs';
 import styled from 'styled-components';
 import { useChatContext } from '../../hooks/useChatContext';
+import { useEffect, useState } from 'react';
 
 export const SearchCon = ({ groupConvo }) => {
-  const {searchUsers, setSearchUsers, setOpen, setClick, proceed, setProceed, isNext, setIsNext} = useChatContext()
+  const {searchUsers, setSearchUsers, setOpen, setClick, proceed, setProceed, isNext, setIsNext, newGroup} = useChatContext()
+  const [groupUser, setGroupUser] = useState([]);
+
+  useEffect(() => {
+    setGroupUser(newGroup)
+    return () => setGroupUser([])
+  }, [newGroup.length])
+
+  let selectedContact = (
+    <div className='selected_container'>
+      {groupUser.length ? 
+        groupUser.map(group => (
+          <div key={group} className='selected_contact'>
+            <BsPersonCircle className='contact'/>
+            <p>{group}</p>
+          </div>
+        )) : ''
+      }
+    </div>
+  )
   
   let newConvo = (
     <>
-      <div className='new-chat'>
+      <div className={`new-chat ${!groupConvo && 'chat'}`}>
         {
           groupConvo && 
             <div onClick={() => {
               setOpen(false)
               setClick(true)
+              setIsNext(false)
+              setProceed(false)
+              setGroupUser([])
             }}>
               <FaArrowLeft className='arrow'/>
             </div>
@@ -22,13 +46,19 @@ export const SearchCon = ({ groupConvo }) => {
         New {groupConvo ? 'Group' : 'Chat'}
       </div>
       <div className='search'>
-        <input 
-          type="text" 
-          placeholder='Search'
-          value={searchUsers}
-          onChange={e => setSearchUsers(e.target.value)}
-        />
-        <CiSearch className='field'/>
+        {!newGroup.length ?
+          <>
+            <input 
+              type="text" 
+              placeholder='Search'
+              value={searchUsers}
+              onChange={e => setSearchUsers(e.target.value)}
+            />
+            <CiSearch className='field'/>
+          </> 
+          :
+          selectedContact
+        }
       </div>
       {!groupConvo ?
        (
@@ -75,6 +105,10 @@ position: sticky;
 top: 0;
 background-color: #363636;
 
+  .chat{
+    margin-left: 0.5rem;
+  }
+
   .new-chat{
     padding: 0.6rem 0.5rem;
     font-size: 18px;
@@ -105,12 +139,37 @@ background-color: #363636;
     align-items: center;
     width: 88%;
     margin: auto;
-    height: 30px;
     background-color: #48494B;
-    padding: 0 0.4rem;
+    padding: 0.1rem 0.4rem;
     color: white;
     border-radius: 5px;
     box-shadow: 0 2px 0 #28a99e;
+
+    .selected_container{
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.1rem;
+      width: 100%;
+
+      .selected_contact{
+        display: flex;
+        align-items: center;
+        background-color: #26a69a;
+        color: white;
+        padding: 0.1rem;
+        border-radius: 5px;
+        opacity: 0.98;
+
+        .contact{
+          color: rgba(0,0,0,0.45);
+        }
+
+        p{
+          margin-left: -1rem;
+        }
+      }
+    }
     
     input{
       border: none;

@@ -6,7 +6,7 @@ import { axiosAuth } from '../app/axiosAuth'
 
 export const Login = () => {
   const [email, setEmail] = useState('')
-  const {setLoggedIn, setCurrentUser} = useChatContext()
+  const {setLoggedIn} = useChatContext()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState('')
@@ -27,7 +27,7 @@ export const Login = () => {
     try{
       const res = await axiosAuth.post('/login', {password, email})
       setLoggedIn(true)
-      setCurrentUser(res?.data)
+      //setCurrentUser(res?.data)
       localStorage.setItem('isLoggedIn', true)
       localStorage.setItem('userId', res?.data._id)
       setPassword('')

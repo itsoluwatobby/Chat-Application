@@ -22,17 +22,19 @@
 
 * [x] user login page
 
-* [x] creation of conversation between users
+* [x] creating of conversation between two users
+
+* [x] creating of group conversation between users
 
 * [x] conversation deletion
 
 * [x] Last seen
 
-  &#x2612; User profile page
+* [] User profile page
 
-  &#x2612; Creating rooms
+* [] Creating rooms _presently on it_
 
-  &#x2612; User status update
+* [] User status update
 
 ***
 *image preview*

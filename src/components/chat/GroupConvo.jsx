@@ -2,19 +2,16 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { axiosAuth } from '../../app/axiosAuth';
 import { useChatContext } from '../../hooks/useChatContext';
-import { useGetOthers } from '../../hooks/useGetOthers';
 import { SearchCon } from './SearchCon';
 import { Users } from './Users';
 import {TbCameraPlus} from 'react-icons/tb';
 import { BsEmojiSmile } from 'react-icons/bs';
 
-export const GroupConvo = () => {
-  const {setOpen, setClick, isNext, proceed, setProceed, conversation, searchUsers, setConversation, refresh} = useChatContext();
+export const GroupConvo = ({ result }) => {
+  const {setOpen, setClick, isNext, proceed, setProceed, conversation, searchUsers, newGroup, setNewGroup, setConversation, refresh} = useChatContext();
   const currentUserId = localStorage.getItem('userId');
-  const [result] = useGetOthers(currentUserId);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [newGroup, setNewGroup] = useState([]);
   const [image, setImage] = useState('')
   const [groupName, setGroupName] = useState('')
 
