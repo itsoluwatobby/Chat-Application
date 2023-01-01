@@ -9,23 +9,26 @@ export const Register = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [image, setImage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
-
+  
   const canSubmit = [username, email, password].every(Boolean)
   const onUsernameChange = e => setUsername(e.target.value)
   const onPasswordChange = e => setPassword(e.target.value)
   const onEmailChange = e => setEmail(e.target.value)
-  const onImageChange = e => setImage(e.target.files[0])
+  
+  //const [image, setImage] = useState('')
+  //const onImageChange = e => setImage(e.target.files[0])
+  // useEffect(() => {
+  //   if(!image) return
+  //   if(image?.size > 1448576){
+  //     setImage('')
+  //     return alert('Max allowed size is 1.4mb')
+  //   }
+  // }, [image])
 
-  useEffect(() => {
-    if(image?.size > 1048576){
-      setImage('')
-      return alert('Max file size 1.3mb')
-    }
-  }, [image])
+
 
   const handleRegister = async(e) => {
     setError('')
@@ -33,9 +36,8 @@ export const Register = () => {
     if(!canSubmit) return
     setLoading(true)
     try{
-      const profilePicture = ''
       await axiosAuth.post('/register', {
-        username, password, email, profilePicture
+        username, password, email
       })
       setPassword('')
       setUsername('')
@@ -60,9 +62,8 @@ export const Register = () => {
           <h2>Sign Up</h2>
           {loading && <p className='loading'>In progress...</p>}
           {error && <p className='error'>{error}</p>}
-          {image ? <img src={URL.createObjectURL(image)} alt={image.originalFilename} 
-            className='profile-picture'/> : <CgProfile className='pics'/>}
-            {loading && <p className='upload'>uploading image...</p>}
+          {/* {image ? <img src={URL.createObjectURL(image)} alt={image.originalFilename} 
+            className='profile-picture'/> : <CgProfile className='pics'/>} */}
           <div className='form-input'>
             <label htmlFor="username">Username:</label>
             <input 
@@ -93,20 +94,20 @@ export const Register = () => {
               onChange={onPasswordChange}
               placeholder='12doe77john'/>
           </div>
-          <div className='image'>
+          {/* <div className='image'>
             <input 
               type="file" 
               id='image'
               onFocus={() => setError('')}
               onChange={onImageChange}
-              accept= 'image/png'
+              accept= 'image/*'
               hidden
             />
             <label htmlFor="image">
               <BsImageFill className='input'/>
               <p>{image ? 'File uploaded' : 'choose a file'}</p>
             </label>
-          </div>
+          </div> */}
           <button>Sign Up</button>
         <p>Already have an account? <Link to='/login'>Login in</Link></p>
         </form>

@@ -1,25 +1,44 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import {CgProfile} from 'react-icons/cg';
 import { useChatContext } from '../../hooks/useChatContext';
 import {format} from 'date-fns';
 
-export const Users = ({user, loading, error}) => {
-  const {formatDate} = useChatContext();
+export const Users = ({ user, loading, error, groupConvo, newGroup, setNewGroup }) => {
+  const {formatDate, proceed, setProceed, setIsNext} = useChatContext();
+  const [isChecked, setIsChecked] = useState(true)
+  
+  const handleChangeChecked = async() => {
+    setIsChecked(!isChecked)
+    isChecked ? setNewGroup([...newGroup, user._id]) : newGroup.pop(user._id)
+  }
+  
+  useEffect(() => {
+    (newGroup && newGroup.length) ? setIsNext(true) : setIsNext(false)
+  }, [isChecked])
 
-    const content = (
+    const userContent = (
       <>
         {user ?
           <>
-            {user?.profilePicture ? <img src={user?.profilePicture} alt={user.username} 
+            {user?.profilePicture ? <img src={user.profilePicture} alt={user.username} 
               className='profile-picture'/> : <CgProfile className='pics'/>}
               <div className='detail'>
                 {loading && <p>creating conversation...</p>}
                 {!loading && error && <p className='errors'>{error}</p>}
-                <p className='top'>
-                  <span>{user?.username}</span>
-                  <span className='date'>{user?.lastSeen ? formatDate(user?.lastSeen) : format(new Date, 'p')}</span>
-                </p>
+                <div className='top'>
+                  <p>{user?.username}</p>
+                  <p className='date'>
+                    {groupConvo &&
+                      <input 
+                        type="checkbox" 
+                        checked={!isChecked} 
+                        onChange={handleChangeChecked}
+                    />
+                    }
+                    {!groupConvo && <span>{user?.lastSeen ? formatDate(user?.lastSeen) : format(new Date, 'p')}</span>}
+                  </p>
+                </div>
                 <p className='base'>{user?.about.slice(0, 15)}...</p>
               </div>
           </> 
@@ -31,7 +50,7 @@ export const Users = ({user, loading, error}) => {
   
   return (
     <UserComponent>
-      {content}
+      {!proceed && userContent}
     </UserComponent>
   )
 }
@@ -45,7 +64,7 @@ margin: 0 0.5rem;
 border-radius: 5px;
 z-index: 1;
 cursor: pointer;
-border-bottom : 1px solid gray;
+//border-bottom : 1px solid gray;
 
   .pics{
     font-size: 2.5rem;
@@ -53,9 +72,9 @@ border-bottom : 1px solid gray;
   }
 
   .profile-picture{
-    width: 3rem;
+    width: 2.5rem;
     flex-grow: none;
-    height: 3rem;
+    height: 2.5rem;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid white;
@@ -79,6 +98,24 @@ border-bottom : 1px solid gray;
       .date{
         color: gray;
         font-size: 15px;
+        display: flex;
+        flex-direction: column;
+        transform: translatey(50%);
+      }
+
+      p{
+
+        input{
+          width: 15px;
+          height: 15px;
+          box-shadow: 2px 4px 16px rgba(0,0,0,0.1);
+          background-color: #333333;
+          cursor: pointer;
+
+          &:checked{
+            background-color: green;
+          }
+        }
       }
     }
 
@@ -88,6 +125,7 @@ border-bottom : 1px solid gray;
   }
 
   &:hover{
-    background-color: #333;
+    background-color: rgba(200,200,200,0.1);
   }
+
 `

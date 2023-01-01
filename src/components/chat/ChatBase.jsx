@@ -4,11 +4,23 @@ import {BsEmojiSmile} from 'react-icons/bs'
 import {HiOutlineMicrophone} from 'react-icons/hi'
 import styled from 'styled-components'
 import { useChatContext } from '../../hooks/useChatContext'
+import { useEffect, useRef, useState } from 'react'
 
-export const ChatBase = ({sendMessage}) => {
-  const {message, setMessage} = useChatContext()
+export const ChatBase = ({ sendMessage, socket }) => {
+  const {message, setMessage, chatId} = useChatContext();
+  const inputRef = useRef();
   
   const onMessageChange = e => setMessage(e.target.value)
+
+  //typing event
+  // useEffect(() => {
+  //   const eventLis = () => socket.emit('typing', {user: chatId?.userId, message:'typing...'})
+  //   inputRef.current.addEventListener('keydown', eventLis)
+  //   if(!message){
+  //     //inputRef.current.removeEventListener('keyup', eventLis)
+  //     socket.emit('no-typing', { user: chatId?.userId })
+  //   }
+  // }, [message])
 
   return (
     <ChatBaseComponent>
@@ -16,6 +28,7 @@ export const ChatBase = ({sendMessage}) => {
       <IoIosAttach className='icon'/>
       <input 
         type="text" 
+        ref={inputRef}
         placeholder='say your hello...'
         value={message}
         onChange={onMessageChange}

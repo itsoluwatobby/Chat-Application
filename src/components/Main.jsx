@@ -17,7 +17,7 @@ export const Main = () => {
       setLoading(true)
       try{
         const res = await axiosAuth.get(`/usersInConversation/${currentUserId}`)
-        setConversation(res?.data)
+        setConversation([...res?.data])
       }catch(error){
         let errorMessage;
         error?.response?.status === 400 ? errorMessage = 'userId required' :

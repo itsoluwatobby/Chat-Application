@@ -47,6 +47,7 @@ export const ChatBody = ({socket}) => {
               {
                 messages.map((message, index) =>
                   <div 
+                  ref={messageRef}
                     className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
                     key={index}>
                     <p>{message?.text}</p>
@@ -58,7 +59,7 @@ export const ChatBody = ({socket}) => {
           )
 
   return (
-    <ChatBodyComponent ref={messageRef}>
+    <ChatBodyComponent>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
       {
         messages?.length ? content 
@@ -100,7 +101,7 @@ overflow-x: hidden;
   }
 
   .friend{
-    background-color: gray;
+    background-color: rgba(0,0,0,0.3);
     align-self: flex-start;
     text-align: right;
     box-shadow: 2px 4px 16px rgba(0,0,0,0.25);

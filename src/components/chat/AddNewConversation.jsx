@@ -18,6 +18,7 @@ export const AddNewConversation = () => {
     try{
       const res = await axiosAuth.post(`/conversation/create`, initialState)
       setConversation(prev => [...prev, res.data])
+      console.log('res: ',res.data)
       refresh()
     }catch(error) {
       let errorMessage;
@@ -30,8 +31,8 @@ export const AddNewConversation = () => {
       setLoading(false)
     }
   }
-
-  const filteredSearch = Array.isArray(result) && result.filter((user, i) => !conversation[i]?.conversationId.includes(user?.conversationId[i]) && (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
+//!conversation[i]?.conversationId.includes(user?.conversationId[i]) && 
+  const filteredSearch = result && Array.isArray(result) && result.filter((user, i) => (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
   
   return (
     <NewConversation>
@@ -41,7 +42,9 @@ export const AddNewConversation = () => {
         <p className='error'>{result}</p>
         :
         filteredSearch.map(user => (
-          <div onClick={() => createConvo(user?._id)} key={user._id}>
+          <div onClick={() => {
+            createConvo(user?._id)
+          }} key={user._id}>
             <Users user={user} loading={loading} error={error}/>
           </div>
           ))
@@ -55,11 +58,12 @@ const NewConversation = styled.div`
   z-index: 60;
   top: 4rem;
   transform: translate(90%);
-  width: 18.5em;
-  background-color: rgba(15,25,20);
+  width: 17.5em;
+  background-color: #363636;
   border-radius: 10px;
   overflow-y: scroll;
-  padding: 0.2rem 0 0.3rem 0;
+  padding: 0.1rem 0 0.1rem 0;
+  box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
 
     .error{
       text-align: center;

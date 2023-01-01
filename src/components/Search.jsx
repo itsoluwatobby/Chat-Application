@@ -9,7 +9,7 @@ import { axiosAuth } from '../app/axiosAuth';
 import { useEffect, useState } from 'react';
 
 export const Search = () => {
-  const {setChatId, setMessageBody, currentUser, setClick, setConversation} = useChatContext()
+  const {setChatId, setMessageBody, setCurrentUser, currentUser, setOpen, setClick, setConversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()
 
@@ -18,6 +18,7 @@ export const Search = () => {
       await axiosAuth.get(`/logout/${currentUserId}`)
       setChatId({})
       setMessageBody({})
+      setCurrentUser({})
       setConversation([])
       localStorage.setItem('isLoggedIn', false)
       localStorage.removeItem('userId')
@@ -26,6 +27,7 @@ export const Search = () => {
       setChatId({})
       setConversation([])
       setMessageBody({})
+      setCurrentUser({})
       localStorage.setItem('isLoggedIn', false)
       localStorage.removeItem('userId')
       navigate('/')
@@ -38,19 +40,31 @@ export const Search = () => {
 
   let searchContent = (
     <>
-      <div onClick={() => setClick(false)} className='logo'>
+      <div onClick={() => {
+        setClick(false)
+        setOpen(false)  
+      }} className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
         <Link to='/'><p>{currentUser?.username || 'Itsoluwatobby'}</p></Link>
         <button onClick={handleLogout} className='logout'>Logout</button>
       </div>
       <div className='topbar'>
-        <p onClick={() => setClick(false)}>Chats</p>
+        <p onClick={() => {
+          setClick(false)
+          setOpen(false)
+        }}>Chats</p>
         <div>
-          <FiEdit onClick={() => setClick(true)} className='edit'/>
+          <FiEdit onClick={() => {
+             setClick(true)
+              setOpen(false)
+            }} className='edit'/>
           <MdMoreHoriz className='more'/>
         </div>
       </div>
-      <div onClick={() => setClick(false)} className='search'>
+      <div onClick={() => {
+        setClick(false)
+        setOpen(false)
+        }} className='search'>
         <input 
           type="text" 
           placeholder='Search or start a new chat'

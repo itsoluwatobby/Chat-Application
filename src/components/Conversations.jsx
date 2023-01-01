@@ -8,7 +8,7 @@ import { axiosAuth } from '../app/axiosAuth';
 import { BiRefresh } from 'react-icons/bi';
 
 export const Conversations = ({user}) => {
-  const {setClick, setChatId, conversation, refresh, setConversation, formatDate} = useChatContext()
+  const {setClick, setOpen, setChatId, conversation, refresh, setConversation, formatDate} = useChatContext()
   const [reveal, setReveal] = useState(false);
   const currentUserId = localStorage.getItem('userId')
   const [error, setError] = useState(null)
@@ -31,7 +31,11 @@ export const Conversations = ({user}) => {
   }
   
   return (
-    <Conversation onClick={() => setError('')}>
+    <Conversation onClick={() => {
+      setError('')
+      setClick(false)
+      setOpen(false)
+    }}>
       {
         user?.profilePicture ? <img src={user?.profilePicture} alt={user.username} 
         className='profile-picture'/> : <CgProfile className='pics'/>
@@ -104,9 +108,9 @@ button{
   }
 
   .profile-picture{
-    width: 3.2rem;
+    width: 2.9rem;
     flex-grow: none;
-    height: 3.2rem;
+    height: 2.9rem;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid white;

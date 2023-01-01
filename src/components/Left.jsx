@@ -2,8 +2,11 @@ import {BsChatText} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
 import {HiOutlineStatusOnline} from 'react-icons/hi'
 import styled from 'styled-components'
+import { useChatContext } from '../hooks/useChatContext'
 
 export const Left = () => {
+  const {currentUser} = useChatContext()
+ 
   return (
     <LeftSection>
       <div className='top'>
@@ -13,7 +16,7 @@ export const Left = () => {
       <div className='base'>
         <FiSettings title='Settings' className='settings'/>
         <div title='Profile' className='image'>
-          <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60" alt="" />
+          <img src={currentUser?.profilePicture} alt="" />
         </div>
       </div>
     </LeftSection>
