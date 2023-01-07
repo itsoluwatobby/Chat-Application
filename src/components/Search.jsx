@@ -9,7 +9,7 @@ import { axiosAuth } from '../app/axiosAuth';
 import { useEffect, useState } from 'react';
 
 export const Search = () => {
-  const {setChatId, setMessageBody, onSearchChange, search, setCurrentUser, currentUser, setOpen, setClick, setConversation} = useChatContext()
+  const {setChatId, setMessageBody, setIsChatOpened, onSearchChange, search, setCurrentUser, currentUser, setOpen, setClick, setConversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()
 
@@ -19,6 +19,7 @@ export const Search = () => {
       setChatId({})
       setMessageBody({})
       setCurrentUser({})
+      setIsChatOpened(false)
       setConversation([])
       localStorage.setItem('isLoggedIn', false)
       localStorage.removeItem('userId')
@@ -28,6 +29,7 @@ export const Search = () => {
       setConversation([])
       setMessageBody({})
       setCurrentUser({})
+      setIsChatOpened(false)
       localStorage.setItem('isLoggedIn', false)
       localStorage.removeItem('userId')
       navigate('/')

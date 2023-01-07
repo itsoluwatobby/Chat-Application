@@ -7,17 +7,22 @@ import { useChatContext } from '../../hooks/useChatContext';
 import { useEffect, useState } from 'react';
 
 export const SearchCon = ({ groupConvo }) => {
-  const {searchUsers, setSearchUsers, setOpen, setClick, proceed, setProceed, isNext, setIsNext, newGroup} = useChatContext()
+  const {searchUsers, setSearchUsers, setOpen, setClick, proceed, setProceed, isNext, setIsNext, newGroup, open} = useChatContext()
   const [groupUser, setGroupUser] = useState([]);
-
+  // const [openGroup, setOpenGroup] = useState(true)
+  // console.log({openGroup})
+  // useEffect(() => {
+  //   setOpenGroup(false)
+  // }, [open])
+  
   useEffect(() => {
     setGroupUser(newGroup)
     return () => setGroupUser([])
-  }, [newGroup.length])
+  }, [newGroup])
 
   let selectedContact = (
     <div className='selected_container'>
-      {groupUser.length ? 
+      {newGroup.length ? 
         groupUser.map(group => (
           <div key={group} className='selected_contact'>
             <BsPersonCircle className='contact'/>

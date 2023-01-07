@@ -1,17 +1,17 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useEffect, useRef, useState } from 'react'
 import {format, formatDistanceToNow, parseISO} from 'date-fns';
 import { axiosAuth } from '../app/axiosAuth';
 
 export const ChatContext = createContext({})
 
-export const ChatContextProvider = ({children}) => {
-  const [chatId, setChatId] = useState({})
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [click, setClick] = useState(false)
-  const [message, setMessage] = useState('')
-  const [createNewConvo, setCreateNewConvo] = useState('')
-  const [searchUsers, setSearchUsers] = useState('')
-  const [messages, setMessages] = useState([])
+export const ChatContextProvider = ({ children }) => {
+  const [chatId, setChatId] = useState({});
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [click, setClick] = useState(false);
+  const [message, setMessage] = useState('');
+  const [createNewConvo, setCreateNewConvo] = useState('');
+  const [searchUsers, setSearchUsers] = useState('');
+  const [messages, setMessages] = useState([]);
   const [conversation, setConversation] = useState([]);
   const [messageBody, setMessageBody] = useState({});
   const [currentUser, setCurrentUser] = useState({});
@@ -21,9 +21,12 @@ export const ChatContextProvider = ({children}) => {
   const [open, setOpen] = useState(false);
   const [proceed, setProceed] = useState(false);
   const [isNext, setIsNext] = useState(false);
+  const [isChatOpened, setIsChatOpened] = useState(false);
   const [search, setSearch] = useState('');
   const [newGroup, setNewGroup] = useState([]);
+  const [notification, setNotification] = useState([]);
   const currentUserId = localStorage.getItem('userId');
+  const counterRef = useRef(0);
 
   const refresh = () => setNum(prev => prev + 1)
   const onSearchChange = e => setSearch(e.target.value);
@@ -45,7 +48,8 @@ export const ChatContextProvider = ({children}) => {
         let errorMessage;
         error?.response?.status === 400 ? errorMessage = 'userId required' :
         error?.response?.status === 404 ? errorMessage = 'user not found' :
-        error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+        error?.response?.status === 500 ? errorMessage = 'internal error' : 
+        errorMessage = 'no server response'
       }
     }
     currentUserId && getUser()
@@ -63,7 +67,7 @@ export const ChatContextProvider = ({children}) => {
         const res = await axiosAuth.get('/', {
           signal: controller.signal
         })
-        isMounted && setResult(res?.data)
+        //isMounted && setResult(res?.data)
         refresh()
       }catch(error) {
         let errorMessage;
@@ -95,7 +99,13 @@ export const ChatContextProvider = ({children}) => {
   // }
   
   const value = {
-    chatId, setChatId, message, setMessage, messages, loggedIn, setLoggedIn, setMessages, messageBody, setMessageBody, click, setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, formatDate, currentUser, setCurrentUser, refresh, num, conversation, setConversation, result, open, setOpen, proceed, setProceed, isNext, setIsNext, onSearchChange, search, newGroup, setNewGroup
+    chatId, setChatId, message, setMessage, messages, loggedIn, 
+    setLoggedIn, setMessages, messageBody, setMessageBody, click, 
+    setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, 
+    formatDate, currentUser, setCurrentUser, refresh, num, conversation, 
+    setConversation, result, open, setOpen, proceed, setProceed, isNext, 
+    setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, 
+    setNotification, counterRef, isChatOpened, setIsChatOpened
   }
 
   return (

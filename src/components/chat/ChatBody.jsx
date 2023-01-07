@@ -4,13 +4,25 @@ import { axiosAuth } from '../../app/axiosAuth'
 import { useChatContext } from '../../hooks/useChatContext'
 
 export const ChatBody = ({socket}) => {
-  const {messages, setMessages, chatId, currentUser, num} = useChatContext()
+  const {messages, setMessages, chatId, currentUser, num, isChatOpened } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
+  const [chatViewed, setChatViewed] = useState(false);
   const messageRef = useCallback(node => {
     node && node.scrollIntoView({ smooth: true })
   }, []);
+
+  useEffect(() => {
+    isChatOpened && socket.emit('chat_opened', {userId: currentUserId, isChatOpened})
+  }, [])
+  
+  useEffect(() => {
+    socket.on('isOpened', bool => {
+      setChatViewed(bool)
+      console.log(bool)
+    })
+  }, [isChatOpened])
 
   useEffect(() => {
     let isMounted = true
@@ -52,6 +64,7 @@ export const ChatBody = ({socket}) => {
                     key={index}>
                     <p>{message?.text}</p>
                     <span>{message?.dateTime}</span>
+                    {chatViewed && <span>user viewed your chat</span>}
                   </div>
                 )
               }

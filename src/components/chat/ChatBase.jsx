@@ -31,6 +31,7 @@ export const ChatBase = ({ sendMessage, socket }) => {
         ref={inputRef}
         placeholder='say your hello...'
         value={message}
+        onKeyDown={e => e.key === 'Enter' ? sendMessage() : null}
         onChange={onMessageChange}
       />
       {message ? <BiSend onClick={sendMessage} className='icon'/> : <HiOutlineMicrophone className='icon'/>}

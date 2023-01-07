@@ -1,6 +1,6 @@
 import { useChatContext } from '../../hooks/useChatContext';
 import styled from 'styled-components'
-import { ChatHeading } from './ChatHeading'
+import { ChatHeading } from './head/ChatHeading'
 import { EmptyChat } from '../EmptyChat';
 import { ChatBody } from './ChatBody';
 import { ChatBase } from './ChatBase';
@@ -11,20 +11,26 @@ import { axiosAuth } from '../../app/axiosAuth';
 
 let socket;
 
-export const ChatPage = () => {
-  const {chatId, setMessages,messages, setClick, setOpen, result, setMessage, message, currentUser, setResponse} = useChatContext()
+export const ChatPage = ({ result }) => {
+  const { 
+    chatId, setMessages,messages, setClick, setOpen, 
+    setMessage, message, currentUser, setResponse, 
+    counterRef, notification, setNotification, setIsChatOpened 
+  } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
   const [error, setError] = useState(null)
-
+  
   useEffect(() => {
     if(currentUserId) socket = io.connect('http://localhost:5000')
   }, [currentUserId])
 
   useEffect(() => {
-    const foundUser = result.find(user => user._id === chatId.userId)
-    setTargetUser(foundUser)
-  }, [chatId.userId])
+    if(chatId?.userId){
+      const foundUser = result.length && result.find(user => user._id === chatId?.userId)
+      setTargetUser(foundUser)
+    }else return
+  }, [chatId.convoId])
 
   useEffect(() => {
     socket.emit('start-conversation', chatId?.convoId)
@@ -32,7 +38,7 @@ export const ChatPage = () => {
 
   const createMessage = async(initialState) => {
     try{
-      await axiosAuth.post('/createMessage', initialState)
+      await axiosAuth.post('/create_message', initialState)
     }catch(error) {
       let errorMessage;
       error.response.status === 500 ? errorMessage = 'internal error' : 
@@ -40,14 +46,18 @@ export const ChatPage = () => {
       setError(errorMessage)
     }
   }
-
+//data[data.length - 1]?.senderId !== currentUser?._id ||
   //receive message
   useEffect(() => {
       socket.on('newMessage', (data) => { 
-        setMessages(data)
+        if(chatId?.convoId !== data[data.length - 1]?.conversationId) {
+          setNotification(prev => [...prev, {...data[data.length - 1], orderId: counterRef.current++}])
+          setMessages(data)
+        }
+        else setMessages(data)
       })
   }, [])
-  
+
   const sendMessage = async() => {
     const newMessage = { 
       conversationId: chatId?.convoId,
@@ -64,9 +74,13 @@ export const ChatPage = () => {
       setClick(false)
       setOpen(false)
       }}>
-      {chatId?.userId ?
+      {chatId?.convoId ?
         <>
-          <ChatHeading user={targetUser} socket={socket}/>
+          <ChatHeading 
+            user={targetUser} 
+            socket={socket} 
+            setIsChatOpened={setIsChatOpened}
+          />
           <ChatBody socket={socket}/>
           <ChatBase sendMessage={sendMessage} socket={socket}/>
         </>

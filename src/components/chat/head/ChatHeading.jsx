@@ -7,11 +7,13 @@ import {FaTimesCircle} from 'react-icons/fa';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import {format} from 'date-fns';
-import { useChatContext } from '../../hooks/useChatContext';
+import { useChatContext } from '../../../hooks/useChatContext';
+import { UserHead } from './UserHead';
+import { GroupHead } from './GroupHead';
 
-export const ChatHeading = ({ user, socket }) => {
+export const ChatHeading = ({ user, socket, setIsChatOpened }) => {
   const [width, setWidth] = useState(undefined)
-  const {setChatId, formatDate, setMessages} = useChatContext();
+  const { chatId, setChatId, formatDate, setMessages } = useChatContext();
   const [resize, setResize] = useState(false);
   const [typingEvent, setTypingEvent] = useState('');
 
@@ -41,50 +43,34 @@ export const ChatHeading = ({ user, socket }) => {
     width >= 798 ? setResize(true) : setResize(false)
   }, [width])
   
-const closeChat = () => {
+  const closeChat = () => {
     setChatId({})
     setMessages([])
   }
   
   return (
     <Heading>
-      <div>  
-      {user?.profilePicture 
-          ? 
-            <img src={user.profilePicture} alt={user.username} 
-              className='profile-picture'/> 
-            : <CgProfile className='pics'/>
+      {chatId?.userId ? 
+        <UserHead 
+          user={user} typingEvent={typingEvent}
+          formatDate={formatDate} resize={resize}
+        />
+        :
+        <GroupHead 
+          groupConvo={chatId} typingEvent={typingEvent}
+          formatDate={formatDate} resize={resize}
+        />
       }
-        <div className='detail'>
-          <p className='text-edit'>{resize ? user?.username : user?.username?.slice(0, 4)+'...'}</p>
-          { 
-            typingEvent ?
-            <p>{typingEvent}</p>
-            :
-            user?.status !== 'online' 
-            ?
-            <p className='base text-edit'>
-              {
-                !user?.lastSeen ? 
-                  <span>welcome</span>
-                 : 
-                  <span>
-                    last seen {resize && user?.lastSeen ? formatDate(user?.lastSeen) : '...'}
-                  </span>
-                }
-            </p>
-            :
-            <p className='status text-edit'>online</p>
-          }
-        </div>
-      </div>
       <div className='endtag'>
         <VscDeviceCameraVideo className='icon phone'/>
         <HiOutlinePhone className='icon phone'/>
         <AiOutlineLine className='line phone'/>
         <CiSearch className='icon'/>
         <FaTimesCircle 
-          onClick={closeChat}
+          onClick={() => {
+            closeChat()
+            setIsChatOpened(false)
+          }}
           title='Exit Chat' className='icon'/>
       </div>
     </Heading>

@@ -21,8 +21,8 @@ export const GroupConvo = ({ result }) => {
     return { ...eachUser, checked: false }
   })
 
-  const filteredSearch = editedUsers && Array.isArray(editedUsers) && editedUsers.filter((user, i) => !conversation[i]?.conversationId.includes(user?.conversationId[i]) && (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
-  
+  const filteredSearch = editedUsers && Array.isArray(editedUsers) && editedUsers.filter((user, i) => user.username.toLowerCase().includes(searchUsers.toLowerCase()))
+
   const createGroupConvo = async() => {
     if(newGroup.length && groupName){
       try{

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {BsChatText} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
 import {HiOutlineStatusOnline} from 'react-icons/hi'
@@ -5,13 +6,31 @@ import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
 
 export const Left = () => {
-  const {currentUser} = useChatContext()
+  const { currentUser, notification, setNotification, chatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
- 
+  const [reveal, setReveal] = useState(false);
+
+  const customNotifications = (
+    <div className='notification_container'>
+      {
+        notification.map(notify => (
+          <div key={notify.orderId} className='notification'>
+            <span>message from {notify?.username}</span>
+          </div>
+        ))
+      }
+    </div>
+  )
+
   return (
     <LeftSection>
-      <div className='top'>
-        <BsChatText title='Chats' className='chat'/>
+      <div className='top'> 
+        <span 
+          onClick={() => notification.length && setReveal(prev => !prev)}
+          className={notification.length && 'status'}>
+          <BsChatText title='Chats' className='chat'/>
+        </span>
+        {reveal && <div>{customNotifications}</div>}
         <span className={isOnline && 'status'}>
           <HiOutlineStatusOnline title='Status' className='status'/>
         </span>
@@ -40,6 +59,26 @@ align-items: center;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    position: relative;
+
+    .notification_container{
+      position: absolute;
+      top: 1.3rem;
+      left: 1.5rem;
+      z-index: 100;
+      border-radius: 5px;
+      box-shadow: -1px 2px 4px rgba(255,150,100,0.55);
+      max-width: 10rem;
+      background-color: rgba(25,25,20,0.9);
+      display: flex;
+      flex-direction: column;
+      padding: 0.3rem;
+
+      .notification{
+        white-space: nowrap;
+        cursor: pointer;
+      }
+    }
 
     .chat{
       font-size: 40px;

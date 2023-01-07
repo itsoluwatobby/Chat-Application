@@ -16,7 +16,7 @@ export const Chat = () => {
     <ChatApp>
       <Left />
       <Main />
-      <ChatPage />
+      <ChatPage result={result}/>
       {click && <AddNewConversation result={result}/> || open && <GroupConvo result={result}/> }
     </ChatApp>
   )

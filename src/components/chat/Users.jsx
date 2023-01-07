@@ -5,10 +5,10 @@ import { useChatContext } from '../../hooks/useChatContext';
 import {format} from 'date-fns';
 
 export const Users = ({ user, loading, error, groupConvo, newGroup, setNewGroup }) => {
-  const {formatDate, proceed, setProceed, setIsNext} = useChatContext();
+  const {formatDate, proceed, setProceed, open, setIsNext} = useChatContext();
   const [isChecked, setIsChecked] = useState(true)
   
-  const handleChangeChecked = async() => {
+  const handleChangeChecked = async(e) => {
     setIsChecked(!isChecked)
     isChecked ? setNewGroup([...newGroup, user._id]) : newGroup.pop(user._id)
   }

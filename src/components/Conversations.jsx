@@ -40,13 +40,13 @@ export const Conversations = ({ user, groupConvo }) => {
       setOpen(false)
     }}>
       {
-        user?.profilePicture ? <img src={user?.profilePicture} alt={user.username} 
+        user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
         className='profile-picture'/> : <CgProfile className='pics'/>
       }
         <div className='detail'>
           {error && <span>{error}</span>}
           <p className='top'>
-            <span>{user?.username}</span>
+            <span>{user?.username || user?.nameOfGroup}</span>
             {user?.status !== 'online' ?
               <span className='date'>{user?.lastSeen ? formatDate(user?.lastSeen) : format(new Date, 'p')}</span>
                 :
@@ -96,7 +96,7 @@ button{
   border-radius: 5px;
   border: none;
   background-color: gray;
-  padding: 5px;
+  padding: 3px;
   cursor: pointer;
   z-index: 60;
 
@@ -146,6 +146,6 @@ button{
   }
 
   &:hover{
-    background-color: #333;
+    background-color: rgba(0,0,0,0.2);
   }
 `
