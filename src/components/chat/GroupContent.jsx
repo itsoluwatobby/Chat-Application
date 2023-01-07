@@ -5,17 +5,17 @@ import { MdMoreHoriz } from 'react-icons/md';
 import { useChatContext } from "../../hooks/useChatContext";
 import { axiosAuth } from "../../app/axiosAuth";
 
-const GroupContent = ({ groupConversation }) => {
-  const { chatId, setChatId, setMessages, formatDate } = useChatContext()
+const GroupContent = ({ groupConvo }) => {
+  const { chatId, setChatId, setMessages, formatDate, setGroupConversation } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const [reveal, setReveal] = useState(false);
   const [error, setError] = useState('');
 
   const deleteGroupConversation = async(convoId) => {
     try{
-      //const otherConversations = conversation.filter(user => user._id !== id)
+      const otherGroupConversations = groupConvo.filter(group => group?.convoId !== convoId)
       await axiosAuth.delete(`/group_conversation/delete/${currentUserId}/${convoId}`)
-      //setConversation(otherConversations)
+      setGroupConversation(otherGroupConversations)
       setChatId({})
       refresh()
       }catch(error) {
@@ -36,7 +36,7 @@ const GroupContent = ({ groupConversation }) => {
   return (
     <GroupContainer>
       {
-        groupConversation.map(group => (
+        groupConvo.map(group => (
           <div 
             onClick={() => openChat(group)}
             key={group?.convoId} className={`group ${chatId?.convoId === group?.convoId ? 'current' : ''}`}>
@@ -46,7 +46,7 @@ const GroupContent = ({ groupConversation }) => {
               <CgProfile className='profile'/>
               <div>
                 <p>{group?.groupName}</p>
-                <div className="members">mem: {group?.members.length} users
+                <div className="members">{group?.members.length} users
                   
                 </div>
               </div>
@@ -65,8 +65,7 @@ const GroupContent = ({ groupConversation }) => {
                 onMouseLeave={() => setReveal(false)}
                 className='more'
               />
-              {/* <p>{formatDate(group?.createdTime)}</p> */}
-              <p>5:00</p>
+              <p>{formatDate(group?.createdAt)}</p>
             </div>
           </div>
         ))

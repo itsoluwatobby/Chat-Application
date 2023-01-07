@@ -63,8 +63,17 @@ export const ChatBody = ({socket}) => {
                     className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
                     key={index}>
                     <p>{message?.text}</p>
-                    <span>{message?.dateTime}</span>
-                    {chatViewed && <span>user viewed your chat</span>}
+                    <p className='message_base'>
+                      {chatId?.groupName && (
+                        message?.senderId === currentUserId ?
+                          <span className='you'>You</span>
+                          :
+                          <span className='you'>{message?.username}</span>
+                        )
+                      }
+                      <span className={chatId?.groupName ? 'time' : 'other'}>{message?.dateTime}</span>
+                    </p>
+                    {/* {chatViewed && <span>user viewed your chat</span>} */}
                   </div>
                 )
               }
@@ -77,7 +86,12 @@ export const ChatBody = ({socket}) => {
       {
         messages?.length ? content 
           :
-            <p className='start'>{loading ? 'loading messages...' : 'Start a conversation'}</p> }
+            <p className='start'>
+              {loading ? 
+                <span className='loading'>loading messages...</span> 
+                : 
+                <span className='start_convo'>Start a conversation</span>}
+            </p> }
     </ChatBodyComponent>
   )
 }
@@ -99,10 +113,18 @@ overflow-x: hidden;
   letter-spacing: 5px;
   color: gray;
   text-align: center;
+
+  .loading{
+    color: rgba(0,200,0,0.6);
+  }
+
+  .start_convo{
+
+  }
 }
 
   .owner{
-    background-color: red;
+    background-color: rgba(0,200,0,0.2);
     align-self: flex-end;
     box-shadow: 2px 4px 16px rgba(0,0,0,0.2);
 
@@ -131,11 +153,34 @@ overflow-x: hidden;
     flex-direction: column;
     max-width: 70%;
     min-width: 40%;
+    gap: 0.5rem;
     border-radius: 10px;
     padding: 0.3rem 0.5rem;
 
     p{
       white-space: wrap;
+    }
+
+    .message_base{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .time{
+        color: rgba(255,255,255,0.7);
+      }
+
+      .you{
+        color: rgba(255,255,255,0.5);
+        font-family: cursive;
+        font-size: 12px;
+      }
+
+    }
+    
+    .other{
+      width: 100%;
+      text-align: right;
     }
   }
 

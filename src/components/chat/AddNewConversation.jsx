@@ -16,7 +16,6 @@ export const AddNewConversation = ({ result }) => {
     try{
       const res = await axiosAuth.post(`/conversation/create`, initialState)
       setConversation(prev => [...prev, res.data])
-      console.log('res: ',res.data)
       refresh()
     }catch(error) {
       let errorMessage;

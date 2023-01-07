@@ -9,26 +9,17 @@ const LazyGroup = lazy(() => import('./chat/GroupContent'));
 
 export const Main = () => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages, 
-    chatId, conversation, setConversation, messages, 
+    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, 
+    setConversation, messages, groupConversation, setGroupConversation, 
     notification, setNotification, setIsChatOpened
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
-  const [groupConversation, setGroupConversation] = useState([]);
 
   useEffect(() => {
     setIsChatOpened(false)
   }, [chatId.convoId])
-
-  // const fetchGroup = useCallback(async () => {  
-  //   const controller = new AbortController()
-  //   const res = await axiosAuth.get(`/group_conversation/${currentUserId}`, {
-  //     signal: controller.signal
-  //   })
-  //   setGroup(res.data)
-  // }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -74,7 +65,7 @@ export const Main = () => {
     }
     usersInGroup()
     return () => controller.abort()
-  }, [conversation?.length])
+  }, [])
 
   const updatedUsers = conversation.map(eachUser => {
     return {...eachUser, openedChat: false}
@@ -117,7 +108,7 @@ export const Main = () => {
       {/* <Suspense fallback={<p>loading...</p>}>
         <LazyGroup groupConversation={groupConversation}/>
       </Suspense> */}
-      {filteredConversation && <GroupContent groupConversation={groupConversation}/>}
+      {filteredConversation && <GroupContent groupConvo={groupConversation}/>}
     </MainPage>
   )
 }

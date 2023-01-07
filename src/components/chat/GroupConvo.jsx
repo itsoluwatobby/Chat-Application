@@ -8,7 +8,10 @@ import {TbCameraPlus} from 'react-icons/tb';
 import { BsEmojiSmile } from 'react-icons/bs';
 
 export const GroupConvo = ({ result }) => {
-  const {setOpen, setClick, isNext, proceed, setProceed, conversation, searchUsers, newGroup, setNewGroup, setConversation, refresh} = useChatContext();
+  const {
+    setOpen, setClick, isNext, proceed, setProceed, conversation, searchUsers, 
+    newGroup, setNewGroup, setConversation, refresh, setGroupConversation
+  } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -29,11 +32,11 @@ export const GroupConvo = ({ result }) => {
         const res = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
           memberIds: newGroup, groupName
         })
-        setConversation(prev => [...prev, res.data])
+        setGroupConversation(prev => [...prev, res.data])
         console.log(res?.data)
         setGroupName('')
         setNewGroup([])
-        refresh()
+        //refresh()
       }
       catch(error) {
         let errorMessage;
