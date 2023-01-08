@@ -11,23 +11,22 @@ import { useChatContext } from '../../../hooks/useChatContext';
 import { UserHead } from './UserHead';
 import { GroupHead } from './GroupHead';
 
-export const ChatHeading = ({ user, socket, setIsChatOpened }) => {
+export const ChatHeading = ({ user, socket, setIsChatOpened, result }) => {
   const [width, setWidth] = useState(undefined)
-  const { chatId, setChatId, formatDate, setMessages } = useChatContext();
+  const { chatId, setChatId, formatDate, setMessages, typingEvent, setTypingEvent } = useChatContext();
   const [resize, setResize] = useState(false);
-  const [typingEvent, setTypingEvent] = useState('');
 
-  // useEffect(() => {
-  //   socket.on('typing-event', data => {
-  //     setTypingEvent(data.message)
-  //   })
-  // }, [])
+  useEffect(() => {
+    socket.on('typing-event', data => {
+      setTypingEvent(data)
+    })
+  }, [])
 
-  // useEffect(() => {
-  //   socket.on('typing-stop', data => {
-  //     setTypingEvent('')
-  //   })
-  // }, [])
+  useEffect(() => {
+    socket.on('typing-stop', data => {
+      setTypingEvent('')
+    })
+  }, [])
 
   useEffect(() => {
     const widthListener = () => setWidth(window.innerWidth);
@@ -59,6 +58,7 @@ export const ChatHeading = ({ user, socket, setIsChatOpened }) => {
         <GroupHead 
           groupConvo={chatId} typingEvent={typingEvent}
           formatDate={formatDate} resize={resize}
+          result={result}
         />
       }
       <div className='endtag'>

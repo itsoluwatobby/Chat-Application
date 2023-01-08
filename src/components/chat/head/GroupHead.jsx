@@ -1,8 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import { CgProfile } from 'react-icons/cg';
+import { useChatContext } from '../../../hooks/useChatContext';
 
-export const GroupHead = ({ groupConvo, typingEvent, resize, formatDate }) => {
+export const GroupHead = ({ groupConvo, typingEvent, resize, formatDate, result }) => {
+  // const { chatId, currentUser } = useChatContext();
+  //const targetUser = result && result.find(user => user?._id === chatId?.userId)
   return (
     <HeadCompo>  
       {groupConvo?.profilePicture 

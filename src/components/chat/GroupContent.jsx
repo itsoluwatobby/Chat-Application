@@ -6,7 +6,7 @@ import { useChatContext } from "../../hooks/useChatContext";
 import { axiosAuth } from "../../app/axiosAuth";
 
 const GroupContent = ({ groupConvo }) => {
-  const { chatId, setChatId, setMessages, formatDate, setGroupConversation } = useChatContext()
+  const { chatId, setChatId, setMessages, setClick, setOpen, formatDate, currentUser, setGroupConversation } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const [reveal, setReveal] = useState(false);
   const [error, setError] = useState('');
@@ -27,18 +27,25 @@ const GroupContent = ({ groupConvo }) => {
         setError(errorMessage)
       }
   }
-
-  const openChat = (group) => {
-    setChatId({ groupName: group?.groupName,  convoId: group?.convoId })
+  const filteredGroupConvo = groupConvo && groupConvo.filter(groupCo => !currentUser?.deletedConversationIds?.includes(groupCo?.convoId))
+  
+  const openGroupChat = (group) => {
+    setChatId({ groupName: group?.groupName, convoId: group?.convoId })
     setMessages([])
   }
 
   return (
-    <GroupContainer>
+    <GroupContainer
+      onClick={() => {
+        setError('')
+        setClick(false)
+        setOpen(false)
+      }}
+    >
       {
-        groupConvo.map(group => (
+        filteredGroupConvo.map(group => (
           <div 
-            onClick={() => openChat(group)}
+            onClick={() => openGroupChat(group)}
             key={group?.convoId} className={`group ${chatId?.convoId === group?.convoId ? 'current' : ''}`}>
             {/* user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
             className='profile-picture'/> : <CgProfile className='pics'/> */}
@@ -46,7 +53,7 @@ const GroupContent = ({ groupConvo }) => {
               <CgProfile className='profile'/>
               <div>
                 <p>{group?.groupName}</p>
-                <div className="members">{group?.members.length} users
+                <div className="members">{group?.members.length} members
                   
                 </div>
               </div>
@@ -119,11 +126,11 @@ const GroupContainer = styled.div`
     button{
       position: absolute;
       right: 0.5rem;
-      top: 1.8rem;
+      top: 1rem;
       border-radius: 5px;
       border: none;
       background-color: gray;
-      padding: 3px;
+      padding: 4px;
       cursor: pointer;
       z-index: 60;
 
@@ -138,11 +145,15 @@ const GroupContainer = styled.div`
       height: 100%;
 
       .more{
+        position: absolute;
+        right: 0.5rem;
+        top: 0;
         font-size: 24px;
+        cursor: pointer;
       }
 
       p{
-        font-size: 12px;
+        font-size: 13px;
         color: rgba(255,255,255,0.4);
       }
     }

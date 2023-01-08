@@ -5,13 +5,11 @@ import { EmptyChat } from '../EmptyChat';
 import { ChatBody } from './ChatBody';
 import { ChatBase } from './ChatBase';
 import { useEffect, useState } from 'react';
-import io from 'socket.io-client';
 import {format} from 'date-fns';
 import { axiosAuth } from '../../app/axiosAuth';
 
-let socket;
 
-export const ChatPage = ({ result }) => {
+export const ChatPage = ({ result, socket }) => {
   const { 
     chatId, setMessages,messages, setClick, setOpen, 
     setMessage, message, currentUser, setResponse, 
@@ -20,10 +18,6 @@ export const ChatPage = ({ result }) => {
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
   const [error, setError] = useState(null)
-  
-  useEffect(() => {
-    if(currentUserId) socket = io.connect('http://localhost:5000')
-  }, [currentUserId])
 
   useEffect(() => {
     if(chatId?.userId){
@@ -79,6 +73,7 @@ export const ChatPage = ({ result }) => {
           <ChatHeading 
             user={targetUser} 
             socket={socket} 
+            result={result}
             setIsChatOpened={setIsChatOpened}
           />
           <ChatBody socket={socket}/>

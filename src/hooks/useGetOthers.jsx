@@ -35,6 +35,7 @@ export const useGetOthers = (loggedInUser) => {
   }, [])
 
   const otherUsers = users.filter(user => user._id !== loggedInUser)
-  const result = otherUsers.length ? otherUsers : errors
+  const editedUsers = otherUsers && otherUsers.map(user => ({ ...user, done: false}))
+  const result = editedUsers.length ? editedUsers : errors
   return [result]
 }

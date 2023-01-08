@@ -5,13 +5,11 @@ import {useChatContext} from '../hooks/useChatContext'
 import { useCallback, useEffect, useState, lazy, Suspense } from 'react'
 import { axiosAuth } from '../app/axiosAuth';
 import GroupContent from './chat/GroupContent'
-const LazyGroup = lazy(() => import('./chat/GroupContent'));
+// const LazyGroup = lazy(() => import('./chat/GroupContent'));
 
-export const Main = () => {
+export const Main = ({ socket }) => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, 
-    setConversation, messages, groupConversation, setGroupConversation, 
-    notification, setNotification, setIsChatOpened
+    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -24,21 +22,24 @@ export const Main = () => {
   useEffect(() => {
     let isMounted = true
     const controller = new AbortController()
-
     const fetchUsersInConversation = async() => {
-      setLoading(true)
       try{
+        setLoading(true)
+        setError('')
         const res = await axiosAuth.get(`/usersInConversation/${currentUserId}`, {
           signal: controller.signal
         })
-        isMounted && setConversation([...res?.data])
+        const updatedUsers = res?.data && res?.data.map(user => ({ ...user, done: true }))
+        isMounted && updatedUsers && setConversation([...updatedUsers])
         fetchGroup()
       }catch(error){
-        let errorMessage;
-        error?.response?.status === 400 ? errorMessage = 'userId required' :
-        error?.response?.status === 404 ? errorMessage = 'No conversations, start a new conversation' :
-        error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
-        setError(errorMessage)
+        if(error){
+          let errorMessage;
+          error?.response?.status === 400 ? errorMessage = 'userId required' :
+          error?.response?.status === 404 ? errorMessage = 'No conversations, start a new conversation' :
+          error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+          setError(errorMessage)
+        }else return
       }finally{
         setLoading(false)
       }
@@ -56,27 +57,38 @@ export const Main = () => {
   }, [chatId.convoId])
 
   useEffect(() => {
+    let isMounted = true
     const controller = new AbortController()
     const usersInGroup = async() => {
-      const allUsers = await axiosAuth.get(`/usersInGroup/${currentUserId}`, {
-         signal: controller.signal 
-      })
-      setGroupConversation(allUsers?.data)
+      try{
+        const groupMembers = await axiosAuth.get(`/usersInGroup/${currentUserId}`, {
+            signal: controller.signal 
+          })
+        isMounted && setGroupConversation(groupMembers?.data)
+      }
+      catch(error){
+        
+      }
     }
     usersInGroup()
-    return () => controller.abort()
-  }, [])
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
+  }, [loggedIn])
 
   const updatedUsers = conversation.map(eachUser => {
     return {...eachUser, openedChat: false}
   })
+  const filteredConversation = updatedUsers.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
 
-  const filteredConversation = updatedUsers.filter(convo => (convo?.username).toLowerCase().includes(search.toLowerCase()))
+  const searchConversation = filteredConversation && updatedUsers?.filter(convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()))
 
   const openChat = (user) => {
     setChatId({ userId: user?._id, convoId: user?.convoId })
-    const filterAll = notification.filter(notify => notify?.senderId !== user?._id)
-    notification.length && setNotification([filterAll])
+    setTypingEvent('')
+    const filterAll = notification?.filter(notify => notify?.senderId !== user?._id)
+    notification?.length && setNotification([filterAll])
     setMessages([])
   }
 
@@ -86,29 +98,30 @@ export const Main = () => {
   conversation.length ? content = (
               <>
                 {
-                  filteredConversation.map(user => (
+                  searchConversation.map(user => (
                     <div
                       className={chatId?.convoId === user?.convoId ? 'current' : ''}
                       key={user?._id} 
                       onClick={() => openChat(user)}
                     >
-                      <Conversations user={user} />
+                      <Conversations 
+                        user={user} socket={socket} 
+                      />
                     </div>
                     ))
                   }
               </>)
-              : !error ? content = <p>No conversations, start a new conversation</p> : ''
+              : (!groupConversation.length && !error) ? content = <p>No conversations, start a new conversation</p> : ''
 
   
   return (
     <MainPage>
       <Search />
-      {!conversation.length && error && <p>{error}</p>}
+      {
+        !conversation.length && !groupConversation.length && error && <p>{error}</p>
+      }
       {content}
-      {/* <Suspense fallback={<p>loading...</p>}>
-        <LazyGroup groupConversation={groupConversation}/>
-      </Suspense> */}
-      {filteredConversation && <GroupContent groupConvo={groupConversation}/>}
+      {searchConversation && <GroupContent groupConvo={groupConversation}/>}
     </MainPage>
   )
 }

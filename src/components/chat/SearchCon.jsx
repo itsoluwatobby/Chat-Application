@@ -109,6 +109,8 @@ const SearchContainer = styled.div`
 position: sticky;
 top: 0;
 background-color: #363636;
+//background-color: #333;
+z-index: 50;
 
   .chat{
     margin-left: 0.5rem;

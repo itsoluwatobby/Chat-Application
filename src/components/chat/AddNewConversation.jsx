@@ -5,17 +5,18 @@ import { SearchCon } from './SearchCon'
 import { Users } from './Users';
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const AddNewConversation = ({ result }) => {
+export const AddNewConversation = ({ result, socket }) => {
   const {searchUsers, refresh, setConversation, conversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
     
   const createConvo = async(friendId) => {
-    const initialState = {userId: currentUserId, friendId}
+    const initialState = {adminId: currentUserId, friendId}
     try{
       const res = await axiosAuth.post(`/conversation/create`, initialState)
-      setConversation(prev => [...prev, res.data])
+      const updatedUser = res?.data && ({ ...res?.data, done: true })
+      updatedUser && setConversation(prev => [...prev, updatedUser])
       refresh()
     }catch(error) {
       let errorMessage;
@@ -28,8 +29,22 @@ export const AddNewConversation = ({ result }) => {
       setLoading(false)
     }
   }
+
+  // useEffect(() => {
+  //   socket.on('new_conversation', data => {
+  //     setConversation(prev => [...prev, data])
+  //     refresh() 
+  //   })
+  // }, [socket])
+
+  // const create = async (friendId) => {
+  //   const initialState = {adminId: currentUserId, friendId}
+  //   const val = await createConvo(initialState)
+  //   val && await socket.emit('create_Conversation', val)
+  // }
+
 //!conversation[i]?.conversationId.includes(user?.conversationId[i]) && 
-  const filteredSearch = result && Array.isArray(result) && result.filter((user, i) => (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
+  const filteredSearch = result && Array.isArray(result) && result.filter((user, i) => !user?.conversationId.includes(conversation.map(({convoId}) => convoId)) && (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
   
   return (
     <NewConversation>
@@ -59,7 +74,8 @@ const NewConversation = styled.div`
   background-color: #363636;
   border-radius: 10px;
   overflow-y: scroll;
-  padding: 0.1rem 0 0.1rem 0;
+  padding: 0 0 0.3rem 0;
+  max-height: 28em;
   box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
 
     .error{
@@ -75,7 +91,7 @@ const NewConversation = styled.div`
   }
 
   &::-webkit-scrollbar{
-    width: 1px;
+    width: 0;
   }
 
   &::-webkit-scrollbar-track {

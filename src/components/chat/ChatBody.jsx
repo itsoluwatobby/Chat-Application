@@ -54,7 +54,7 @@ export const ChatBody = ({socket}) => {
   
   //console lastMessage => messages.
 
-  const content = (
+  const messageContent = (
             <>
               {
                 messages.map((message, index) =>
@@ -84,7 +84,7 @@ export const ChatBody = ({socket}) => {
     <ChatBodyComponent>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
       {
-        messages?.length ? content 
+        messages?.length ? messageContent 
           :
             <p className='start'>
               {loading ? 
@@ -138,7 +138,7 @@ overflow-x: hidden;
   .friend{
     background-color: rgba(0,0,0,0.3);
     align-self: flex-start;
-    text-align: right;
+    text-align: left;
     box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
 
     span{
@@ -155,7 +155,7 @@ overflow-x: hidden;
     min-width: 40%;
     gap: 0.5rem;
     border-radius: 10px;
-    padding: 0.3rem 0.5rem;
+    padding: 0.5rem 0.6rem;
 
     p{
       white-space: wrap;
@@ -167,13 +167,14 @@ overflow-x: hidden;
       justify-content: space-between;
 
       .time{
-        color: rgba(255,255,255,0.7);
+        color: rgba(255,255,255,0.5);
+        font-size: 11px;
       }
 
       .you{
-        color: rgba(255,255,255,0.5);
+        color: rgba(255,255,255,0.75);
         font-family: cursive;
-        font-size: 12px;
+        font-size: 13px;
       }
 
     }

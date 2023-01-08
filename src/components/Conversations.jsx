@@ -7,9 +7,9 @@ import { useChatContext } from '../hooks/useChatContext';
 import { axiosAuth } from '../app/axiosAuth';
 import { BiRefresh } from 'react-icons/bi';
 
-export const Conversations = ({ user, groupConvo }) => {
+export const Conversations = ({ user, socket }) => {
   const {
-    setClick, setOpen, setChatId, conversation, refresh, setConversation, formatDate, chatId
+    setClick, setOpen, setChatId, typingEvent, conversation, refresh, currentUser, setConversation, formatDate, chatId
   } = useChatContext()
   const [reveal, setReveal] = useState(false);
   const currentUserId = localStorage.getItem('userId')
@@ -17,28 +17,42 @@ export const Conversations = ({ user, groupConvo }) => {
 
   const deleteConversation = async(convoId, id) => {
     try{
-      const otherConversations = conversation.filter(user => user._id !== id)
-      await axiosAuth.delete(`/conversation/delete/${convoId}/${currentUserId}/${id}`)
+      const otherConversations = conversation.filter(user => user?._id !== id)
+      await axiosAuth.delete(`/conversation/delete/${convoId}/${currentUserId}`)
       setConversation(otherConversations)
       setChatId({})
       refresh()
-      }catch(error) {
-        let errorMessage;
-        !error?.response ? errorMessage = 'no server response' : 
-        error?.response?.status === 400 ? errorMessage = 'id required' :
-        error?.response?.status === 404 ? errorMessage = 'No conversations, start a new conversation' :
-        error?.response?.status === 500 ? errorMessage = 'internal error' : ''
-        setError(errorMessage)
-      }
+    }
+    catch(error){
+      let errorMessage;
+      !error?.response ? errorMessage = 'no server response' : 
+      error?.response?.status === 400 ? errorMessage = 'id required' :
+      error?.response?.status === 404 ? errorMessage = 'No conversations, start a new conversation' :
+      error?.response?.status === 500 ? errorMessage = 'internal error' : ''
+      setError(errorMessage)
+    }
   }
+
+  // useEffect(() => {
+  //   socket.on('newDel_conversation', data => {
+  //     setConversation([...data])
+  //     refresh() 
+  //   })
+  // }, [socket])
+
+  // const deleteConvo = async (convoId, id) => {
+  //   const val = await deleteConversation(convoId, id)
+  //   val && await socket.emit('delete_Conversation', val)
+  // }
   
   return (
     <Conversation
-    onClick={() => {
-      setError('')
-      setClick(false)
-      setOpen(false)
-    }}>
+      onClick={() => {
+        setError('')
+        setClick(false)
+        setOpen(false)
+      }}
+    >
       {
         user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
         className='profile-picture'/> : <CgProfile className='pics'/>
@@ -53,6 +67,7 @@ export const Conversations = ({ user, groupConvo }) => {
               <span className='status'>online</span>
             }
           </p>
+          {/* {(typingEvent && chatId?.userId === user?._id) && <p className='base'>{typingEvent}</p>} */}
           {/* <p className='base'>{user?.lastMessage.slice(0, 15)}...</p> */}
         </div>
         {
@@ -96,7 +111,7 @@ button{
   border-radius: 5px;
   border: none;
   background-color: gray;
-  padding: 3px;
+  padding: 4px;
   cursor: pointer;
   z-index: 60;
 

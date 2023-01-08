@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { axiosAuth } from '../../app/axiosAuth';
 import { useChatContext } from '../../hooks/useChatContext';
@@ -17,13 +17,14 @@ export const GroupConvo = ({ result }) => {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState('')
   const [groupName, setGroupName] = useState('')
+  const inputRef = useRef();
 
   const onImageChange = e => setImage(e.target.files[0])
 
   const editedUsers = result && Array.isArray(result) && result.map(eachUser => {
     return { ...eachUser, checked: false }
   })
-
+  const canClick = Boolean(groupName);
   const filteredSearch = editedUsers && Array.isArray(editedUsers) && editedUsers.filter((user, i) => user.username.toLowerCase().includes(searchUsers.toLowerCase()))
 
   const createGroupConvo = async() => {
@@ -33,8 +34,9 @@ export const GroupConvo = ({ result }) => {
           memberIds: newGroup, groupName
         })
         setGroupConversation(prev => [...prev, res.data])
-        console.log(res?.data)
         setGroupName('')
+        setOpen(true)
+        setProceed(false)
         setNewGroup([])
         //refresh()
       }
@@ -60,6 +62,10 @@ export const GroupConvo = ({ result }) => {
       return alert('Max allowed size is 1.4mb')
     }
   }, [image])
+
+  useEffect(() => {
+    inputRef?.current?.focus()
+  }, [proceed])
 
   return (
     <GroupConversation>
@@ -118,7 +124,8 @@ export const GroupConvo = ({ result }) => {
               </p>
               <p className='input_name'>
                 <input 
-                  type="text" 
+                  type="text"
+                  ref={inputRef} 
                   placeholder='Enter a subject'
                   value={groupName}
                   onChange={e => setGroupName(e.target.value)}
@@ -127,8 +134,20 @@ export const GroupConvo = ({ result }) => {
               </p>
             </div>
               <div className='proceed'>
-                <button onClick={createGroupConvo}>Create</button>
-                <button onClick={() => setProceed(false)}className='cancel'>Cancel</button>
+                <button 
+                  disabled={!canClick}
+                  onClick={createGroupConvo}>
+                    Create
+                </button>
+                <button 
+                  onClick={() => {
+                    setProceed(false)
+                    setOpen(true)
+                    setNewGroup([])
+                  }} 
+                  className='cancel'>
+                  Cancel
+                </button>
               </div>
           </div>
           )
@@ -146,7 +165,8 @@ const GroupConversation = styled.div`
   background-color: #363636;
   border-radius: 10px;
   overflow-y: scroll;
-  padding: 0.1rem 0 0.1rem 0;
+  padding: 0 0 0.3rem 0;
+  max-height: 28em;
   box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
 
   @media (max-width: 1108px){
@@ -154,7 +174,7 @@ const GroupConversation = styled.div`
   }
 
   &::-webkit-scrollbar{
-    width: 1px;
+    width: 0;
   }
 
   &::-webkit-scrollbar-track {

@@ -26,6 +26,7 @@ export const ChatContextProvider = ({ children }) => {
   const [newGroup, setNewGroup] = useState([]);
   const [notification, setNotification] = useState([]);
   const [groupConversation, setGroupConversation] = useState([]);
+  const [typingEvent, setTypingEvent] = useState('');
   const currentUserId = localStorage.getItem('userId');
   const counterRef = useRef(0);
 
@@ -107,7 +108,7 @@ export const ChatContextProvider = ({ children }) => {
     setConversation, result, open, setOpen, proceed, setProceed, isNext, 
     setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, 
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
-    setGroupConversation
+    setGroupConversation, typingEvent, setTypingEvent
   }
 
   return (
