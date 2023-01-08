@@ -49,7 +49,7 @@ padding: 0.4rem 0.1rem;
 align-items: center;
 gap: 0.2rem;
 color: white;
-background-color: rgb(20,10,0);
+background-color: rgba(0,0,0,0.6);
 position: sticky;
 bottom: 0;
 

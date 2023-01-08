@@ -18,7 +18,7 @@ export const ChatHeading = ({ user, socket, setIsChatOpened, result }) => {
 
   useEffect(() => {
     socket.on('typing-event', data => {
-      setTypingEvent(data)
+      setTypingEvent(data?.message)
     })
   }, [])
 

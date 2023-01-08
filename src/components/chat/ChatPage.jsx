@@ -43,13 +43,15 @@ export const ChatPage = ({ result, socket }) => {
 //data[data.length - 1]?.senderId !== currentUser?._id ||
   //receive message
   useEffect(() => {
+    let isMounted = true
       socket.on('newMessage', (data) => { 
         if(chatId?.convoId !== data[data.length - 1]?.conversationId) {
-          setNotification(prev => [...prev, {...data[data.length - 1], orderId: counterRef.current++}])
+          isMounted && setNotification(prev => [...prev, {...data[data.length - 1], orderId: counterRef.current++}])
           setMessages(data)
         }
         else setMessages(data)
       })
+      return () => isMounted = false
   }, [])
 
   const sendMessage = async() => {

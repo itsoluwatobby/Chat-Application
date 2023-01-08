@@ -9,11 +9,12 @@ import GroupContent from './chat/GroupContent'
 
 export const Main = ({ socket }) => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent
+    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
+  const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
     setIsChatOpened(false)
@@ -23,13 +24,14 @@ export const Main = ({ socket }) => {
     let isMounted = true
     const controller = new AbortController()
     const fetchUsersInConversation = async() => {
+      let count = 0
       try{
         setLoading(true)
         setError('')
         const res = await axiosAuth.get(`/usersInConversation/${currentUserId}`, {
           signal: controller.signal
         })
-        const updatedUsers = res?.data && res?.data.map(user => ({ ...user, done: true }))
+        const updatedUsers = res?.data && res?.data.map(user => ({ ...user, done: true, order: count++ }))
         isMounted && updatedUsers && setConversation([...updatedUsers])
         fetchGroup()
       }catch(error){
@@ -82,7 +84,13 @@ export const Main = ({ socket }) => {
   })
   const filteredConversation = updatedUsers.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
 
-  const searchConversation = filteredConversation && updatedUsers?.filter(convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()))
+  useEffect(() => {
+    const searchConversation = filteredConversation && updatedUsers?.filter(convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()))
+    const target = searchConversation.find(user => user?._id === chatId?.userId)
+    const others = searchConversation.filter(searchUser => searchUser?._id !== chatId?.userId)
+    const currentChat = [target, ...others]
+    target ? setFiltered(currentChat) : setFiltered(searchConversation)
+  }, [currentUser, search, message])
 
   const openChat = (user) => {
     setChatId({ userId: user?._id, convoId: user?.convoId })
@@ -90,6 +98,7 @@ export const Main = ({ socket }) => {
     const filterAll = notification?.filter(notify => notify?.senderId !== user?._id)
     notification?.length && setNotification([filterAll])
     setMessages([])
+    setMessage('')
   }
 
   let content;
@@ -97,8 +106,8 @@ export const Main = ({ socket }) => {
   loading ? content = <p className='loading'>loading your conversation...</p> :
   conversation.length ? content = (
               <>
-                {
-                  searchConversation.map(user => (
+                {filtered &&
+                  filtered.map(user => (
                     <div
                       className={chatId?.convoId === user?.convoId ? 'current' : ''}
                       key={user?._id} 
@@ -121,7 +130,7 @@ export const Main = ({ socket }) => {
         !conversation.length && !groupConversation.length && error && <p>{error}</p>
       }
       {content}
-      {searchConversation && <GroupContent groupConvo={groupConversation}/>}
+      {filtered && <GroupContent groupConvo={groupConversation}/>}
     </MainPage>
   )
 }
@@ -134,6 +143,7 @@ flex-direction: column;
 gap: 0.2rem;
 padding: 0 0.2rem;
 overflow-y: scroll;
+z-index: 999;
 
 .current{
   background-color: #333;

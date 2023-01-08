@@ -30,11 +30,11 @@
 
 * [x] Last seen
 
-* [] User profile page
+* [ ] User profile page
 
-* [] Creating rooms _presently on it_
+* [ ] Creating rooms _presently on it_
 
-* [] User status update
+* [-] User status update
 
 ***
 *image preview*

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import {CgProfile} from 'react-icons/cg';
 import {MdMoreHoriz} from 'react-icons/md';
-import {format} from 'date-fns';
+import {format, sub} from 'date-fns';
 import { useChatContext } from '../hooks/useChatContext';
 import { axiosAuth } from '../app/axiosAuth';
 import { BiRefresh } from 'react-icons/bi';
@@ -62,7 +62,12 @@ export const Conversations = ({ user, socket }) => {
           <p className='top'>
             <span>{user?.username || user?.nameOfGroup}</span>
             {user?.status !== 'online' ?
-              <span className='date'>{user?.lastSeen ? formatDate(user?.lastSeen) : format(new Date, 'p')}</span>
+              <span className='date'>
+                {user?.lastSeen ? 
+                  formatDate(user?.lastSeen) 
+                    : 
+                  formatDate(sub(new Date, {minutes: 0}).toISOString())}
+              </span>
                 :
               <span className='status'>online</span>
             }

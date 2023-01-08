@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {BsChatText} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
 import {HiOutlineStatusOnline} from 'react-icons/hi'
@@ -9,14 +9,21 @@ export const Left = () => {
   const { currentUser, notification, setNotification, chatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
+  const [sorted, setSorted] = useState([]);
+//console.log(notification)
+
+  useEffect(() => {
+    const sortedNotification = notification.length && notification.sort((a, b) => b?.dateTime.localeCompare(a?.dateTime))
+    setSorted(sortedNotification)
+  }, [notification])
 
   const customNotifications = (
     <div className='notification_container'>
-      {
-        notification.map(notify => (
-          <div key={notify.orderId} className='notification'>
-            <span>message from {notify?.username}</span>
-          </div>
+      {sorted.length && 
+        sorted.map(notify => (
+          <ul key={notify.orderId} className='notification'>
+            <li>message from {notify?.username}</li>
+          </ul>
         ))
       }
     </div>
@@ -72,11 +79,17 @@ align-items: center;
       background-color: rgba(25,25,20,0.9);
       display: flex;
       flex-direction: column;
-      padding: 0.3rem;
+      padding: 0.5rem;
 
       .notification{
         white-space: nowrap;
         cursor: pointer;
+        padding: 0.2rem;
+        border-bottom: 1px solid gray;
+
+        &:nth-last-child(){
+          border-bottom: none;
+        }
       }
     }
 

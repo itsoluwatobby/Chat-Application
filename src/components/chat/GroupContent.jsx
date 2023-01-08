@@ -6,7 +6,7 @@ import { useChatContext } from "../../hooks/useChatContext";
 import { axiosAuth } from "../../app/axiosAuth";
 
 const GroupContent = ({ groupConvo }) => {
-  const { chatId, setChatId, setMessages, setClick, setOpen, formatDate, currentUser, setGroupConversation } = useChatContext()
+  const { chatId, setChatId, setMessages, setClick, setOpen, formatDate, currentUser, setGroupConversation, setTypingEvent, setMessage } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const [reveal, setReveal] = useState(false);
   const [error, setError] = useState('');
@@ -32,6 +32,8 @@ const GroupContent = ({ groupConvo }) => {
   const openGroupChat = (group) => {
     setChatId({ groupName: group?.groupName, convoId: group?.convoId })
     setMessages([])
+    setMessage('')
+    setTypingEvent('')
   }
 
   return (

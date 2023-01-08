@@ -2,12 +2,16 @@ import React, { useEffect, useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { axiosAuth } from '../../app/axiosAuth'
 import { useChatContext } from '../../hooks/useChatContext'
+import { CopiedText } from './CopiedText'
+import { BsCheck, BsCheckAll } from 'react-icons/bs';
 
 export const ChatBody = ({socket}) => {
   const {messages, setMessages, chatId, currentUser, num, isChatOpened } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
+  const [reference, setReference] = useState({});
+  const [isReferenced, setIsReferenced] = useState(false);
   const [chatViewed, setChatViewed] = useState(false);
   const messageRef = useCallback(node => {
     node && node.scrollIntoView({ smooth: true })
@@ -54,12 +58,22 @@ export const ChatBody = ({socket}) => {
   
   //console lastMessage => messages.
 
+  const copyText = (text) => {
+    navigator.clipboard.writeText(text)
+  }
+
+  const onMessageRef = (message) => {
+    setReference(message)
+    setIsReferenced(true)
+  }
+
   const messageContent = (
             <>
               {
-                messages.map((message, index) =>
+                messages?.map((message, index) =>
                   <div 
-                  ref={messageRef}
+                    onDoubleClick={() => onMessageRef(message)}
+                    ref={messageRef}
                     className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
                     key={index}>
                     <p>{message?.text}</p>
@@ -92,6 +106,11 @@ export const ChatBody = ({socket}) => {
                 : 
                 <span className='start_convo'>Start a conversation</span>}
             </p> }
+        <CopiedText 
+          reference={reference} 
+          setReference={setReference} 
+          setIsReferenced={setIsReferenced} 
+        />
     </ChatBodyComponent>
   )
 }
@@ -101,10 +120,11 @@ width: 100%;
 height: 100%;
 display: flex;
 flex-direction: column;
-gap: 1rem;
+gap: 0.65rem;
 padding: 0.5rem 0.7rem;
 overflow-y: scroll;
 overflow-x: hidden;
+position: relative;
 
 .start{
   margin: auto;
@@ -153,9 +173,9 @@ overflow-x: hidden;
     flex-direction: column;
     max-width: 70%;
     min-width: 40%;
-    gap: 0.5rem;
+    gap: 0.25rem;
     border-radius: 10px;
-    padding: 0.5rem 0.6rem;
+    padding: 0.2rem 0.55rem;
 
     p{
       white-space: wrap;
