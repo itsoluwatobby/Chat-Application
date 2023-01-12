@@ -7,10 +7,10 @@ import { Users } from './Users';
 import {TbCameraPlus} from 'react-icons/tb';
 import { BsEmojiSmile } from 'react-icons/bs';
 
-export const GroupConvo = ({ result }) => {
+export const GroupConvo = ({ result, socket }) => {
   const {
-    setOpen, setClick, isNext, proceed, setProceed, conversation, searchUsers, 
-    newGroup, setNewGroup, setConversation, refresh, setGroupConversation
+    setOpen, setClick, isNext, setMessages, proceed, setProceed, conversation, searchUsers, 
+    newGroup, setNewGroup, groupConversation, setCustomAdminMessage, welcomeMessage, setWelcomeMessage, chatId, setConversation, refresh, setGroupConversation
   } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [error, setError] = useState(null);
@@ -34,7 +34,6 @@ export const GroupConvo = ({ result }) => {
           memberIds: newGroup, groupName
         })
         setGroupConversation(prev => [...prev, res.data])
-        setGroupName('')
         setOpen(true)
         setProceed(false)
         setNewGroup([])
@@ -43,7 +42,7 @@ export const GroupConvo = ({ result }) => {
       catch(error) {
         let errorMessage;
         error?.response?.status === 400 ? errorMessage = 'id required' :
-        error?.response?.status === 404 ? errorMessage = 'not found' :
+        // error?.response?.status === 404 ? errorMessage = 'not found' :
         error?.response?.status === 409 ? errorMessage = 'conversation already exist' :
         error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
         setError(errorMessage)
@@ -55,6 +54,25 @@ export const GroupConvo = ({ result }) => {
     else return
   }
   
+  useEffect(() => {
+    socket.emit('start_room_conversation', groupName)
+    socket.on('new_room', data => setCustomAdminMessage(data))
+    socket.on('welcome_users', data => {
+      //setMessages(prev => [...prev, data])
+      setWelcomeMessage(data)
+    })
+    setGroupName('')
+  }, [groupConversation.length])
+
+  // useEffect(() => {
+    
+  // }, [groupConversation.length])
+
+  // useEffect(() => {
+    
+  // }, [groupConversation.length])
+
+
   useEffect(() => {
     if(!image) return
     if(image?.size > 1448576){

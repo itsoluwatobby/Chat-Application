@@ -1,17 +1,14 @@
-import React, { useEffect, useCallback, useState } from 'react'
-import styled from 'styled-components'
-import { axiosAuth } from '../../app/axiosAuth'
-import { useChatContext } from '../../hooks/useChatContext'
-import { CopiedText } from './CopiedText'
+import React, { useEffect, useCallback, useState } from 'react';
+import styled from 'styled-components';
+import { axiosAuth } from '../../app/axiosAuth';
+import { useChatContext } from '../../hooks/useChatContext';
 import { BsCheck, BsCheckAll } from 'react-icons/bs';
 
-export const ChatBody = ({socket}) => {
-  const {messages, setMessages, chatId, currentUser, num, isChatOpened } = useChatContext()
-  const currentUserId = localStorage.getItem('userId')
-  const [loading, setLoading] = useState(false)
+export const ChatBody = ({ socket, setEmojiOpen }) => {
+  const {messages, setMessages, chatId, currentUser, welcomeMessage, num, isChatOpened, reference, setReference, isReferenced, setIsReferenced } = useChatContext();
+  const currentUserId = localStorage.getItem('userId');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [reference, setReference] = useState({});
-  const [isReferenced, setIsReferenced] = useState(false);
   const [chatViewed, setChatViewed] = useState(false);
   const messageRef = useCallback(node => {
     node && node.scrollIntoView({ smooth: true })
@@ -37,7 +34,7 @@ export const ChatBody = ({socket}) => {
         const messages = await axiosAuth.get(`/messages/${chatId?.convoId}`, {
           signal: controller.signal
         })
-        setMessages([...messages.data])
+        isMounted && setMessages([...messages.data])
       }catch(error) {
         let errorMessage;
         error?.response?.status === 404 ? errorMessage = 'Say hello to start a conversation' :
@@ -75,18 +72,24 @@ export const ChatBody = ({socket}) => {
                     onDoubleClick={() => onMessageRef(message)}
                     ref={messageRef}
                     className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
-                    key={index}>
-                    <p>{message?.text}</p>
-                    <p className='message_base'>
-                      {chatId?.groupName && (
-                        message?.senderId === currentUserId ?
-                          <span className='you'>You</span>
-                          :
-                          <span className='you'>{message?.username}</span>
-                        )
-                      }
-                      <span className={chatId?.groupName ? 'time' : 'other'}>{message?.dateTime}</span>
-                    </p>
+                    key={message?._id}>
+                    {
+                      chatId?.convoId === message?.conversationId 
+                        &&
+                      <>
+                        <p>{message?.text}</p>  
+                        <p className='message_base'>
+                          {chatId?.groupName && (
+                            message?.senderId === currentUserId ?
+                              <span className='you'>You</span>
+                              :
+                              <span className='you'>{message?.username}</span>
+                            )
+                          }
+                          <span className={chatId?.groupName ? 'time' : 'other'}>{message?.dateTime}</span>
+                        </p>
+                      </>
+                    }
                     {/* {chatViewed && <span>user viewed your chat</span>} */}
                   </div>
                 )
@@ -95,22 +98,21 @@ export const ChatBody = ({socket}) => {
           )
 
   return (
-    <ChatBodyComponent>
+    <ChatBodyComponent onClick={() => setEmojiOpen(false)}>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
       {
-        messages?.length ? messageContent 
+        (messages?.length || (
+          welcomeMessage && chatId?.groupName
+          )) ? messageContent 
           :
             <p className='start'>
               {loading ? 
                 <span className='loading'>loading messages...</span> 
                 : 
                 <span className='start_convo'>Start a conversation</span>}
-            </p> }
-        <CopiedText 
-          reference={reference} 
-          setReference={setReference} 
-          setIsReferenced={setIsReferenced} 
-        />
+            </p> 
+      }
+          {/* {chatId?.groupName && <p className='group_message'>{welcomeMessage}</p>} */}
     </ChatBodyComponent>
   )
 }
@@ -120,8 +122,8 @@ width: 100%;
 height: 100%;
 display: flex;
 flex-direction: column;
-gap: 0.65rem;
-padding: 0.5rem 0.7rem;
+gap: 0.3rem;
+padding: 0.5rem 0.4rem;
 overflow-y: scroll;
 overflow-x: hidden;
 position: relative;
@@ -134,14 +136,22 @@ position: relative;
   color: gray;
   text-align: center;
 
-  .loading{
-    color: rgba(0,200,0,0.6);
+    .loading{
+      color: rgba(0,200,0,0.6);
+    }
+
+    .start_convo{
+
+    }
   }
 
-  .start_convo{
-
+  .group_message{
+    color: gray;
+    font-size: 15px;
+    text-align: center;
+    font-family: mono-space;
+    letter-spacing: 5px;
   }
-}
 
   .owner{
     background-color: rgba(0,200,0,0.2);
@@ -173,7 +183,7 @@ position: relative;
     flex-direction: column;
     max-width: 70%;
     min-width: 40%;
-    gap: 0.25rem;
+    gap: 0.15rem;
     border-radius: 10px;
     padding: 0.2rem 0.55rem;
 

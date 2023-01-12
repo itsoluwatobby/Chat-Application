@@ -12,16 +12,18 @@ export const Conversations = ({ user, socket }) => {
     setClick, setOpen, setChatId, typingEvent, conversation, refresh, currentUser, setConversation, formatDate, chatId
   } = useChatContext()
   const [reveal, setReveal] = useState(false);
-  const currentUserId = localStorage.getItem('userId')
-  const [error, setError] = useState(null)
+  const currentUserId = localStorage.getItem('userId');
+  const [error, setError] = useState(null);
+  const [deletedConvo, setDeletedConvo] = useState([]);
 
   const deleteConversation = async(convoId, id) => {
     try{
       const otherConversations = conversation.filter(user => user?._id !== id)
       await axiosAuth.delete(`/conversation/delete/${convoId}/${currentUserId}`)
       setConversation(otherConversations)
+      //setDeletedConvo(otherConversations)
       setChatId({})
-      refresh()
+      //refresh()
     }
     catch(error){
       let errorMessage;
@@ -34,16 +36,14 @@ export const Conversations = ({ user, socket }) => {
   }
 
   // useEffect(() => {
+  //   let isMounted = true
+  //   socket.emit('delete_conversation', deletedConvo)
   //   socket.on('newDel_conversation', data => {
-  //     setConversation([...data])
-  //     refresh() 
+  //     isMounted && setConversation([...data])
+  //     setDeletedConvo([]) 
   //   })
-  // }, [socket])
-
-  // const deleteConvo = async (convoId, id) => {
-  //   const val = await deleteConversation(convoId, id)
-  //   val && await socket.emit('delete_Conversation', val)
-  // }
+  //   return () => isMounted = false
+  // }, [deletedConvo])
   
   return (
     <Conversation

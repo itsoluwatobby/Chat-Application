@@ -34,7 +34,7 @@
 
 * [ ] Creating rooms _presently on it_
 
-* [-] User status update
+* [ ] User status update
 
 ***
 *image preview*

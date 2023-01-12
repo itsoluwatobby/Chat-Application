@@ -6,7 +6,7 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import { ChatContextProvider } from './context/ChatContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode> 
+  //<React.StrictMode> 
     <ChatContextProvider>
       <Router>
         <Routes>
@@ -14,5 +14,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Routes>
       </Router>
     </ChatContextProvider>
-  </React.StrictMode>,
+  //</React.StrictMode>,
 )

@@ -14,8 +14,8 @@ export const UserHead = ({ user, typingEvent, resize, formatDate }) => {
       <div className='detail'>
         <p className='text-edit'>{resize ? user?.username : user?.username?.slice(0, 4)+'...'}</p>
         { 
-          typingEvent ?
-          <p>{typingEvent}</p>
+          typingEvent?.message ?
+          <p>{typingEvent?.message}</p>
           :
           user?.status !== 'online' 
           ?

@@ -6,14 +6,13 @@ import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
 
 export const Left = () => {
-  const { currentUser, notification, setNotification, chatId } = useChatContext()
+  const { currentUser, notification, setNotification, chatId, setChatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
-//console.log(notification)
 
   useEffect(() => {
-    const sortedNotification = notification.length && notification.sort((a, b) => b?.dateTime.localeCompare(a?.dateTime))
+    const sortedNotification = notification.length && notification.sort((a, b) => b?.orderId - a?.orderId)
     setSorted(sortedNotification)
   }, [notification])
 
@@ -22,7 +21,11 @@ export const Left = () => {
       {sorted.length && 
         sorted.map(notify => (
           <ul key={notify.orderId} className='notification'>
-            <li>message from {notify?.username}</li>
+            <li
+              onClick={() => setChatId({ userId: notify?._id, convoId: notify?.conversationId })} 
+            >
+              message from {notify?.username}
+            </li>
           </ul>
         ))
       }
@@ -74,22 +77,49 @@ align-items: center;
       left: 1.5rem;
       z-index: 100;
       border-radius: 5px;
-      box-shadow: -1px 2px 4px rgba(255,150,100,0.55);
+      box-shadow: -1px 2px 4px rgba(55,100,100,0.55);
       max-width: 10rem;
       background-color: rgba(25,25,20,0.9);
       display: flex;
+      border: 2px solid rgba(150,230,100,0.35);
       flex-direction: column;
-      padding: 0.5rem;
+      padding: 0.2rem;
+      max-height: 8rem;
+      overflow-y: scroll;
+      overflow-x: none;
 
       .notification{
         white-space: nowrap;
-        cursor: pointer;
-        padding: 0.2rem;
+        padding: 0;
         border-bottom: 1px solid gray;
 
         &:nth-last-child(){
           border-bottom: none;
         }
+
+        li{
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 5px;
+          transition: all 0.24s ease-in-out;
+
+          &:hover{
+            padding-bottom: 1px;
+            background-color: rgba(255,255,255,0.15);
+          }
+        }
+      }
+
+      &::-webkit-scrollbar{
+        width: 2px;
+      }
+    
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+    
+      &::-webkit-scrollbar-thumb {
+        background: lightgray;
       }
     }
 

@@ -7,7 +7,7 @@ import { axiosAuth } from '../app/axiosAuth';
 import GroupContent from './chat/GroupContent'
 // const LazyGroup = lazy(() => import('./chat/GroupContent'));
 
-export const Main = ({ socket }) => {
+export const Main = ({ socket, inputRef }) => {
   const {
     setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage
   } = useChatContext()
@@ -79,13 +79,13 @@ export const Main = ({ socket }) => {
     }
   }, [loggedIn])
 
-  const updatedUsers = conversation.map(eachUser => {
-    return {...eachUser, openedChat: false}
-  })
-  const filteredConversation = updatedUsers.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
-
+  // const updatedUsers = conversation.map(eachUser => {
+  //   return {...eachUser, openedChat: false}
+  // })
+  
   useEffect(() => {
-    const searchConversation = filteredConversation && updatedUsers?.filter(convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()))
+    const filteredConversation = conversation.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
+    const searchConversation = filteredConversation && filteredConversation?.filter(convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()))
     const target = searchConversation.find(user => user?._id === chatId?.userId)
     const others = searchConversation.filter(searchUser => searchUser?._id !== chatId?.userId)
     const currentChat = [target, ...others]
@@ -94,7 +94,8 @@ export const Main = ({ socket }) => {
 
   const openChat = (user) => {
     setChatId({ userId: user?._id, convoId: user?.convoId })
-    setTypingEvent('')
+    setTypingEvent({})
+    inputRef?.current?.focus()
     const filterAll = notification?.filter(notify => notify?.senderId !== user?._id)
     notification?.length && setNotification([filterAll])
     setMessages([])
@@ -143,7 +144,6 @@ flex-direction: column;
 gap: 0.2rem;
 padding: 0 0.2rem;
 overflow-y: scroll;
-z-index: 999;
 
 .current{
   background-color: #333;

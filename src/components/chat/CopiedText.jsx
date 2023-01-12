@@ -1,9 +1,10 @@
 import React from 'react'
 import styled from 'styled-components';
 import { RxCross2 } from 'react-icons/rx';
+import { useChatContext } from '../../hooks/useChatContext';
 
 export const CopiedText = ({ setReference, setIsReferenced, reference }) => {
-console.log(reference)
+  const { currentUser } = useChatContext()
   const cancelEdit = () => {
     setReference({})
     setIsReferenced(false)
@@ -14,8 +15,20 @@ console.log(reference)
       <div className={reference?.text ? 'copy_container' : 'dis_copy'}>
         <div className='copied'>
           <p>
-            <span className='sender'>{reference?.username}</span>
-            <span className='text'>{reference?.text}</span>
+            <span className='sender'>
+              {
+                currentUser?._id === reference?.senderId 
+                  ? 
+                    'You' : reference?.username
+              }
+            </span>
+            <span className='text'>
+              {
+                reference?.text.split(' ').length > 22 
+                  ?
+                  reference?.text.slice(0, 105) + '...' : reference?.text 
+              }
+            </span>
           </p>
           {reference?.text &&
             <p className='crosses'>
@@ -40,23 +53,8 @@ min-height: 3rem;
 }
 
 .copy_container{
-  width: 50%;
-  position: fixed;
-  bottom: 3.8rem;
-  background-color: rgba(0,0,0,0.7);
   border-radius: 5px 5px 0 0;
   display: block;
-
-  // animation: movie 1s linear;
-
-  // @keyframes movie{
-  //   from{
-  //     transform: translatex(-100%);
-  //   }
-  //   to{
-  //     transform: translatex(0);
-  //   }
-  // }
 
     .copied{
       display: flex;
@@ -66,14 +64,14 @@ min-height: 3rem;
       background-color: #363636;
       width: 100%;
       border-radius: 5px 5px;
-      padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+      padding: 0.35rem;
       border-left: 3px solid rgba(0,255,205,0.85); 
 
       p{
         flex-basis: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.2rem;
+        gap: 0.15rem;
 
         .sender{
           color: rgb(0,255,200,0.7);

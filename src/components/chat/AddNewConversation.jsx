@@ -1,22 +1,29 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useChatContext } from '../../hooks/useChatContext'
 import { SearchCon } from './SearchCon'
 import { Users } from './Users';
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const AddNewConversation = ({ result, socket }) => {
-  const {searchUsers, refresh, setConversation, conversation} = useChatContext()
+export const AddNewConversation = ({ filteredUserSearch, socket }) => {
+  const {refresh, setConversation, conversation} = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(null);
+  const [convo, setConvo] = useState({});
+  let loadRef = useRef(0);
     
+  const incLoad = () => ++loadRef
+
   const createConvo = async(friendId) => {
     const initialState = {adminId: currentUserId, friendId}
     try{
+      //updatedUser && setConvo(updatedUser)
+      // await socket.emit('create', updatedUser?.username)
       const res = await axiosAuth.post(`/conversation/create`, initialState)
       const updatedUser = res?.data && ({ ...res?.data, done: true })
-      updatedUser && setConversation(prev => [...prev, updatedUser])
+      updatedUser && setConvo(updatedUser)
+      incLoad()
       refresh()
     }catch(error) {
       let errorMessage;
@@ -29,13 +36,18 @@ export const AddNewConversation = ({ result, socket }) => {
       setLoading(false)
     }
   }
-
-  // useEffect(() => {
-  //   socket.on('new_conversation', data => {
-  //     setConversation(prev => [...prev, data])
-  //     refresh() 
-  //   })
-  // }, [socket])
+  
+  useEffect(() => {
+    let isMounted = true
+    socket.emit('create_conversation', convo)
+    socket.on('new_conversation', data => {
+      isMounted && setConversation(prev => [...prev, data])
+      setConvo({}) 
+    })
+    console.log(loadRef.current)
+    console.log(convo)
+    return () => isMounted = false
+  }, [loadRef.current])
 
   // const create = async (friendId) => {
   //   const initialState = {adminId: currentUserId, friendId}
@@ -43,23 +55,21 @@ export const AddNewConversation = ({ result, socket }) => {
   //   val && await socket.emit('create_Conversation', val)
   // }
 
-//!conversation[i]?.conversationId.includes(user?.conversationId[i]) && 
-  const filteredSearch = result && Array.isArray(result) && result.filter((user, i) => !user?.conversationId.includes(conversation.map(({convoId}) => convoId)) && (user.username.toLowerCase()).includes(searchUsers.toLowerCase()))
-  
+
   return (
     <NewConversation>
       <SearchCon />
       {
-      !Array.isArray(result) ?
-        <p className='error'>{result}</p>
-        :
-        filteredSearch.map(user => (
+      filteredUserSearch.length ?
+        filteredUserSearch.map(user => (
           <div onClick={() => {
             createConvo(user?._id)
           }} key={user._id}>
             <Users user={user} loading={loading} error={error}/>
           </div>
           ))
+          :
+          <p className='error'>No more users</p>
       }
     </NewConversation>
   )
@@ -82,7 +92,7 @@ const NewConversation = styled.div`
       text-align: center;
       text-transform: capitalize;
       font-family: cursive;
-      color: red;
+      color: gray;
       margin-top: 2rem;
     }
 

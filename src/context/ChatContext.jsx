@@ -26,7 +26,11 @@ export const ChatContextProvider = ({ children }) => {
   const [newGroup, setNewGroup] = useState([]);
   const [notification, setNotification] = useState([]);
   const [groupConversation, setGroupConversation] = useState([]);
-  const [typingEvent, setTypingEvent] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [customAdminMessage, setCustomAdminMessage] = useState({});
+  const [typingEvent, setTypingEvent] = useState({});
+  const [reference, setReference] = useState({});
+  const [isReferenced, setIsReferenced] = useState(false);
   const currentUserId = localStorage.getItem('userId');
   const counterRef = useRef(0);
 
@@ -38,54 +42,33 @@ export const ChatContextProvider = ({ children }) => {
     return formatDistanceToNow(dateTime) + ' ago'
   }
 
-  useEffect(() => {
-    const controller = new AbortController()
-    const getUser = async() => {
-      try{
-        const res = await axiosAuth.get(`/${currentUserId}`, {
-          signal: controller.signal
-        })
-        setCurrentUser(res?.data)
-      }catch(error){
-        let errorMessage;
-        error?.response?.status === 400 ? errorMessage = 'userId required' :
-        error?.response?.status === 404 ? errorMessage = 'user not found' :
-        error?.response?.status === 500 ? errorMessage = 'internal error' : 
-        errorMessage = 'no server response'
-      }
-    }
-    currentUserId && getUser()
+    
+  // useEffect(() => {
+  //   let isMounted = true
+  //   const controller = new AbortController()
 
-    return () => controller.abort()
-  }, [conversation])
+  //   const fetchUsers = async() => {
+  //     try{
+  //       const res = await axiosAuth.get('/', {
+  //         signal: controller.signal
+  //       })
+  //       //isMounted && setResult(res?.data)
+  //       refresh()
+  //     }catch(error) {
+  //       let errorMessage;
+  //       !error.response ? errorMessage = 'no server response' : 
+  //       error.response.status === 400 ? errorMessage = 'no users available' :
+  //       error.response.status === 500 ? errorMessage = 'internal error' : ''
+  //       setErrors(errorMessage)
+  //     }
+  //   }
+  //   currentUserId && fetchUsers();
 
-  
-  useEffect(() => {
-    let isMounted = true
-    const controller = new AbortController()
-
-    const fetchUsers = async() => {
-      try{
-        const res = await axiosAuth.get('/', {
-          signal: controller.signal
-        })
-        //isMounted && setResult(res?.data)
-        refresh()
-      }catch(error) {
-        let errorMessage;
-        !error.response ? errorMessage = 'no server response' : 
-        error.response.status === 400 ? errorMessage = 'no users available' :
-        error.response.status === 500 ? errorMessage = 'internal error' : ''
-        setErrors(errorMessage)
-      }
-    }
-    currentUserId && fetchUsers();
-
-    return () => {
-      controller.abort()
-      isMounted = false
-    }
-  }, [loggedIn])
+  //   return () => {
+  //     controller.abort()
+  //     isMounted = false
+  //   }
+  // }, [loggedIn])
 
   // const updateUser = async(id, initialState) => {
   //   try{
@@ -108,7 +91,9 @@ export const ChatContextProvider = ({ children }) => {
     setConversation, result, open, setOpen, proceed, setProceed, isNext, 
     setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, 
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
-    setGroupConversation, typingEvent, setTypingEvent
+    setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
+    customAdminMessage, setCustomAdminMessage, reference, setReference, isReferenced, 
+    setIsReferenced
   }
 
   return (

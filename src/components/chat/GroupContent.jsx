@@ -6,7 +6,8 @@ import { useChatContext } from "../../hooks/useChatContext";
 import { axiosAuth } from "../../app/axiosAuth";
 
 const GroupContent = ({ groupConvo }) => {
-  const { chatId, setChatId, setMessages, setClick, setOpen, formatDate, currentUser, setGroupConversation, setTypingEvent, setMessage } = useChatContext()
+  const { 
+    chatId, setChatId, setMessages, setClick, setOpen, formatDate, currentUser, setGroupConversation, setTypingEvent, setMessage, customAdminMessage, setCustomAdminMessage } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const [reveal, setReveal] = useState(false);
   const [error, setError] = useState('');
@@ -33,7 +34,8 @@ const GroupContent = ({ groupConvo }) => {
     setChatId({ groupName: group?.groupName, convoId: group?.convoId })
     setMessages([])
     setMessage('')
-    setTypingEvent('')
+    setTypingEvent({})
+    setCustomAdminMessage({})
   }
 
   return (
@@ -55,9 +57,13 @@ const GroupContent = ({ groupConvo }) => {
               <CgProfile className='profile'/>
               <div>
                 <p>{group?.groupName}</p>
-                <div className="members">{group?.members.length} members
-                  
-                </div>
+                {!(customAdminMessage?.groupName === group?.groupName) ?
+                  <div className="members">
+                    {group?.members.length} members
+                  </div>
+                  :
+                  <div className="members">{customAdminMessage?.message}</div>
+                }
               </div>
             </div>
             {
