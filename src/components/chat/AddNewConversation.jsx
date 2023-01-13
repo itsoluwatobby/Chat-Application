@@ -11,20 +11,14 @@ export const AddNewConversation = ({ filteredUserSearch, socket }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
   const [convo, setConvo] = useState({});
-  let loadRef = useRef(0);
-    
-  const incLoad = () => ++loadRef
 
   const createConvo = async(friendId) => {
     const initialState = {adminId: currentUserId, friendId}
     try{
-      //updatedUser && setConvo(updatedUser)
-      // await socket.emit('create', updatedUser?.username)
-      const res = await axiosAuth.post(`/conversation/create`, initialState)
-      const updatedUser = res?.data && ({ ...res?.data, done: true })
-      updatedUser && setConvo(updatedUser)
-      incLoad()
-      refresh()
+      const {data} = await axiosAuth.post(`/conversation/create`, initialState)
+      const updatedUser = data && { ...data, done: true }
+      setConvo(updatedUser)
+      // refresh()
     }catch(error) {
       let errorMessage;
       error?.response?.status === 400 ? errorMessage = 'id required' :
@@ -38,23 +32,16 @@ export const AddNewConversation = ({ filteredUserSearch, socket }) => {
   }
   
   useEffect(() => {
-    let isMounted = true
+    //let isMounted = true
     socket.emit('create_conversation', convo)
     socket.on('new_conversation', data => {
-      isMounted && setConversation(prev => [...prev, data])
+      setConversation([...conversation, data])
+      console.log(data)
+      refresh()
       setConvo({}) 
     })
-    console.log(loadRef.current)
-    console.log(convo)
-    return () => isMounted = false
-  }, [loadRef.current])
-
-  // const create = async (friendId) => {
-  //   const initialState = {adminId: currentUserId, friendId}
-  //   const val = await createConvo(initialState)
-  //   val && await socket.emit('create_Conversation', val)
-  // }
-
+    //return () => isMounted = false
+  })
 
   return (
     <NewConversation>

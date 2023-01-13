@@ -12,9 +12,16 @@ export const Left = () => {
   const [sorted, setSorted] = useState([]);
 
   useEffect(() => {
-    const sortedNotification = notification.length && notification.sort((a, b) => b?.orderId - a?.orderId)
+    const filteredSort = notification.length && notification.filter(eachNotification => eachNotification?._id === eachNotification?._id)
+    const sortedNotification = filteredSort && filteredSort.sort((a, b) => b?.orderId - a?.orderId)
     setSorted(sortedNotification)
   }, [notification])
+
+  const openChatFromNotification = (notify) => {
+    setChatId({ userId: notify?._id, convoId: notify?.conversationId })
+    const filterNotification = sorted?.filter(notify => notify?.senderId !== '')
+    setNotification([...filterNotification])
+  }
 
   const customNotifications = (
     <div className='notification_container'>
@@ -22,7 +29,7 @@ export const Left = () => {
         sorted.map(notify => (
           <ul key={notify.orderId} className='notification'>
             <li
-              onClick={() => setChatId({ userId: notify?._id, convoId: notify?.conversationId })} 
+              onClick={() => openChatFromNotification(notify)} 
             >
               message from {notify?.username}
             </li>

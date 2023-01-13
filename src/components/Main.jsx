@@ -96,8 +96,6 @@ export const Main = ({ socket, inputRef }) => {
     setChatId({ userId: user?._id, convoId: user?.convoId })
     setTypingEvent({})
     inputRef?.current?.focus()
-    const filterAll = notification?.filter(notify => notify?.senderId !== user?._id)
-    notification?.length && setNotification([filterAll])
     setMessages([])
     setMessage('')
   }

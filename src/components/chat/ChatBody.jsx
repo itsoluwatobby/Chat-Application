@@ -63,35 +63,53 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
     setReference(message)
     setIsReferenced(true)
   }
-
+console.log(messages)
   const messageContent = (
             <>
               {
-                messages?.map((message, index) =>
-                  <div 
-                    onDoubleClick={() => onMessageRef(message)}
-                    ref={messageRef}
-                    className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
-                    key={message?._id}>
-                    {
-                      chatId?.convoId === message?.conversationId 
-                        &&
-                      <>
-                        <p>{message?.text}</p>  
-                        <p className='message_base'>
-                          {chatId?.groupName && (
-                            message?.senderId === currentUserId ?
-                              <span className='you'>You</span>
-                              :
-                              <span className='you'>{message?.username}</span>
-                            )
+                messages?.map(message =>  
+                  (
+                    <div 
+                      onDoubleClick={() => onMessageRef(message)}
+                      ref={messageRef}
+                      className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
+                      key={message?._id}>
+                        <>
+                          {message?.referencedMessage?._id &&
+                            <div className='copied'>
+                              <p className='referenced_message'>
+                                <span className='sender'>
+                                  {
+                                    currentUser?._id === message?.referencedMessage?.senderId 
+                                      ? 
+                                        'You' : message?.referencedMessage?.username
+                                  }
+                                </span>
+                                <span className='text'>
+                                  {
+                                    message?.referencedMessage?.text.split(' ').length > 22 
+                                      ?
+                                      message?.referencedMessage?.text.slice(0, 105) + '...' : message?.referencedMessage?.text 
+                                  }
+                                </span>
+                              </p>
+                            </div>
                           }
-                          <span className={chatId?.groupName ? 'time' : 'other'}>{message?.dateTime}</span>
-                        </p>
-                      </>
-                    }
-                    {/* {chatViewed && <span>user viewed your chat</span>} */}
-                  </div>
+                          <p>{message?.text}</p>  
+                          <p className='message_base'>
+                            {chatId?.groupName && (
+                              message?.senderId === currentUserId ?
+                                <span className='you'>You</span>
+                                :
+                                <span className='you'>{message?.username}</span>
+                              )
+                            }
+                            <span className={chatId?.groupName ? 'time' : 'other'}>{message?.dateTime}</span>
+                          </p>
+                        </>
+                      {/* {chatViewed && <span>user viewed your chat</span>} */}
+                    </div>
+                  ) 
                 )
               }
             </>
@@ -186,6 +204,35 @@ position: relative;
     gap: 0.15rem;
     border-radius: 10px;
     padding: 0.2rem 0.55rem;
+
+    .copied{
+      background-color: #363636;
+      width: 100%;
+      border-radius: 5px 5px;
+      padding: 0.35rem;
+      border-left: 3px solid rgba(0,255,205,0.85); 
+
+      .referenced_message{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 0.15rem;
+
+        .sender{
+          color: rgb(0,255,200,0.7);
+          text-transform: capitalize;
+          font-size: 12px;
+        }
+
+        .text{
+          white-space: wrap;
+          color: rgba(255,255,255,0.65);
+          font-size: 13px;
+          font-family: mono;
+        }
+      }
+    }
 
     p{
       white-space: wrap;

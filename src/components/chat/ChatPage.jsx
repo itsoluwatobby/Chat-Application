@@ -11,9 +11,9 @@ import EmojiPicker from 'emoji-picker-react';
 
 export const ChatPage = ({ result, socket, inputRef }) => {
   const { 
-    chatId, setMessages, messages, setClick, setOpen, 
-    setMessage, message, currentUser, setResponse, 
-    counterRef, notification, setNotification, setIsChatOpened 
+    chatId, setMessages, messages, setClick, setOpen, setIsReferenced,
+    setMessage, message, currentUser, setResponse, reference, 
+    counterRef, setNotification, setIsChatOpened, notification
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -39,13 +39,14 @@ export const ChatPage = ({ result, socket, inputRef }) => {
     const newMessage = { 
       conversationId: chatId?.convoId,
       senderId: currentUserId, username: currentUser?.username, 
-      text: message, dateTime: format(new Date(), 'p')
+      text: message, dateTime: format(new Date(), 'p'), 
+      referencedId: reference?._id
     }
     try{
       const {data} = await axiosAuth.post('/create_message', newMessage)
       setMessage('')
       setEmojiOpen(false)
-      //setMessages(prev => [...prev, data])
+      setIsReferenced(false)
       setReceived(data)
     }catch(error) {
       let errorMessage;
@@ -54,13 +55,13 @@ export const ChatPage = ({ result, socket, inputRef }) => {
       setError(errorMessage)
     }
   }
-//if(chatId?.convoId !== data[data.length - 1]?.conversationId) {
+
   //receive message
   useEffect(() => {
     socket.emit('create_message', received)
     socket.on('new_message', (data) => { 
       if(data?.conversationId !== chatId?.convoId) {
-        setNotification(prev => [...prev, {...data, orderId: counterRef.current++}])
+        setNotification([...notification, {...data, orderId: counterRef.current++}])
         setReceived({})
       }
       else {
@@ -69,17 +70,6 @@ export const ChatPage = ({ result, socket, inputRef }) => {
       }
     })
   })
-
-  // const sendMessage = async() => {
-  //   const newMessage = { 
-  //     conversationId: chatId?.convoId,
-  //     senderId: currentUserId, username: currentUser?.username, 
-  //     text: message, dateTime: format(new Date(), 'p')
-  //   }
-  //   await socket.emit('create-message', [...messages, newMessage])
-  //   await createMessage(newMessage)
-  //   setMessage('')
-  // }
 
   const pickEmoji = emoji => {
     let ref = inputRef?.current 

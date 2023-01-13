@@ -17,9 +17,11 @@ export const GroupHead = ({ groupConvo, typingEvent, resize, formatDate, result 
       <div className='detail'>
         <p className='text-edit'>{resize ? groupConvo?.groupName : groupConvo?.groupName?.slice(0, 4)+'...'}</p>
         { 
-          typingEvent?.message ?
-          <p>{`${typingEvent?.username} is ${typingEvent?.message}`}</p>
-          :
+          (typingEvent?.message && (typingEvent?.userId === groupConvo?._id)) ? 
+          <p>
+            {`${typingEvent?.username} is ${typingEvent?.message}`}
+          </p>
+            :
           <p className='base text-edit'>
             group members
           </p>

@@ -15,10 +15,8 @@ export const ChatBase = ({ sendMessage, socket, setEmojiOpen, inputRef }) => {
   useEffect(() => {
     if(inputRef?.current?.value){
       socket.emit('typing', { username: currentUser?.username, userId: chatId?.userId, message:'typing...', conversationId: chatId?.convoId })
-      //inputRef.current.addEventListener('keydown', eventLis)
     }
     else{
-      //inputRef.current.removeEventListener('keyup', eventLis)
       socket.emit('no-typing', { username: currentUser?.username, userId: chatId?.userId, message:'', conversationId: chatId?.convoId })
     }
   }, [message])
