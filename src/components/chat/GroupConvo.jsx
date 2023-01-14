@@ -18,20 +18,22 @@ export const GroupConvo = ({ result, socket }) => {
   const [image, setImage] = useState('')
   const [groupName, setGroupName] = useState('')
   const inputRef = useRef();
-
+  
   const onImageChange = e => setImage(e.target.files[0])
-
+  
   const editedUsers = result && Array.isArray(result) && result.map(eachUser => {
     return { ...eachUser, checked: false }
   })
   const canClick = Boolean(groupName);
+  
   const filteredSearch = editedUsers && Array.isArray(editedUsers) && editedUsers.filter((user, i) => user.username.toLowerCase().includes(searchUsers.toLowerCase()))
-
+  
   const createGroupConvo = async() => {
     if(newGroup.length && groupName){
+      const groupIds = newGroup.map(singlePerson => singlePerson?.id)
       try{
         const res = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
-          memberIds: newGroup, groupName
+          memberIds: groupIds, groupName
         })
         setGroupConversation(prev => [...prev, res.data])
         setOpen(true)
@@ -186,6 +188,13 @@ const GroupConversation = styled.div`
   padding: 0 0 0.3rem 0;
   max-height: 28em;
   box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
+
+  .error{
+    text-align: center;
+    text-transform: capitalize;
+    font-family: cursive;
+    color: red;
+  }
 
   @media (max-width: 1108px){
     transform: translate(60%);

@@ -9,11 +9,11 @@ import {format} from 'date-fns';
 import { axiosAuth } from '../../app/axiosAuth';
 import EmojiPicker from 'emoji-picker-react';
 
-export const ChatPage = ({ result, socket, inputRef }) => {
+export const ChatPage = ({ result, socket, inputRef, allUsers }) => {
   const { 
-    chatId, setMessages, messages, setClick, setOpen, setIsReferenced,
-    setMessage, message, currentUser, setResponse, reference, 
-    counterRef, setNotification, setIsChatOpened, notification
+    chatId, setMessages, messages, setClick, setOpen, setMessage, message, 
+    currentUser, setResponse, reference, setReference, counterRef, setNotification, 
+    setIsChatOpened, notification, setOpenGroupInfo
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -37,7 +37,7 @@ export const ChatPage = ({ result, socket, inputRef }) => {
   const createMessage = async() => {
     if(!message) return
     const newMessage = { 
-      conversationId: chatId?.convoId,
+      conversationId: chatId?.convoId, receiverId: chatId?.userId,
       senderId: currentUserId, username: currentUser?.username, 
       text: message, dateTime: format(new Date(), 'p'), 
       referencedId: reference?._id
@@ -46,7 +46,7 @@ export const ChatPage = ({ result, socket, inputRef }) => {
       const {data} = await axiosAuth.post('/create_message', newMessage)
       setMessage('')
       setEmojiOpen(false)
-      setIsReferenced(false)
+      setReference({})
       setReceived(data)
     }catch(error) {
       let errorMessage;
@@ -114,6 +114,7 @@ export const ChatPage = ({ result, socket, inputRef }) => {
             user={targetUser} 
             socket={socket} 
             result={result}
+            allUsers={allUsers}
             setEmojiOpen={setEmojiOpen} 
             setIsChatOpened={setIsChatOpened}
           />

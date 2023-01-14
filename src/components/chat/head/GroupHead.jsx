@@ -1,14 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { CgProfile } from 'react-icons/cg';
 import { useChatContext } from '../../../hooks/useChatContext';
+import { ChatProfile } from './profile/ChatProfile';
 
-export const GroupHead = ({ groupConvo, typingEvent, resize, formatDate, result }) => {
-  // const { chatId, currentUser } = useChatContext();
-  //const targetUser = result && result.find(user => user?._id === chatId?.userId)
+export const GroupHead = ({ groupConvo, typingEvent, resize, allUsers, result }) => {
+  const { chatId, currentUser, openGroupInfo, groupConversation, setOpenGroupInfo } = useChatContext();
+  const [groupUsers, setGroupUsers] = useState([]);
+  const [target, setTarget] = useState({});
+  const [users, setUsers] = useState('');
+
+  useEffect(() => {
+    const targetGroup = groupConversation.find(group => group?.groupName === chatId?.groupName);
+    const groupIds = targetGroup && targetGroup?.members.map(user => user?.userId);
+    const groupNames = targetGroup && targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', ')
+    setUsers(groupNames);
+    setTarget(targetGroup)
+    const usersGroup = groupIds && allUsers.filter(user => groupIds?.includes(user?._id));
+    setGroupUsers([...usersGroup]);
+  }, [chatId?.groupName])
+
   return (
-    <HeadCompo>  
-      {groupConvo?.profilePicture 
+    <HeadCompo
+      onClick={() => setOpenGroupInfo(true)}
+    >  
+      {openGroupInfo && <ChatProfile groupProfile groupUsers={groupUsers} target={target} />}
+      {groupConvo?.profilePicture
           ? 
           <img src={groupConvo?.profilePicture} alt={groupConvo?.groupName} 
             className='profile-picture'/> 
@@ -17,13 +34,13 @@ export const GroupHead = ({ groupConvo, typingEvent, resize, formatDate, result 
       <div className='detail'>
         <p className='text-edit'>{resize ? groupConvo?.groupName : groupConvo?.groupName?.slice(0, 4)+'...'}</p>
         { 
-          (typingEvent?.message && (typingEvent?.userId === groupConvo?._id)) ? 
+          (typingEvent?.message && (typingEvent?.conversationId === groupConvo?.convoId)) ? 
           <p>
             {`${typingEvent?.username} is ${typingEvent?.message}`}
           </p>
             :
           <p className='base text-edit'>
-            group members
+            {resize ? users : users.slice(0,15)+'...'}
           </p>
         }
       </div>
@@ -37,7 +54,9 @@ const HeadCompo = styled.div`
   justify-content: flex-start;
   gap: 1rem;
   width: 100%;
+  cursor: pointer;
   white-space: nowrap;
+  position: relative;
 
   .pics{
     font-size: 3.6rem;

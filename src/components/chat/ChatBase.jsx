@@ -8,16 +8,16 @@ import { useEffect, useRef, useState } from 'react'
 import { CopiedText } from './CopiedText'
 
 export const ChatBase = ({ sendMessage, socket, setEmojiOpen, inputRef }) => {
-  const {message, setMessage, chatId, currentUser, reference, setReference,setIsReferenced } = useChatContext();
+  const {message, setMessage, chatId, currentUser, reference } = useChatContext();
   
   const onMessageChange = e => setMessage(e.target.value)
 
   useEffect(() => {
     if(inputRef?.current?.value){
-      socket.emit('typing', { username: currentUser?.username, userId: chatId?.userId, message:'typing...', conversationId: chatId?.convoId })
+      socket.emit('typing', { username: currentUser?.username, userId: currentUser?._id, message:'typing...', conversationId: chatId?.convoId })
     }
     else{
-      socket.emit('no-typing', { username: currentUser?.username, userId: chatId?.userId, message:'', conversationId: chatId?.convoId })
+      socket.emit('no-typing', { username: currentUser?.username, userId: currentUser?._id, message:'', conversationId: chatId?.convoId })
     }
   }, [message])
 
@@ -25,11 +25,7 @@ export const ChatBase = ({ sendMessage, socket, setEmojiOpen, inputRef }) => {
   return (
     <ChatBaseComponent>
       {reference?.text &&
-          <CopiedText 
-            reference={reference} 
-            setReference={setReference} 
-            setIsReferenced={setIsReferenced} 
-          />
+          <CopiedText />
         }
       <div>
         <BsEmojiSmile 

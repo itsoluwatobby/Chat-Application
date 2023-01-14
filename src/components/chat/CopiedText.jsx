@@ -3,12 +3,8 @@ import styled from 'styled-components';
 import { RxCross2 } from 'react-icons/rx';
 import { useChatContext } from '../../hooks/useChatContext';
 
-export const CopiedText = ({ setReference, setIsReferenced, reference }) => {
-  const { currentUser } = useChatContext()
-  const cancelEdit = () => {
-    setReference({})
-    setIsReferenced(false)
-  }
+export const CopiedText = () => {
+  const { currentUser, setReference, reference } = useChatContext();
 
   return (
     <Copied>
@@ -33,7 +29,7 @@ export const CopiedText = ({ setReference, setIsReferenced, reference }) => {
           {reference?.text &&
             <p className='crosses'>
               <RxCross2 
-                onClick={cancelEdit}
+                onClick={() => setReference({})}
                 className='cross'
               />
             </p>

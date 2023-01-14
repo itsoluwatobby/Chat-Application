@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { CgProfile } from 'react-icons/cg';
 
 export const UserHead = ({ user, typingEvent, resize, formatDate }) => {
+
   return (
     <UserConvo>  
       {user?.profilePicture 
@@ -14,11 +15,9 @@ export const UserHead = ({ user, typingEvent, resize, formatDate }) => {
       <div className='detail'>
         <p className='text-edit'>{resize ? user?.username : user?.username?.slice(0, 4)+'...'}</p>
         { 
-          (typingEvent?.message && (typingEvent?.userId === user?._id)) ?
-            <p>
-            {
-              typingEvent?.message
-            }
+          typingEvent?.userId === user?._id ?
+          <p>
+            { typingEvent?.message && typingEvent?.message }
           </p>
             :
           user?.status !== 'online' 

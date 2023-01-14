@@ -7,9 +7,9 @@ import { axiosAuth } from '../app/axiosAuth';
 import GroupContent from './chat/GroupContent'
 // const LazyGroup = lazy(() => import('./chat/GroupContent'));
 
-export const Main = ({ socket, inputRef }) => {
+export const Main = ({ socket, inputRef,  }) => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage
+    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setOpenGroupInfo
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -17,7 +17,9 @@ export const Main = ({ socket, inputRef }) => {
   const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
-    setIsChatOpened(false)
+    let isMounted = true
+    isMounted && setIsChatOpened(false)
+    return () => isMounted = false
   }, [chatId.convoId])
 
   useEffect(() => {
@@ -53,9 +55,11 @@ export const Main = ({ socket, inputRef }) => {
       isMounted = false
     }
   }, [loggedIn, currentUserId])
-  
+
   useEffect(() => {
-    setIsChatOpened(true)
+    let isMounted = true
+    isMounted && setIsChatOpened(true)
+    return () => isMounted = false
   }, [chatId.convoId])
 
   useEffect(() => {
@@ -102,7 +106,7 @@ export const Main = ({ socket, inputRef }) => {
 
   let content;
 
-  loading ? content = <p className='loading'>loading your conversation...</p> :
+  loading ? content = <p className='loading'>loading your conversations...</p> :
   conversation.length ? content = (
               <>
                 {filtered &&
@@ -123,10 +127,12 @@ export const Main = ({ socket, inputRef }) => {
 
   
   return (
-    <MainPage>
+    <MainPage onClick={() => setOpenGroupInfo(false)}>
       <Search />
       {
-        !conversation.length && !groupConversation.length && error && <p>{error}</p>
+        !conversation.length 
+                && !groupConversation.length 
+                            && error && <p className='error'>{error}</p>
       }
       {content}
       {filtered && <GroupContent groupConvo={groupConversation}/>}

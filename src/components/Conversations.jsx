@@ -20,10 +20,9 @@ export const Conversations = ({ user, socket }) => {
     try{
       const otherConversations = conversation.filter(user => user?._id !== id)
       await axiosAuth.delete(`/conversation/delete/${convoId}/${currentUserId}`)
-      setConversation(otherConversations)
-      //setDeletedConvo(otherConversations)
+      setDeletedConvo([...otherConversations])
+      //setConversation([...otherConversations])
       setChatId({})
-      //refresh()
     }
     catch(error){
       let errorMessage;
@@ -36,14 +35,25 @@ export const Conversations = ({ user, socket }) => {
   }
 
   // useEffect(() => {
-  //   let isMounted = true
-  //   socket.emit('delete_conversation', deletedConvo)
+  //   if(!deletedConvo?.length) return
+  //   socket.emit('delete_conversation', {new: deletedConvo, room: 'chat_application'})
   //   socket.on('newDel_conversation', data => {
-  //     isMounted && setConversation([...data])
+  //     setConversation([...data])
   //     setDeletedConvo([]) 
   //   })
-  //   return () => isMounted = false
-  // }, [deletedConvo])
+  // }, [deletedConvo?.length])
+
+  useEffect(() => {
+    if(!deletedConvo?.length) return
+    let isMounted = true
+    isMounted && socket.emit('conversation', {_id: chatId?.userId})
+    isMounted && socket.emit('delete_conversation', {new: deletedConvo, myId: currentUser?._id, otherId: chatId?.userId})
+    isMounted && socket.on('newDel_conversation', data => {
+      setConversation([...data])
+      setDeletedConvo([]) 
+    })
+    return () => isMounted = false
+  })
   
   return (
     <Conversation

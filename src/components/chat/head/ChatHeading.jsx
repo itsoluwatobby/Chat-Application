@@ -11,14 +11,16 @@ import { useChatContext } from '../../../hooks/useChatContext';
 import { UserHead } from './UserHead';
 import { GroupHead } from './GroupHead';
 
-export const ChatHeading = ({ user, socket, setIsChatOpened, result, setEmojiOpen }) => {
+export const ChatHeading = ({ 
+  user, socket, setIsChatOpened, result, setEmojiOpen, allUsers
+ }) => {
   const [width, setWidth] = useState(undefined)
   const { chatId, setChatId, formatDate, setMessages, typingEvent, setTypingEvent } = useChatContext();
   const [resize, setResize] = useState(false);
 
   useEffect(() => {
     socket.on('typing-event', data => {
-      setTypingEvent({...data})
+      setTypingEvent(data)
     })
   }, [])
 
@@ -59,7 +61,7 @@ export const ChatHeading = ({ user, socket, setIsChatOpened, result, setEmojiOpe
         <GroupHead 
           groupConvo={chatId} typingEvent={typingEvent}
           formatDate={formatDate} resize={resize}
-          result={result}
+          result={result} allUsers={allUsers}
         />
       }
       <div className='endtag'>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
@@ -6,7 +6,7 @@ import { axiosAuth } from '../app/axiosAuth'
 
 export const Login = () => {
   const [email, setEmail] = useState('')
-  const {setLoggedIn} = useChatContext()
+  const { loggedIn, setLoggedIn } = useChatContext()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState('')
@@ -27,7 +27,6 @@ export const Login = () => {
     try{
       const res = await axiosAuth.post('/login', {password, email})
       setLoggedIn(true)
-      //setCurrentUser(res?.data)
       localStorage.setItem('isLoggedIn', true)
       localStorage.setItem('userId', res?.data._id)
       setPassword('')
@@ -42,6 +41,12 @@ export const Login = () => {
       setLoading('')
     }
   }
+
+  useEffect(() => {
+    setTimeout(() => {
+      setError('')
+    }, 3500)
+  }, [error])
 
   return (
     <Section>

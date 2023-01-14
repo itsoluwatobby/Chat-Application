@@ -5,7 +5,8 @@ import { useChatContext } from '../../hooks/useChatContext';
 import { BsCheck, BsCheckAll } from 'react-icons/bs';
 
 export const ChatBody = ({ socket, setEmojiOpen }) => {
-  const {messages, setMessages, chatId, currentUser, welcomeMessage, num, isChatOpened, reference, setReference, isReferenced, setIsReferenced } = useChatContext();
+  const { 
+    messages, setMessages, chatId, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupInfo } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -59,18 +60,18 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
     navigator.clipboard.writeText(text)
   }
 
-  const onMessageRef = (message) => {
-    setReference(message)
-    setIsReferenced(true)
-  }
-console.log(messages)
+  // const onMessageRef = (message) => {
+  //   setReference(message)
+  //   setIsReferenced(true)
+  // }
+
   const messageContent = (
             <>
               {
                 messages?.map(message =>  
                   (
                     <div 
-                      onDoubleClick={() => onMessageRef(message)}
+                      onDoubleClick={() => setReference(message)}
                       ref={messageRef}
                       className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
                       key={message?._id}>
@@ -116,7 +117,10 @@ console.log(messages)
           )
 
   return (
-    <ChatBodyComponent onClick={() => setEmojiOpen(false)}>
+    <ChatBodyComponent onClick={() => {
+        setEmojiOpen(false)
+        setOpenGroupInfo(false)
+      }}>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
       {
         (messages?.length || (

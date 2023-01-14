@@ -8,29 +8,40 @@ export const ChatContextProvider = ({ children }) => {
   const [chatId, setChatId] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
   const [click, setClick] = useState(false);
+
   const [message, setMessage] = useState('');
   const [createNewConvo, setCreateNewConvo] = useState('');
   const [searchUsers, setSearchUsers] = useState('');
+
   const [messages, setMessages] = useState([]);
   const [conversation, setConversation] = useState([]);
   const [messageBody, setMessageBody] = useState({});
+
   const [currentUser, setCurrentUser] = useState({});
   const [num, setNum] = useState(0);
   const [result, setResult] = useState([]);
+
   const [errors, setErrors] = useState(null);
   const [open, setOpen] = useState(false);
   const [proceed, setProceed] = useState(false);
+
   const [isNext, setIsNext] = useState(false);
   const [isChatOpened, setIsChatOpened] = useState(false);
   const [search, setSearch] = useState('');
+
   const [newGroup, setNewGroup] = useState([]);
   const [notification, setNotification] = useState([]);
   const [groupConversation, setGroupConversation] = useState([]);
+
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [customAdminMessage, setCustomAdminMessage] = useState({});
   const [typingEvent, setTypingEvent] = useState({});
+
   const [reference, setReference] = useState({});
-  const [isReferenced, setIsReferenced] = useState(false);
+  const [openGroupInfo, setOpenGroupInfo] = useState(false);
+  const [error, setError] = useState(null);
+  const [convo, setConvo] = useState({});
+
   const currentUserId = localStorage.getItem('userId');
   const counterRef = useRef(0);
 
@@ -42,33 +53,20 @@ export const ChatContextProvider = ({ children }) => {
     return formatDistanceToNow(dateTime) + ' ago'
   }
 
-    
-  // useEffect(() => {
-  //   let isMounted = true
-  //   const controller = new AbortController()
-
-  //   const fetchUsers = async() => {
-  //     try{
-  //       const res = await axiosAuth.get('/', {
-  //         signal: controller.signal
-  //       })
-  //       //isMounted && setResult(res?.data)
-  //       refresh()
-  //     }catch(error) {
-  //       let errorMessage;
-  //       !error.response ? errorMessage = 'no server response' : 
-  //       error.response.status === 400 ? errorMessage = 'no users available' :
-  //       error.response.status === 500 ? errorMessage = 'internal error' : ''
-  //       setErrors(errorMessage)
-  //     }
-  //   }
-  //   currentUserId && fetchUsers();
-
-  //   return () => {
-  //     controller.abort()
-  //     isMounted = false
-  //   }
-  // }, [loggedIn])
+  const createConvo = async(initialState) => {
+    try{
+      const {data} = await axiosAuth.post(`/conversation/create`, initialState)
+      setConvo({...data})
+      // setConversation([...conversation, data])
+    }catch(error) {
+      let errorMessage;
+      error?.response?.status === 400 ? errorMessage = 'id required' :
+      error?.response?.status === 404 ? errorMessage = 'not found' :
+      error?.response?.status === 409 ? errorMessage = 'conversation already exist' :
+      error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+      setError(errorMessage)
+    }
+  }
 
   // const updateUser = async(id, initialState) => {
   //   try{
@@ -92,8 +90,8 @@ export const ChatContextProvider = ({ children }) => {
     setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, 
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
     setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
-    customAdminMessage, setCustomAdminMessage, reference, setReference, isReferenced, 
-    setIsReferenced
+    customAdminMessage, setCustomAdminMessage, reference, setReference, 
+    openGroupInfo, setOpenGroupInfo, createConvo, error, setError, convo, setConvo
   }
 
   return (

@@ -14,9 +14,10 @@ let socket
 
 export const Chat = () => {
   const { 
-    click, open, loggedIn, searchUsers, setCurrentUser, conversation, num } = useChatContext();
+    click, open, loggedIn, searchUsers, currentUser, setCurrentUser, conversation, 
+    num } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
-  const [result] = useGetOthers(currentUserId)
+  const [result, users] = useGetOthers(currentUserId)
   const [conversationIds, setConversationIds] = useState([]);
   const [filteredUserSearch, setFilteredUserSearch] = useState([]);
   const inputRef = useRef();
@@ -29,6 +30,7 @@ export const Chat = () => {
           signal: controller.signal
         })
         setCurrentUser(res?.data)
+        socket.emit('conversation', res?.data)
       }catch(error){
         let errorMessage;
         error?.response?.status === 400 ? errorMessage = 'userId required' :
@@ -48,9 +50,9 @@ export const Chat = () => {
     }
   }, [currentUserId])
 
-  useEffect(() => {
-    socket.emit('create', 'chat_application')
-  }, [])
+  // useEffect(() => {
+  //   socket.emit('conversation', currentUser)
+  // }, [])
   
   useEffect(() => {
     let isMounted = true
@@ -64,7 +66,7 @@ export const Chat = () => {
         const filteredUsers = await res?.data && Array.isArray(result) && result?.filter(user => !res?.data?.includes(user?._id))
         filteredUsers && setConversationIds(filteredUsers)
       }catch(error) {
-        console.log(error)
+        console.log(error.message)
       }
     }
     getConversationIds()
@@ -92,14 +94,14 @@ export const Chat = () => {
         socket && 
           <ChatPage 
             result={result} socket={socket} 
-            inputRef={inputRef}
+            inputRef={inputRef} allUsers={users}
           />
       }
       {
         click && 
           <AddNewConversation 
           filteredUserSearch={filteredUserSearch} socket={socket} 
-            conversationIds={conversationIds}
+            conversationIds={conversationIds} result={result}
           /> 
             || 
         open && 

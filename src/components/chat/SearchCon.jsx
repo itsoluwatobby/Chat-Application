@@ -24,9 +24,9 @@ export const SearchCon = ({ groupConvo }) => {
     <div className='selected_container'>
       {newGroup.length ? 
         groupUser.map(group => (
-          <div key={group} className='selected_contact'>
+          <div key={group.id} className='selected_contact'>
             <BsPersonCircle className='contact'/>
-            <p>{group}</p>
+            <p>{group?.username}</p>
           </div>
         )) : ''
       }
@@ -147,7 +147,7 @@ z-index: 50;
     width: 88%;
     margin: auto;
     background-color: #48494B;
-    padding: 0.1rem 0.4rem;
+    padding: 0.2rem;
     color: white;
     border-radius: 5px;
     box-shadow: 0 2px 0 #28a99e;
@@ -155,16 +155,18 @@ z-index: 50;
     .selected_container{
       display: flex;
       align-items: center;
+      max-height: 4.4rem;
       flex-wrap: wrap;
       gap: 0.1rem;
       width: 100%;
+      overflow-y: scroll;
 
       .selected_contact{
         display: flex;
         align-items: center;
         background-color: #26a69a;
         color: white;
-        padding: 0.1rem;
+        padding: 0.05rem;
         border-radius: 5px;
         opacity: 0.98;
 
@@ -176,6 +178,19 @@ z-index: 50;
           margin-left: -1rem;
         }
       }
+
+      &::-webkit-scrollbar{
+        width: 1px;
+      }
+    
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+    
+      &::-webkit-scrollbar-thumb {
+        background: gray;
+      }
+    
     }
     
     input{
@@ -209,13 +224,13 @@ z-index: 50;
   .group{
     display:flex;
     align-items: center;
-    width: 95%;
+    width: 90%;
     padding: 0.3rem 1rem 0.3rem 1rem;
     cursor: pointer;
     border-radius: 10px;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
-    margin-left: 0.5rem;
+    margin-left: 0.85rem;
 
     .icon{
       padding: 0.8rem;

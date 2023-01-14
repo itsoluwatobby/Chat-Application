@@ -32,7 +32,7 @@
 
 * [ ] User profile page
 
-* [ ] Creating rooms _presently on it_
+* [x] Room chat feature
 
 * [ ] User status update
 
