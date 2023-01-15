@@ -5,7 +5,7 @@ import { useChatContext } from "../../../../hooks/useChatContext";
 import { useEffect, useState } from "react";
 
 export const UsersInGroup = ({ groupUsers }) => {
-  const { setChatId, createConvo, currentUser, setOpenGroupInfo } = useChatContext();
+  const { setChatId, currentUser, setOpenGroupInfo } = useChatContext();
   const [search, setSearch] = useState('');
   const [searchedUsers, setSearchedUsers] = useState([]);
 
@@ -14,11 +14,20 @@ export const UsersInGroup = ({ groupUsers }) => {
     setSearchedUsers(searched)
   }, [search])
 
-  const openPersonalChat = (user) => {
-    //createConvo({adminId: currentUser?._id, friendId: user?._id})
-    
-    setOpenGroupInfo(false)
-    // setChatId({userId: user?._id})
+  const createConvoFromGroup = async(friendId) => {
+    const initialState = { adminId: currentUser?._id, friendId }
+    try{
+      const {data} = await axiosAuth.post(`/conversation/create`, initialState)
+      setConvo({...data})
+      // setConversation([...conversation, data])
+    }catch(error) {
+      let errorMessage;
+      error?.response?.status === 400 ? errorMessage = 'id required' :
+      error?.response?.status === 404 ? errorMessage = 'not found' :
+      error?.response?.status === 409 ? errorMessage = 'conversation already exist' :
+      error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+      setError(errorMessage)
+    }
   }
 
   return (
@@ -39,7 +48,7 @@ export const UsersInGroup = ({ groupUsers }) => {
           searchedUsers.map(user => (
             <li 
               key={user?._id}
-              onClick={() => openPersonalChat(user)}
+              onClick={() => createConvoFromGroup(user?._id)}
               className='user_detail'>
               <div className="flex_con">
                 {user?.profilePicture ? 

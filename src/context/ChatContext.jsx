@@ -53,21 +53,6 @@ export const ChatContextProvider = ({ children }) => {
     return formatDistanceToNow(dateTime) + ' ago'
   }
 
-  const createConvo = async(initialState) => {
-    try{
-      const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      setConvo({...data})
-      // setConversation([...conversation, data])
-    }catch(error) {
-      let errorMessage;
-      error?.response?.status === 400 ? errorMessage = 'id required' :
-      error?.response?.status === 404 ? errorMessage = 'not found' :
-      error?.response?.status === 409 ? errorMessage = 'conversation already exist' :
-      error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
-      setError(errorMessage)
-    }
-  }
-
   // const updateUser = async(id, initialState) => {
   //   try{
   //     const updateUser = await axiosAuth.put(`/update/${id}`, initialState)
@@ -91,7 +76,7 @@ export const ChatContextProvider = ({ children }) => {
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
     setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
     customAdminMessage, setCustomAdminMessage, reference, setReference, 
-    openGroupInfo, setOpenGroupInfo, createConvo, error, setError, convo, setConvo
+    openGroupInfo, setOpenGroupInfo, error, setError, convo, setConvo
   }
 
   return (

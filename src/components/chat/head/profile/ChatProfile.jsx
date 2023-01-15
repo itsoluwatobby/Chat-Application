@@ -10,9 +10,10 @@ import { FaTimes } from 'react-icons/fa';
 export const ChatProfile = ({ groupProfile, groupUsers, target }) => {
   const { chatId, openGroupInfo, setOpenGroupInfo } = useChatContext();
   const [buttonState, setButtonState] = useState(NAVIGATE.FST);
-console.log(openGroupInfo)
+  
   const closeGroupInfo = () => {
-    setOpenGroupInfo(false)
+    setOpenGroupInfo(!openGroupInfo)
+    console.log(openGroupInfo)
   }
 
   return (
@@ -36,13 +37,13 @@ console.log(openGroupInfo)
         </div>
         ||
         buttonState === NAVIGATE.STH &&
-        <EndToEnd />
+        <EndToEnd closeGroupInfo={closeGroupInfo} />
       }
     </ChatProfilePage>
   )
 }
 
-const EndToEnd = () => {
+const EndToEnd = ({ closeGroupInfo }) => {
 
   return (
     <div className='encrypt'>
@@ -178,6 +179,14 @@ border-radius: 10px;
       right: 1rem;
       top: 1rem;
       cursor: pointer;
+
+      &:hover{
+        opacity: 0.6;
+      }
+
+      &:active{
+        opacity: 0.85;
+      }
     }
   }
 
@@ -201,6 +210,14 @@ border-radius: 10px;
       right: 1rem;
       top: 1rem;
       cursor: pointer;
+
+      &:hover{
+        opacity: 0.6;
+      }
+
+      &:active{
+        opacity: 0.85;
+      }
     }
 
     p{

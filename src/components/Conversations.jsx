@@ -9,17 +9,19 @@ import { BiRefresh } from 'react-icons/bi';
 
 export const Conversations = ({ user, socket }) => {
   const {
-    setClick, setOpen, setChatId, typingEvent, conversation, refresh, currentUser, setConversation, formatDate, chatId
+    setClick, setOpen, setChatId, typingEvent, conversation, refresh, currentUser, setConversation, formatDate, chatId, customAdminMessage
   } = useChatContext()
   const [reveal, setReveal] = useState(false);
   const currentUserId = localStorage.getItem('userId');
   const [error, setError] = useState(null);
   const [deletedConvo, setDeletedConvo] = useState([]);
 
-  const deleteConversation = async(convoId, id) => {
+  const deleteConversation = async(initial) => {
     try{
-      const otherConversations = conversation.filter(user => user?._id !== id)
-      await axiosAuth.delete(`/conversation/delete/${convoId}/${currentUserId}`)
+      const otherConversations = conversation.filter(user => user?._id !== initial?._id)
+      !initial?.groupName ? 
+          await axiosAuth.delete(`/conversation/delete/${initial?.convoId}/${currentUserId}`)
+          : await axiosAuth.delete(`/group_conversation/delete/${currentUserId}/${initial?.convoId}`)
       setDeletedConvo([...otherConversations])
       //setConversation([...otherConversations])
       setChatId({})
@@ -34,15 +36,6 @@ export const Conversations = ({ user, socket }) => {
     }
   }
 
-  // useEffect(() => {
-  //   if(!deletedConvo?.length) return
-  //   socket.emit('delete_conversation', {new: deletedConvo, room: 'chat_application'})
-  //   socket.on('newDel_conversation', data => {
-  //     setConversation([...data])
-  //     setDeletedConvo([]) 
-  //   })
-  // }, [deletedConvo?.length])
-
   useEffect(() => {
     if(!deletedConvo?.length) return
     let isMounted = true
@@ -50,7 +43,7 @@ export const Conversations = ({ user, socket }) => {
     isMounted && socket.emit('delete_conversation', {new: deletedConvo, myId: currentUser?._id, otherId: chatId?.userId})
     isMounted && socket.on('newDel_conversation', data => {
       setConversation([...data])
-      setDeletedConvo([]) 
+      setDeletedConvo([])
     })
     return () => isMounted = false
   })
@@ -63,25 +56,40 @@ export const Conversations = ({ user, socket }) => {
         setOpen(false)
       }}
     >
-      {
+      {!user?.groupName ? 
         user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
         className='profile-picture'/> : <CgProfile className='pics'/>
+        : 
+        // {/* user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
+        //     className='profile-picture'/> : <CgProfile className='pics'/> */}
+        <CgProfile className='pics'/>
       }
         <div className='detail'>
           {error && <span>{error}</span>}
           <p className='top'>
-            <span>{user?.username || user?.nameOfGroup}</span>
-            {user?.status !== 'online' ?
-              <span className='date'>
-                {user?.lastSeen ? 
-                  formatDate(user?.lastSeen) 
-                    : 
-                  formatDate(sub(new Date, {minutes: 0}).toISOString())}
-              </span>
-                :
-              <span className='status'>online</span>
+            <span>{user?.username || user?.groupName}</span>
+            {
+              !user?.groupName &&(
+                user?.status !== 'online' ?
+                <span className='date'>
+                  {user?.lastSeen ? 
+                    formatDate(user?.lastSeen) 
+                      : 
+                    formatDate(sub(new Date, {minutes: 0}).toISOString())}
+                </span>
+                  :
+                <span className='status'>online</span>
+              )
             }
           </p>
+          {user?.groupName &&
+            !(customAdminMessage?.groupName === user?.groupName) ?
+              <div className="members">
+                {user?.members.length} members
+              </div>
+              :
+              <div className="members">{customAdminMessage?.message}</div>
+          }
           {/* {(typingEvent && chatId?.userId === user?._id) && <p className='base'>{typingEvent}</p>} */}
           {/* <p className='base'>{user?.lastMessage.slice(0, 15)}...</p> */}
         </div>
@@ -90,7 +98,7 @@ export const Conversations = ({ user, socket }) => {
           <button
             onMouseEnter={() => setReveal(true)}
             onMouseLeave={() => setReveal(false)}
-            onClick={() => deleteConversation(user?.convoId, user?._id)}
+            onClick={() => deleteConversation(user)}
           >Remove</button>
         }
         <MdMoreHoriz 
@@ -98,6 +106,7 @@ export const Conversations = ({ user, socket }) => {
           onMouseLeave={() => setReveal(false)}
           className='more'
         />
+        {user?.groupName && <p className='date'>{formatDate(user?.createdAt)}</p>}
     </Conversation>
   )
 }
@@ -173,6 +182,16 @@ button{
     .base{
       color: lightgray;
     }
+
+    .members{
+      font-size: 13px;
+      color: rgba(255,255,230,0.5);
+    }
+  }
+
+  .date{
+    color: gray;
+    font-size: 13px;
   }
 
   &:hover{

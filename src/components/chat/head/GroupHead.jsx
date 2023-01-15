@@ -9,7 +9,8 @@ export const GroupHead = ({ groupConvo, typingEvent, resize, allUsers, result })
   const [groupUsers, setGroupUsers] = useState([]);
   const [target, setTarget] = useState({});
   const [users, setUsers] = useState('');
-
+// console.log(chatId)
+// console.log(groupConversation)
   useEffect(() => {
     const targetGroup = groupConversation.find(group => group?.groupName === chatId?.groupName);
     const groupIds = targetGroup && targetGroup?.members.map(user => user?.userId);

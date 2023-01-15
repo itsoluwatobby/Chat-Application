@@ -10,7 +10,7 @@ export const GroupProfile = ({ target }) => {
     dateStyle: 'short',
     timeStyle: 'full'
   })
-console.log(target?.createdAt.split('T')[0])
+//console.log(target?.createdAt.split('T')[0])
   return (
     <GroupProfilePage className='right_container'>
       {false ? 
@@ -24,7 +24,7 @@ console.log(target?.createdAt.split('T')[0])
           </span>
         </p>
         <p className='created'>Created</p>
-        <p className='date'>{new Date(target?.createdAt.split('T')[0]).toLocaleString()}</p>
+        <p className='date'>{new Date(target?.createdAt?.split('T')[0]).toLocaleString()}</p>
         <p className='description'>
           <span className='created'>Description</span>
           <span className='date'>

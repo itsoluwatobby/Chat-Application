@@ -2,19 +2,19 @@ import styled from 'styled-components'
 import { Conversations } from './Conversations'
 import { Search } from './Search'
 import {useChatContext} from '../hooks/useChatContext'
-import { useCallback, useEffect, useState, lazy, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import { axiosAuth } from '../app/axiosAuth';
-import GroupContent from './chat/GroupContent'
-// const LazyGroup = lazy(() => import('./chat/GroupContent'));
 
 export const Main = ({ socket, inputRef,  }) => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setOpenGroupInfo
+    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setOpenGroupInfo, setCustomAdminMessage
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
   const [filtered, setFiltered] = useState([]);
+  const [personalConvo, setPersonalConvo] = useState([]);
+  const [generalConvo, setGeneralConvo] = useState([]);
 
   useEffect(() => {
     let isMounted = true
@@ -33,9 +33,8 @@ export const Main = ({ socket, inputRef,  }) => {
         const res = await axiosAuth.get(`/usersInConversation/${currentUserId}`, {
           signal: controller.signal
         })
-        const updatedUsers = res?.data && res?.data.map(user => ({ ...user, done: true, order: count++ }))
-        isMounted && updatedUsers && setConversation([...updatedUsers])
-        fetchGroup()
+        const updatedUsers = res?.data && res?.data.map(user => ({ ...user, order: count++ }))
+        isMounted && updatedUsers && setPersonalConvo([...updatedUsers])
       }catch(error){
         if(error){
           let errorMessage;
@@ -70,18 +69,21 @@ export const Main = ({ socket, inputRef,  }) => {
         const groupMembers = await axiosAuth.get(`/usersInGroup/${currentUserId}`, {
             signal: controller.signal 
           })
-        isMounted && setGroupConversation(groupMembers?.data)
-      }
-      catch(error){
-        
-      }
+          setGroupConversation([...groupMembers?.data])
+          isMounted && setGeneralConvo([...groupMembers?.data])
+
+      }catch(error) {console.log(error?.message)}
     }
     usersInGroup()
     return () => {
       isMounted = false
       controller.abort()
     }
-  }, [loggedIn])
+  }, [loggedIn, currentUserId])
+
+  useEffect(() => {
+    setConversation([...personalConvo, ...generalConvo])
+  }, [personalConvo, generalConvo])
 
   // const updatedUsers = conversation.map(eachUser => {
   //   return {...eachUser, openedChat: false}
@@ -89,18 +91,31 @@ export const Main = ({ socket, inputRef,  }) => {
   
   useEffect(() => {
     const filteredConversation = conversation.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
-    const searchConversation = filteredConversation && filteredConversation?.filter(convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()))
-    const target = searchConversation.find(user => user?._id === chatId?.userId)
-    const others = searchConversation.filter(searchUser => searchUser?._id !== chatId?.userId)
+    const searchConversation = filteredConversation && filteredConversation?.filter(
+      convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()) 
+        || (convo?.groupName)?.toLowerCase()?.includes(search?.toLowerCase()))
+    const target = searchConversation.find(
+      user => !user?.groupName 
+        ? user?._id === chatId?.userId 
+          : user?.groupName === chatId?.groupName
+    )
+    const others = searchConversation.filter(
+      searchUser => !searchUser?.groupName 
+          ? searchUser?._id !== chatId?.userId 
+              : searchUser?.groupName !== chatId?.groupName
+    )
     const currentChat = [target, ...others]
     target ? setFiltered(currentChat) : setFiltered(searchConversation)
   }, [currentUser, search, message])
 
   const openChat = (user) => {
-    setChatId({ userId: user?._id, convoId: user?.convoId })
+    !user?.groupName 
+        ? setChatId({ userId: user?._id, convoId: user?.convoId }) 
+            : setChatId({ groupName: user?.groupName, convoId: user?.convoId })
     setTypingEvent({})
     inputRef?.current?.focus()
     setMessages([])
+    setCustomAdminMessage({})
     setMessage('')
   }
 
@@ -135,7 +150,6 @@ export const Main = ({ socket, inputRef,  }) => {
                             && error && <p className='error'>{error}</p>
       }
       {content}
-      {filtered && <GroupContent groupConvo={groupConversation}/>}
     </MainPage>
   )
 }

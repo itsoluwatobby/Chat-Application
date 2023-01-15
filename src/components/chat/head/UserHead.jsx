@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { CgProfile } from 'react-icons/cg';
 
 export const UserHead = ({ user, typingEvent, resize, formatDate }) => {
-
+ 
   return (
     <UserConvo>  
       {user?.profilePicture 
