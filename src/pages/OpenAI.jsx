@@ -1,15 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import {IoMdSend} from 'react-icons/io'
+import {BsFillChatLeftDotsFill} from 'react-icons/bs';
+import {IoMdSend} from 'react-icons/io';
 import {FiUser} from 'react-icons/fi'
 import {SiReactos} from 'react-icons/si'
 import { openaiAxios } from '../app/axiosAuth'
 import { useChatContext } from '../hooks/useChatContext'
+import { useNavigate } from 'react-router-dom';
+import Rolling from '../assest/Rolling-1s-84px.svg'; 
 
 export const OpenAI = () => {
+  const {setToggle} = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [userInput, setUserInput] = useState('');
   const [responseMessage, setResponseMessage] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const inputRef = useRef()
   
   const responseAutoScroll = useCallback((node) => {
     node && node.scrollIntoView({ smooth: true })
@@ -17,21 +24,33 @@ export const OpenAI = () => {
 
   const onUserInputChange = e => setUserInput(e.target.value);
 
+  // const filterResponse = responseMessage.filter(res => (res?.openAIRes?.text).toLowerCase().includes('warning'.toLowerCase()) || (res?.openAIRes?.text).toLowerCase().includes('error'.toLowerCase()));
+
+  //responses with warnining or error
+
+  useEffect(() => {
+    inputRef?.current?.focus()
+  }, [])
+
   const openaiRequest = async() => {
     if(!userInput) return
     const initialState = { userInput, userId: currentUserId }
+    setIsLoading(true)
     try{
-      const res = await openaiAxios.post(`/your_response`, initialState)
       setUserInput('')
+      const res = await openaiAxios.post(`/your_response`, initialState)
       setResponseMessage([...responseMessage, res?.data])
     }
     catch(error){
+      setIsLoading(false)
       let errorMessage;
       !error?.response ? errorMessage = 'No server response' :
       error?.response?.status === 400 ? errorMessage = 'userId required' :
       error?.response?.status === 403 ? errorMessage = 'no have no response' :
       error?.response?.status === 500 ? errorMessage = 'No server response' 
       : errorMessage = "I'm lost of words";
+    }finally{
+      setIsLoading(false)
     }
   }
 
@@ -40,18 +59,22 @@ export const OpenAI = () => {
     const controller = new AbortController()
 
     const openaiResponse = async() => {
+      setIsLoading(true)
       try{
         const res = await openaiAxios(`/your_responses/${currentUserId}`, {
           signal: controller.signal
         })
-        console.log(res?.data)
+        const mapResult = res?.data.map(filt => filt.openAIRes.text.trimStart())
         setResponseMessage([...res?.data])
       }
       catch(error){
+        setIsLoading(false)
         let errorMessage;
         !error?.response ? errorMessage = 'No server response' :
         error?.response?.status === 500 ? errorMessage = 'No server response'
         : errorMessage = "I'm lost of words";
+      }finally{
+        setIsLoading(false)
       }
     }
     openaiResponse()
@@ -61,6 +84,11 @@ export const OpenAI = () => {
       controller.abort()
     }
   }, [currentUserId])
+
+  const switchToChat = () => {
+    setToggle(false)
+    navigate('/chat')
+  }
 
   return (
     <OpenAiChat>
@@ -74,10 +102,23 @@ export const OpenAI = () => {
       </aside>
       <main>
         <ul className='body'>
-          {responseMessage.map(aiResponse => (
+          {!responseMessage.length ?
+            <div className='openai'>
+            <p className='icon'>
+              <SiReactos />
+            </p>
+            <p>
+              <span className='welcome'>
+                Welcome to the new world where AI is making life easier.
+                Ask me a question.
+              </span>
+            </p>
+          </div>
+            :
+            responseMessage.map((aiResponse, i) => (
               <li 
                 ref={responseAutoScroll}
-                key={aiResponse?._id}>
+                key={aiResponse?._id || i}>
                 <div className='user'>
                   <p className='icon'>
                     <FiUser />
@@ -88,12 +129,23 @@ export const OpenAI = () => {
                   <p className='icon'>
                     <SiReactos />
                   </p>
-                  <p>{aiResponse?.openAIRes?.text.trimStart() || <span className='welcome'>Welcome to the new world where AI is making life easier.</span>}</p>
+                  {/* {
+                  aiResponse?.openAIRes?.text.trim().includes('1. ') 
+                  ? 
+                  <p className='list_form'>{
+                    aiResponse?.openAIRes?.text.trim().split(/[\\d\.]/g).map((a, i) => (
+                    <span key={i}>{a}</span>
+                  ))}
+                  </p>
+                  : */}
+                  <p>{aiResponse?.openAIRes?.text.trim() || <span className='welcome'>Welcome to the new world where AI is making life easier.</span>}</p>
+                  {/* } */}
                 </div>
               </li>
             ))
           }
         </ul>
+        {isLoading && <img src={Rolling} alt='submitting request' className='spinner' />}
         <div className='input_box'>
           <p className='icon icons'>
             <FiUser />
@@ -101,6 +153,7 @@ export const OpenAI = () => {
           <div className='input_container'>
             <input 
               type="text" 
+              ref={inputRef}
               value={userInput}
               onChange={onUserInputChange}
               onKeyDown={e => e.key === 'Enter' ? openaiRequest() : null}
@@ -110,6 +163,11 @@ export const OpenAI = () => {
               <IoMdSend onClick={openaiRequest} />
             </p>
           </div>
+        </div>
+        <div 
+          onClick={switchToChat}
+          className='chat_page'>
+          <BsFillChatLeftDotsFill />
         </div>
       </main>
     </OpenAiChat>
@@ -132,8 +190,8 @@ overflow-x: hidden;
 }
 
   aside{
-    flex: 2.5;
-    min-width: 30vw;
+    flex: 2;
+    //min-width: 30vw;
     background-color: #323234;
     display: flex;
     flex-direction: column;
@@ -169,11 +227,15 @@ overflow-x: hidden;
       border-top: 1px solid gray;
     }
 
+    @media (max-width: 650px){
+      display: none;
+    }
+
   }
 
   main{
-    flex: 7.5;
-    min-width: 70vw;
+    flex: 8;
+    min-width: 80vw;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -201,6 +263,13 @@ overflow-x: hidden;
         gap: 1rem;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+
+        .list_form{
+          display: flex;
+          flex-direction: column;
+          white-space: nowrap;
+          width: 100%;
+        }
 
         p{
 
@@ -243,6 +312,16 @@ overflow-x: hidden;
         background: lightgray;
       }
 
+    }
+
+    .spinner{
+      z-index: 600;
+      position: absolute;
+      bottom: 8rem;
+      border-radius: 50%;
+      width: 4rem;
+      opacity: 0.85;
+      filter: brightness(0.75);
     }
 
     .input_box{
@@ -302,6 +381,32 @@ overflow-x: hidden;
             opacity: 0.9;
           }
         }
+      }
+    }
+
+    .chat_page{
+      position: absolute;
+      bottom: 8rem;
+      right: 0.3rem;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      display: grid;
+      place-content: center;
+      background-color: rgba(0,0,0,0.4);
+      cursor: pointer;
+      font-size: 25px;
+      color: gray;
+      transition: all 0.15s ease-in-out;
+
+      &:hover{
+        opacity: 0.6;
+        scale: 1.15;
+      }
+
+      &:active{
+        opacity: 0.9;
+        scale: 1;
       }
     }
   }

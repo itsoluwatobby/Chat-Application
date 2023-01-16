@@ -45,6 +45,8 @@ export const ChatContextProvider = ({ children }) => {
   const currentUserId = localStorage.getItem('userId');
   const counterRef = useRef(0);
 
+  const [toggle, setToggle] = useState(false);
+
   const loadGroup = () => setNum(prev => prev + 1)
   const onSearchChange = e => setSearch(e.target.value);
 
@@ -76,7 +78,8 @@ export const ChatContextProvider = ({ children }) => {
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
     setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
     customAdminMessage, setCustomAdminMessage, reference, setReference, 
-    error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup
+    error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, 
+    toggle, setToggle
   }
 
   return (

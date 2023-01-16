@@ -3,9 +3,11 @@ import {BsLock} from 'react-icons/bs'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
+import { useChatContext } from '../hooks/useChatContext'
+import Eclipse from '../assest/Eclipse-1s-118px.svg';
 
 export const EmptyChat = () => {
-  const [toggle, setToggle] = useState(false);
+  const { toggle, setToggle } = useChatContext()
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
   const TIMEOUT = 2500
@@ -34,7 +36,7 @@ export const EmptyChat = () => {
             {toggle && <span onClick={() => setToggle(false)} className={`green ${toggle && 'reds'}`}></span>}
           </div>
         </div>
-        {loading && <p className='loading'>Loading page...</p>}
+        {loading && <img src={Eclipse} alt='' />}
         {!loading && toggle ? <Navigate to='/openai' /> : <Navigate to='/chat' />}
       </div>
       <SiWhatsapp className='whatsapp'/>
