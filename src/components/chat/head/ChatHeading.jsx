@@ -10,12 +10,13 @@ import {format} from 'date-fns';
 import { useChatContext } from '../../../hooks/useChatContext';
 import { UserHead } from './UserHead';
 import { GroupHead } from './GroupHead';
+import { axiosAuth } from '../../../app/axiosAuth';
 
 export const ChatHeading = ({ 
-  user, socket, setIsChatOpened, result, setEmojiOpen, allUsers
- }) => {
+    user, socket, isChatOpened, setIsChatOpened, result, setEmojiOpen, allUsers
+  }) => {
   const [width, setWidth] = useState(undefined)
-  const { chatId, setChatId, formatDate, setMessages, typingEvent, setTypingEvent } = useChatContext();
+  const { chatId, setChatId, formatDate, setMessages, typingEvent, setTypingEvent, currentUser } = useChatContext();
   const [resize, setResize] = useState(false);
 
   useEffect(() => {
@@ -45,9 +46,11 @@ export const ChatHeading = ({
   }, [width])
   
   const closeChat = () => {
+    setIsChatOpened(false)
     setChatId({})
     setMessages([])
     setEmojiOpen(false)
+    socket.emit('chat_closed', {userId: currentUser?._id, isChatOpen: true})
   }
   
   return (
@@ -61,7 +64,7 @@ export const ChatHeading = ({
         <GroupHead 
           groupConvo={chatId} typingEvent={typingEvent}
           formatDate={formatDate} resize={resize}
-          result={result} allUsers={allUsers}
+          result={result} allUsers={allUsers} socket={socket}
         />
       }
       <div className='endtag'>
@@ -70,10 +73,7 @@ export const ChatHeading = ({
         <AiOutlineLine className='line phone'/>
         <CiSearch className='icon'/>
         <FaTimesCircle 
-          onClick={() => {
-            closeChat()
-            setIsChatOpened(false)
-          }}
+          onClick={closeChat}
           title='Exit Chat' className='icon'/>
       </div>
     </Heading>

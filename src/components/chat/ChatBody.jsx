@@ -6,24 +6,37 @@ import { BsCheck, BsCheckAll } from 'react-icons/bs';
 
 export const ChatBody = ({ socket, setEmojiOpen }) => {
   const { 
-    messages, setMessages, chatId, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupInfo } = useChatContext();
-  const currentUserId = localStorage.getItem('userId');
+    messages, setMessages, chatId, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation
+   } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [chatViewed, setChatViewed] = useState(false);
+  const [isEquals, setIsEquals] = useState(false);
+  const [extract, setExtract] = useState(false);
+  const [targetConvo, setTargetConvo] = useState({});
+  const [lastReceived, setLastReceived] = useState({});
   const messageRef = useCallback(node => {
     node && node.scrollIntoView({ smooth: true })
   }, []);
-
-  useEffect(() => {
-    isChatOpened && socket.emit('chat_opened', {userId: currentUserId, isChatOpened})
-  }, [])
   
   useEffect(() => {
+    let isMounted = true
     socket.on('isOpened', bool => {
-      setChatViewed(bool)
-      console.log(bool)
+      isMounted && setChatViewed(bool)
     })
+    return () => isMounted = false
+  })
+
+  useEffect(() => {
+    let isMounted = true
+    socket.on('isClosed', bool => {
+      isMounted && setChatViewed(bool)
+    })
+    return () => isMounted = false
+  })
+
+  useEffect(() => {
+    console.log({chatViewed})
   }, [isChatOpened])
 
   useEffect(() => {
@@ -53,7 +66,44 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
       controller.abort()
     }
   }, [chatId, num])
-  
+
+  useEffect(() => {
+    socket.on('new_message', data => {
+      setLastReceived({...data})
+    })
+  }, [messages])
+
+  // useEffect(() => {
+  //   const lastMessage = messages?.length && messages[messages.length - 1]
+  //   const targetUser = conversation && conversation.find(user => user?.convoId === lastReceived?.conversationId)
+  //   console.log(lastReceived)
+  //   console.log(targetUser)
+  //   setTargetConvo(targetUser)
+  //   setIsEquals(lastReceived?.conversationId === targetUser?.convoId)
+  // }, [chatId?.convoId, messages, lastReceived])
+
+  // useEffect(() => {
+  //   setTargetConvo({})
+  //   let isMounted = true
+  //   const controller = new AbortController();
+  //   const getConversation = async() => {
+  //     try{
+  //       const {data} = chatId?.groupName 
+  //           ? await axiosAuth(`/group_conversation/${chatId?.convoId}`, { signal: controller.signal })
+  //             : await axiosAuth(`/conversation/${chatId?.convoId}`, { signal: controller.signal })
+  //       isMounted && setTargetConvo({...data})
+  //     }
+  //     catch(error){
+  //       console.error(error.message)
+  //     }
+  //   }
+  //   getConversation()
+  //   return () => {
+  //     isMounted = false
+  //     controller.abort()
+  //   }
+  // }, [chatId?.convoId])
+
   //console lastMessage => messages.
 
   const copyText = (text) => {
@@ -64,18 +114,28 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
   //   setReference(message)
   //   setIsReferenced(true)
   // }
+  const messageExtract = (
+    <section 
+    //onMouseEnter={() => setExtract(true)}
+      className='message_extract'>
+      helloghgj jygvvgvytviiyiu iuiii
+    </section>
+  )
 
   const messageContent = (
             <>
-              {
+              { 
                 messages?.map(message =>  
                   (
-                    <div 
+                    <article 
                       onDoubleClick={() => setReference(message)}
+                      // onMouseEnter={() => setExtract(true)}
+                      // onMouseLeave={() => setExtract(false)}
                       ref={messageRef}
-                      className={message?.senderId === currentUserId ? 'owner' : 'friend'} 
+                      className={message?.senderId === currentUser?._id ? 'owner' : 'friend'} 
                       key={message?._id}>
-                        <>
+                        {/* {extract && <button>hello</button>} */}
+                        <div>
                           {message?.referencedMessage?._id &&
                             <div className='copied'>
                               <p className='referenced_message'>
@@ -99,18 +159,21 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
                           <p>{message?.text}</p>  
                           <p className='message_base'>
                             {chatId?.groupName && (
-                              message?.senderId === currentUserId ?
+                              message?.senderId === currentUser?._id ?
                                 <span className='you'>You</span>
                                 :
                                 <span className='you'>{message?.username}</span>
                               )
                             }
-                            <span className={chatId?.groupName ? 'time' : 'other'}>{message?.dateTime}</span>
+                            <span className={`dateTime ${chatId?.groupName ? 'time' : 'other'}`}>
+                              {message?.dateTime}
+                              <BsCheckAll className='checks'/>
+                            </span>
                           </p>
-                        </>
+                        </div>
                       {/* {chatViewed && <span>user viewed your chat</span>} */}
-                    </div>
-                  ) 
+                    </article>
+                  )  
                 )
               }
             </>
@@ -119,7 +182,7 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
   return (
     <ChatBodyComponent onClick={() => {
         setEmojiOpen(false)
-        setOpenGroupInfo(false)
+        setOpenGroupProfile(false)
       }}>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
       {
@@ -134,7 +197,7 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
                 <span className='start_convo'>Start a conversation</span>}
             </p> 
       }
-          {/* {chatId?.groupName && <p className='group_message'>{welcomeMessage}</p>} */}
+
     </ChatBodyComponent>
   )
 }
@@ -149,6 +212,17 @@ padding: 0.5rem 0.4rem;
 overflow-y: scroll;
 overflow-x: hidden;
 position: relative;
+
+.message_extract{
+  position: absolute;
+  background-color: #393936;
+  border-radius: 5px;
+  height: 6rem;
+  width: 8rem;
+  box-shadow: 2px 4px 16px rgba(0,0,0,0.3);
+  top: 10rem;
+  padding: 5px;
+}
 
 .start{
   margin: auto;
@@ -200,20 +274,23 @@ position: relative;
     }
   }
 
-  div{
+  article{
     display: flex;
     flex-direction: column;
     max-width: 70%;
     min-width: 40%;
     gap: 0.15rem;
+    font-size: 13px;
     border-radius: 10px;
-    padding: 0.2rem 0.55rem;
+    padding: 0.2rem 0.28rem 0.1rem 0.3rem;
+    cursor: default;
+    position: relative;
 
     .copied{
       background-color: #363636;
-      width: 100%;
+      max-width: 100%;
       border-radius: 5px 5px;
-      padding: 0.35rem;
+      padding: 0.25rem 0.35rem;
       border-left: 3px solid rgba(0,255,205,0.85); 
 
       .referenced_message{
@@ -224,16 +301,17 @@ position: relative;
         gap: 0.15rem;
 
         .sender{
-          color: rgb(0,255,200,0.7);
+          color: rgb(0,255,200,0.85);
           text-transform: capitalize;
           font-size: 12px;
         }
 
         .text{
           white-space: wrap;
-          color: rgba(255,255,255,0.65);
+          color: rgba(255,255,255,0.8);
           font-size: 13px;
           font-family: mono;
+          text-align: left;
         }
       }
     }
@@ -249,20 +327,36 @@ position: relative;
 
       .time{
         color: rgba(255,255,255,0.5);
-        font-size: 11px;
+        font-size: 10px;
       }
 
       .you{
         color: rgba(255,255,255,0.75);
         font-family: cursive;
-        font-size: 13px;
+        font-size: 10px;
       }
 
+      .dateTime{
+        display: flex;
+        align-items: center;
+        justify-content: right;
+
+        .checks{
+          margin-left: 0.2rem;
+          font-size: 20px;
+        }
+      }
+
+      .color{
+        color: rgba(0,205,0,0.95);
+      }
     }
+
     
     .other{
       width: 100%;
       text-align: right;
+      font-size: 10px;
     }
   }
 

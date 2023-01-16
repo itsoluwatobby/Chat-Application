@@ -4,8 +4,9 @@ import { CgProfile } from 'react-icons/cg';
 import { useChatContext } from '../../../hooks/useChatContext';
 import { ChatProfile } from './profile/ChatProfile';
 
-export const GroupHead = ({ groupConvo, typingEvent, resize, allUsers, result }) => {
-  const { chatId, currentUser, openGroupInfo, groupConversation, setOpenGroupInfo } = useChatContext();
+export const GroupHead = ({ 
+  groupConvo, typingEvent, resize, allUsers, socket, result }) => {
+  const { chatId, currentUser, groupConversation, openGroupProfile, setOpenGroupProfile, } = useChatContext();
   const [groupUsers, setGroupUsers] = useState([]);
   const [target, setTarget] = useState({});
   const [users, setUsers] = useState('');
@@ -17,15 +18,21 @@ export const GroupHead = ({ groupConvo, typingEvent, resize, allUsers, result })
     const groupNames = targetGroup && targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', ')
     setUsers(groupNames);
     setTarget(targetGroup)
-    const usersGroup = groupIds && allUsers.filter(user => groupIds?.includes(user?._id));
-    setGroupUsers([...usersGroup]);
+    const usersGroup = groupIds && Array.isArray(allUsers) && allUsers.filter(user => groupIds?.includes(user?._id));
+    Array.isArray(usersGroup) && setGroupUsers([...usersGroup]);
   }, [chatId?.groupName])
 
   return (
     <HeadCompo
-      onClick={() => setOpenGroupInfo(true)}
+      onClick={() => setOpenGroupProfile(true)}
     >  
-      {openGroupInfo && <ChatProfile groupProfile groupUsers={groupUsers} target={target} />}
+      {
+        openGroupProfile && 
+          <ChatProfile groupProfile 
+            groupUsers={groupUsers} target={target} 
+            allUsers={allUsers} socket={socket}
+          />
+      }
       {groupConvo?.profilePicture
           ? 
           <img src={groupConvo?.profilePicture} alt={groupConvo?.groupName} 
@@ -41,7 +48,7 @@ export const GroupHead = ({ groupConvo, typingEvent, resize, allUsers, result })
           </p>
             :
           <p className='base text-edit'>
-            {resize ? users : users.slice(0,15)+'...'}
+            {resize ? users : users?.slice(0,15)+'...'}
           </p>
         }
       </div>

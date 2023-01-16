@@ -9,6 +9,7 @@ import { useGetOthers } from '../hooks/useGetOthers';
 import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import { axiosAuth } from '../app/axiosAuth';
+import { MessagePrompt } from '../components/chat/MessagePrompt';
 
 let socket
 
@@ -21,6 +22,8 @@ export const Chat = () => {
   const [conversationIds, setConversationIds] = useState([]);
   const [filteredUserSearch, setFilteredUserSearch] = useState([]);
   const inputRef = useRef();
+  const [refetch, setRefetch] = useState(1);
+  const [confirmGroupName, setConfirmGroupName] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController()
@@ -30,7 +33,7 @@ export const Chat = () => {
           signal: controller.signal
         })
         setCurrentUser(res?.data)
-        socket.emit('conversation', res?.data)
+        // socket.emit('conversation', res?.data)
       }catch(error){
         let errorMessage;
         error?.response?.status === 400 ? errorMessage = 'userId required' :
@@ -50,9 +53,27 @@ export const Chat = () => {
     }
   }, [currentUserId])
 
-  // useEffect(() => {
-  //   socket.emit('conversation', currentUser)
-  // }, [])
+  useEffect(() => {
+    socket.emit('conversation', currentUser)
+  }, [currentUser])
+
+  const isMessageRead = async(msgId) => {
+    const msgRes = await axiosAuth.put(`/message_read/${msgId}`)
+    return msgRes?.data
+  }
+
+  const isMessageDelivered = async(msgId) => {
+    const msgDel = await axiosAuth.put(`/message_delivered/${msgId}`)
+    return msgDel?.data
+  }
+
+  const reload = () => setRefetch(prev => prev+1)
+
+  const isMessageDeleted = async() => {
+    await axiosAuth.delete(`/messages_delete`, {
+
+    })
+  }
   
   useEffect(() => {
     let isMounted = true
@@ -95,7 +116,15 @@ export const Chat = () => {
           <ChatPage 
             result={result} socket={socket} 
             inputRef={inputRef} allUsers={users}
+            isMessageDeleted={isMessageDeleted}
+            isMessageDelivered={isMessageDelivered}
+            isMessageRead={isMessageRead}
           />
+      }
+      {!confirmGroupName &&
+        <MessagePrompt 
+          setConfirmGroupName={setConfirmGroupName} 
+        />
       }
       {
         click && 
@@ -107,6 +136,7 @@ export const Chat = () => {
         open && 
           <GroupConvo 
             socket={socket} result={result}
+            setConfirmGroupName={setConfirmGroupName}
           /> 
       }
     </ChatApp>

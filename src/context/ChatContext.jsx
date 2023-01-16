@@ -38,14 +38,14 @@ export const ChatContextProvider = ({ children }) => {
   const [typingEvent, setTypingEvent] = useState({});
 
   const [reference, setReference] = useState({});
-  const [openGroupInfo, setOpenGroupInfo] = useState(false);
   const [error, setError] = useState(null);
   const [convo, setConvo] = useState({});
 
+  const [openGroupProfile, setOpenGroupProfile] = useState(false);
   const currentUserId = localStorage.getItem('userId');
   const counterRef = useRef(0);
 
-  const refresh = () => setNum(prev => prev + 1)
+  const loadGroup = () => setNum(prev => prev + 1)
   const onSearchChange = e => setSearch(e.target.value);
 
   const formatDate = (date) => {
@@ -70,13 +70,13 @@ export const ChatContextProvider = ({ children }) => {
     chatId, setChatId, message, setMessage, messages, loggedIn, 
     setLoggedIn, setMessages, messageBody, setMessageBody, click, 
     setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, 
-    formatDate, currentUser, setCurrentUser, refresh, num, conversation, 
+    formatDate, currentUser, setCurrentUser, num, conversation, 
     setConversation, result, open, setOpen, proceed, setProceed, isNext, 
     setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, 
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
     setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
     customAdminMessage, setCustomAdminMessage, reference, setReference, 
-    openGroupInfo, setOpenGroupInfo, error, setError, convo, setConvo
+    error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup
   }
 
   return (

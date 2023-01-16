@@ -9,11 +9,11 @@ import {format} from 'date-fns';
 import { axiosAuth } from '../../app/axiosAuth';
 import EmojiPicker from 'emoji-picker-react';
 
-export const ChatPage = ({ result, socket, inputRef, allUsers }) => {
+export const ChatPage = (
+  { result, socket, inputRef, allUsers, isMessageDeleted, isMessageDelivered, isMessageRead }) => {
   const { 
     chatId, setMessages, messages, setClick, setOpen, setMessage, message, 
-    currentUser, setResponse, reference, setReference, counterRef, setNotification, 
-    setIsChatOpened, notification, setOpenGroupInfo
+    currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -31,8 +31,8 @@ export const ChatPage = ({ result, socket, inputRef, allUsers }) => {
 
   useEffect(() => {
     socket.emit('start-conversation', chatId?.convoId)
+    socket.emit('chat_opened', {userId: currentUser?._id, isChatOpened: true })
   }, [chatId])
-
 
   const createMessage = async() => {
     if(!message) return
@@ -47,7 +47,8 @@ export const ChatPage = ({ result, socket, inputRef, allUsers }) => {
       setMessage('')
       setEmojiOpen(false)
       setReference({})
-      setReceived(data)
+      socket.emit('create_message', data)
+      setMessages([...messages, data])
     }catch(error) {
       let errorMessage;
       error.response.status === 500 ? errorMessage = 'internal error' : 
@@ -58,18 +59,15 @@ export const ChatPage = ({ result, socket, inputRef, allUsers }) => {
 
   //receive message
   useEffect(() => {
-    socket.emit('create_message', received)
     socket.on('new_message', (data) => { 
       if(data?.conversationId !== chatId?.convoId) {
         setNotification([...notification, {...data, orderId: counterRef.current++}])
-        setReceived({})
       }
       else {
         setMessages([...messages, data])
-        setReceived({})
       }
     })
-  })
+  }, [messages])
 
   const pickEmoji = emoji => {
     let ref = inputRef?.current 
@@ -79,15 +77,16 @@ export const ChatPage = ({ result, socket, inputRef, allUsers }) => {
     setMessage(text)
     setCursorPosition(posStart.length + emoji.length)
   }
-  useEffect(() => {
-    //inputRef?.current?.value.length = cursorPosition
-  }, [cursorPosition])
+
+  // useEffect(() => {
+  //   inputRef?.current?.value?.length = message?.length
+  // }, [cursorPosition])
 
   let emoji = (
     <div className='emoji_style'>
       <EmojiPicker 
         height={'20rem'} width={'18rem'}
-        theme={'dark'} emojiStyle={'facebook'}
+        theme={'dark'} emojiStyle={'google'}
         previewConfig={
           {showPreview: false}
         }

@@ -7,13 +7,13 @@ import { NAVIGATE } from './navigate';
 import { useChatContext } from '../../../../hooks/useChatContext';
 import { FaTimes } from 'react-icons/fa';
 
-export const ChatProfile = ({ groupProfile, groupUsers, target }) => {
-  const { chatId, openGroupInfo, setOpenGroupInfo } = useChatContext();
+export const ChatProfile = ({ groupProfile, groupUsers, target, allUsers, socket }) => {
+  const { chatId, openGroupProfile, setOpenGroupProfile } = useChatContext();
   const [buttonState, setButtonState] = useState(NAVIGATE.FST);
-  
-  const closeGroupInfo = () => {
-    setOpenGroupInfo(!openGroupInfo)
-    console.log(openGroupInfo)
+
+  const closeGroupProfile = () => {
+    setOpenGroupProfile(false)
+    // console.log(openGroupProfile)
   }
 
   return (
@@ -26,28 +26,31 @@ export const ChatProfile = ({ groupProfile, groupUsers, target }) => {
       </div>
       { buttonState === NAVIGATE.FST &&
         <div className='right_container'>
-          <FaTimes onClick={closeGroupInfo} className='times'/>
+          <FaTimes 
+            onClick={closeGroupProfile} className='times'/>
           <GroupProfile target={target} />
         </div>
         ||
         buttonState === NAVIGATE.SND &&
         <div className='group_container'>
-          <FaTimes onClick={closeGroupInfo} className='times'/>
-          <UsersInGroup groupUsers={groupUsers} />
+          <FaTimes 
+            onClick={closeGroupProfile} className='times'/>
+          <UsersInGroup groupUsers={groupUsers} allUsers={allUsers} socket={socket}/>
+
         </div>
         ||
         buttonState === NAVIGATE.STH &&
-        <EndToEnd closeGroupInfo={closeGroupInfo} />
+        <EndToEnd closeGroupProfile={closeGroupProfile} />
       }
     </ChatProfilePage>
   )
 }
 
-const EndToEnd = ({ closeGroupInfo }) => {
+const EndToEnd = ({ closeGroupProfile }) => {
 
   return (
     <div className='encrypt'>
-        <FaTimes onClick={closeGroupInfo} className='times'/>
+        <FaTimes onClick={closeGroupProfile} className='times'/>
         <h2>Encryption</h2>
         <p>Oluwatobby Chat ensures your conversation with end-to-end encryption</p>
         <p>Your messages and calls stay between you and the people and businesses you choose. Not even Oluwatobby can read or listen to them</p>
@@ -65,43 +68,41 @@ align-items: center;
 transform: translatex(50%);
 right: 15rem;
 top: 1.5rem;
-max-width: 75vw;
+max-width: 70vw;
 height: 70vh;
 cursor: default;
 z-index: 200;
 border-radius: 10px;
 
-@media (max-width: 600px){
-  max-width: 75vw;
-}
-
-@media (min-width: 650px){
+@media (max-width: 750px){
   max-width: 70vw;
-  left: -4rem;
+  min-width: 70vw;
+  left: -6rem;
 }
 
 @media (min-width: 750px){
-  max-width: 58vw;
-  left: 5.8rem;
+  max-width: 55vw;
+  left: 4.6rem;
 }
 
 @media (min-width: 850px){
   max-width: 50vw;
-  left: 7.5rem;
+  left: 5.3rem;
 }
 
 @media (min-width: 950px){
   max-width: 47vw;
-  left: 9rem;
+  left: 6.7rem;
 }
 
 @media (min-width: 1050px){
   max-width: 45vw;
-  left: 11rem;
+  left: 7.7rem;
 }
 
 @media (min-width: 1150px){
-  left: 9.5rem;
+  max-width: 40vw;
+  left: 11rem;
 }
 
 .remove_group{
@@ -129,6 +130,8 @@ border-radius: 10px;
     height: 100%;
     background-color: #363636;
     width: 9rem;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
   }
 
   .right_container{
@@ -144,6 +147,8 @@ border-radius: 10px;
     gap: 0.5rem;
     font-weight: 300;
     position: relative;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 
     .times{
       position: absolute;
@@ -173,6 +178,8 @@ border-radius: 10px;
     height: 100%;
     font-weight: 300;
     position: relative;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 
     .times{
       position: absolute;
@@ -204,6 +211,8 @@ border-radius: 10px;
     font-weight: 300;
     gap: 0.8rem;
     position: relative;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 
     .times{
       position: absolute;

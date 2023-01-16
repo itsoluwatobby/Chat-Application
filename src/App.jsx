@@ -8,6 +8,7 @@ import { PublicRoute } from './components/PublicRoute'
 import { Home } from './pages/Home'
 import { Chat } from './pages/Chat'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { OpenAI } from './pages/OpenAI'
 
 export const App = () => {
   return (
@@ -23,6 +24,7 @@ export const App = () => {
           
           <Route element={<ProtectedRoute />}>
             <Route path='chat' element={<Chat />} />
+            <Route path='openai' element={<OpenAI />} />
           </Route>
         
         </Route>

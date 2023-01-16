@@ -1,10 +1,42 @@
 import {SiWhatsapp} from 'react-icons/si'
 import {BsLock} from 'react-icons/bs'
 import styled from 'styled-components'
+import { useEffect, useState } from 'react'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 export const EmptyChat = () => {
+  const [toggle, setToggle] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
+  const TIMEOUT = 2500
+
+  const startChat = () => {
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+    }, TIMEOUT);
+  }
+
+  useEffect(() => {
+    toggle && startChat()
+  }, [toggle])
+
   return (
     <EmptyChatPage>
+      <div className='chat'>
+        <p className='top'>Would You Like To Chat With a Bot? 
+          <span>@openai</span>
+        </p>
+        <div className='toggle'>
+          Toggle
+          <div className='button_toggle'>
+            {!toggle && <span onClick={() => setToggle(true)} className={`gray ${!toggle && 'red'}`}></span>}
+            {toggle && <span onClick={() => setToggle(false)} className={`green ${toggle && 'reds'}`}></span>}
+          </div>
+        </div>
+        {loading && <p className='loading'>Loading page...</p>}
+        {!loading && toggle ? <Navigate to='/openai' /> : <Navigate to='/chat' />}
+      </div>
       <SiWhatsapp className='whatsapp'/>
       <div className='info'>
         <p className='top'>Itsoluwatobby for Windows</p>
@@ -26,6 +58,91 @@ height: 100%;
 flex-direction: column;
 gap: 1.5rem;
 position: relative;
+
+.chat{
+  position: absolute;
+  top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .top{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    span{
+      color: rgba(255,255,255,0.4);
+    }
+  }
+
+  .toggle{
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .button_toggle{
+      display: flex;
+      align-items: center;
+      border-radius: 10px;
+      height: 20px;
+      width: 70px;
+      background-color: rgba(250,2,2,0.7);
+      position: relative;
+      cursor: pointer;
+
+      .gray{
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        position: absolute;
+        left: 0;
+        height: 100%;
+        width: 50%;
+        // cursor: pointer;
+        box-shadow: 2px 3px 16px rgba(0,0,0,0.2);
+        z-index: 90;
+        transition: all 0.15s easin-in-out;
+
+        &:hover{
+          opacity: 0.98;
+        }
+      }
+
+      .red{
+        background-color: rgba(255,255,255,0.9);
+      }
+
+      .reds{
+        background-color: rgba(0,245,2,0.85);
+      }
+
+      .green{
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        height: 100%;
+        width: 50%;
+        z-index: 90;
+        position: absolute;
+        right: 0;
+        //cursor: pointer;
+        box-shadow: 2px 3px 16px rgba(0,0,0,0.2);
+        transition: all 0.15s easin-in-out;
+
+        &:hover{
+          opacity: 0.75;
+        }
+      }
+    }
+  }
+
+  .loading{
+    font-family: cursive;
+    letter-spacing: 5px;
+    margin-top: 3rem;
+  }
+
+}
 
   .whatsapp{
     font-size: 4.2rem;

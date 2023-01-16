@@ -32,6 +32,10 @@
 
 * [ ] User profile page
 
+* [x] Group profile page
+
+* [x] Integrated openai with chat app
+
 * [x] Room chat feature
 
 * [ ] User status update

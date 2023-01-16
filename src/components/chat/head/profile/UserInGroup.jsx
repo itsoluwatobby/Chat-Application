@@ -3,32 +3,53 @@ import {CgProfile} from 'react-icons/cg';
 import {CiSearch} from 'react-icons/ci';
 import { useChatContext } from "../../../../hooks/useChatContext";
 import { useEffect, useState } from "react";
+import { axiosAuth } from "../../../../app/axiosAuth";
 
-export const UsersInGroup = ({ groupUsers }) => {
-  const { setChatId, currentUser, setOpenGroupInfo } = useChatContext();
+export const UsersInGroup = ({ groupUsers, allUsers, socket }) => {
+  const { setChatId, currentUser, setMessages, setOpenGroupInfo, conversation, setConversation } = useChatContext();
   const [search, setSearch] = useState('');
   const [searchedUsers, setSearchedUsers] = useState([]);
+  const [convos, setConvos] = useState({});
+  const [error, setError] = useState([]);
 
   useEffect(() => {
     const searched = groupUsers.filter(user => (user?.username.toLowerCase()).includes(search.toLowerCase()))
     setSearchedUsers(searched)
   }, [search])
-
+//RELOAD THIS FROM GET CONVERSATIONS
   const createConvoFromGroup = async(friendId) => {
+    const duplicateConversation = conversation.find(user => user?._id === friendId)
     const initialState = { adminId: currentUser?._id, friendId }
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      setConvo({...data})
-      // setConversation([...conversation, data])
+      setConvos({...data})
+      //setConversation([...conversation, data])
+      //setMessages([])
+      // setChatId({})
+      //data && setChatId({userId: data?._id, convoId: data?.convoId})
     }catch(error) {
       let errorMessage;
       error?.response?.status === 400 ? errorMessage = 'id required' :
       error?.response?.status === 404 ? errorMessage = 'not found' :
-      error?.response?.status === 409 ? errorMessage = 'conversation already exist' :
+      error?.response?.status === 409 ? setChatId({userId: friendId, convoId: duplicateConversation?.convoId}) :
       error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
       setError(errorMessage)
     }
   }
+
+  useEffect(() => {
+    if(!convos?._id) return
+    let isMounted = true
+    isMounted && socket.emit('conversation', convos)
+    isMounted && socket.emit('create_conversation', {new: convos, myId: currentUser?._id})
+    isMounted && socket.on('new_conversation', data => {
+      setConversation([...conversation, data])
+      setMessages([])
+      setChatId({userId: data?._id, convoId: data?.convoId})
+      setConvos({}) 
+    })
+    return () => isMounted = false
+  })
 
   return (
     <UserGroup className='group_container'>

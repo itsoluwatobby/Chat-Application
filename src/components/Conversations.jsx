@@ -67,7 +67,11 @@ export const Conversations = ({ user, socket }) => {
         <div className='detail'>
           {error && <span>{error}</span>}
           <p className='top'>
-            <span>{user?.username || user?.groupName}</span>
+            <span>{
+              !user?.groupName 
+                ? user?.username 
+                : user?.groupName.length >= 14 
+                    ? user?.groupName.slice(0, 13)+'...' : user?.groupName}</span>
             {
               !user?.groupName &&(
                 user?.status !== 'online' ?
@@ -118,6 +122,7 @@ gap: 0.6rem;
 padding: 0.4rem 0.3rem;
 border-radius: 5px;
 z-index: 1;
+cursor: default;
 position: relative;
 
 .more{

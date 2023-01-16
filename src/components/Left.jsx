@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
 
 export const Left = () => {
-  const { currentUser, notification, setNotification, chatId, setChatId, setOpenGroupInfo } = useChatContext()
+  const { currentUser, notification, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
@@ -40,7 +40,7 @@ export const Left = () => {
   )
 
   return (
-    <LeftSection onClick={() => setOpenGroupInfo(false)}>
+    <LeftSection onClick={() => setOpenGroupProfile(false)}>
       <div className='top'> 
         <span 
           onClick={() => notification.length && setReveal(prev => !prev)}

@@ -1,42 +1,183 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components';
 import {CgProfile} from 'react-icons/cg';
+import {CiEdit} from 'react-icons/ci';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import { sub } from 'date-fns';
+import { useChatContext } from '../../../../hooks/useChatContext';
+import { axiosAuth } from '../../../../app/axiosAuth';
 
 export const GroupProfile = ({ target }) => {
+  const { currentUser, loadGroup, setChatId, setOpenGroupProfile } = useChatContext();
+  const [enterGroupName, setEnterGroupName] = useState('');
+  const [enterGroupDescription, setEnterGroupDescription] = useState('');
+  const [text, setText] = useState(false);
+  const [text2, setText2] = useState(false);
+  const [openInput, setOpenInput] = useState(false);
+  const [openDescription, setOpenDescription] = useState(false);
+  const [nameCount, setNameCount] = useState(0);
+  const [descriptionCount, setDescriptionCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const groupNameRef = useRef();
+  const descriptionRef = useRef();
 
-  const timeEdit = new Intl.DateTimeFormat('en-us', {
+  const timeEdit = new Intl.RelativeTimeFormat('en-us', {
     dateStyle: 'short',
     timeStyle: 'full'
   })
-//console.log(target?.createdAt.split('T')[0])
+
+  useEffect(() => {
+    setEnterGroupName(target?.groupName)
+    groupNameRef?.current?.focus()
+  }, [openInput])
+
+  useEffect(() => {
+    setNameCount(enterGroupName?.length)
+  }, [enterGroupName])
+
+  useEffect(() => {
+    setEnterGroupDescription(target?.description)
+    descriptionRef?.current?.focus()
+  }, [openDescription])
+  
+  useEffect(() => {
+    setDescriptionCount(enterGroupDescription?.length)
+  }, [enterGroupDescription])
+
+  const onGroupNameChange = e => setEnterGroupName(e.target.value);
+  const onGroupDescriptionChange = e => setEnterGroupDescription(e.target.value);
+
+  const updateGroupInfo = async() => {
+    setLoading(true)
+    const initialState = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id }
+    try{
+      const res = await axiosAuth.put('/conversation/update_group_info', initialState)
+      loadGroup()
+      //groupName: enterGroupName, convoId: target?._id
+      setChatId({})
+      setOpenInput(false)
+      setOpenDescription(false)
+      ///setOpenGroupProfile(true)
+    }
+    catch(error){
+      setLoading(false)
+      console.log(error?.message)
+    }finally{
+      setLoading(false)
+    }
+  }
+
   return (
-    <GroupProfilePage className='right_container'>
+    <GroupProfilePage 
+      onDoubleClick={() => {
+        setOpenInput(false)
+        setOpenDescription(false)
+      }}
+      className='right_container'>
       {false ? 
         <img src="" alt="" className='pics'/>
         : <CgProfile className='profile'/>
       }
-        <p className='title'>
-          <span className='name'>{target?.groupName}</span>
-          <span className='edit'>
-            <RiErrorWarningLine className='icon' />
-          </span>
-        </p>
+        <div className='title'>
+          {openInput ? 
+            <ProfileInputBox groupName
+              refValue={groupNameRef} loading={loading}
+              maxValue={25} count={nameCount}
+              text={text} setText={setText}
+              handleClick={updateGroupInfo}
+              inputValue={enterGroupName} 
+              onChangeType={onGroupNameChange} 
+            />
+            :
+            <>
+              <span className='name'>{target?.groupName}</span>
+              <span className='edit'>
+              {
+                  target?.adminId === currentUser?._id ? 
+                  <CiEdit 
+                    onClick={() => setOpenInput(true)}
+                    className='icons'/> 
+                  : <RiErrorWarningLine className='icon' />
+              }
+            </span>
+            </>
+          }
+        </div>
         <p className='created'>Created</p>
         <p className='date'>{new Date(target?.createdAt?.split('T')[0]).toLocaleString()}</p>
-        <p className='description'>
-          <span className='created'>Description</span>
-          <span className='date'>
-            The world is a very big place for us all to live in. The world is a very big place for us all to live in
-            <span className='edit'>
-              <RiErrorWarningLine className='icon' />
-            </span>
-          </span>
-        </p>
+        <div className='description'>
+          <div className='created'>Description</div>
+          <div className='date'>
+            {openDescription ? 
+              <ProfileInputBox 
+                refValue={descriptionRef}
+                handleClick={updateGroupInfo}
+                maxValue={512} count={descriptionCount}
+                text={text2} setText={setText2}
+                inputValue={enterGroupDescription} 
+                onChangeType={onGroupDescriptionChange} 
+              />
+              :
+              <>
+                <span>{target?.description}</span>
+                <span className='edit'>
+                {
+                  target?.adminId === currentUser?._id ? 
+                  <CiEdit 
+                    onClick={() => setOpenDescription(true)}
+                    className='icons'/> 
+                  : <RiErrorWarningLine className='icon' />
+                }
+              </span>
+              </>
+            }
+          </div>
+        </div>
     </GroupProfilePage>
   )
 }
+
+const ProfileInputBox = ({ 
+  refValue, groupName, inputValue, onChangeType, text, setText, count, maxValue, handleClick, loading }) => {
+  
+  return (
+    <div>
+      <div className='input_box'>
+        <input 
+          type="text" 
+          ref={refValue}
+          maxLength={maxValue}
+          value={inputValue}
+          onChange={onChangeType}
+        />
+      </div>
+      {groupName ?
+        <button
+          onMouseEnter={() => setText(true)}
+          onMouseLeave={() => setText(false)}
+          onClick={handleClick}
+        >{text ? 
+          <span>{loading ? '---' : 'Done'}</span> 
+            : 
+          <span>{count}/25</span>
+        }
+        </button>
+        :
+        <button
+          onMouseEnter={() => setText(true)}
+          onMouseLeave={() => setText(false)}
+          onClick={handleClick}
+        >{text ? 
+            <span>{loading ? '---' : 'Done'}</span> 
+              : 
+            <span>{count || 0}/512</span>
+          }
+          </button>
+      }
+    </div>
+  )
+}
+
 
 const GroupProfilePage = styled.div`
 
@@ -56,24 +197,79 @@ const GroupProfilePage = styled.div`
     display: flex;
     align-items: center;
     gap: 1rem;
+    z-index: 99;
+
+    div{
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+
+      .input_box{
+        margin-top: 0.6rem;
+        flex: 1;
+        min-width: 30vw;
+        background-color: #333333;
+        border-bottom: 2px solid rgba(255,235,255,0.6);
+        color: white;
+        border-radius: 5px;
+        z-index: 999;
+  
+        input{
+          border: none;
+          height: 100%;
+          width: 100%;
+          color: white;
+          padding: 0.4rem;
+          background-color: transparent;
+  
+          &:focus{
+            outline: none;
+          }
+        }
+      }
+
+      button{
+        align-self: flex-end;
+        border-radius: 6px;
+        border: none;
+        font-size: 14px;
+        padding: 0.18rem 1.3rem;
+        background-color: rgba(0,250,190,0.5);
+
+        &:focus{
+          outline: none;
+        }
+
+        &:active{
+          background-color: rgba(0,250,190,0.7);
+        }
+      }
+    }
+
 
     .name{
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 300;
       white-space: pre-wrap;
     }
 
     .edit{
+      flex: none;
       margin-top: 0.4rem;
       position: fixed;
       right: 1.5rem;
       border-radius: 5px;
-      padding: 8px;
+      padding: 6px;
       display: grid;
       place-content: center;
       cursor: auto;
       font-size: 14px;
       transition: all 0.15s ease-in-out;
+      z-index: 999;
+
+      .icons{
+        font-size: 20px;
+      }
 
       &:hover{
         background-color: rgba(255,255,255,0.16);
@@ -90,12 +286,14 @@ const GroupProfilePage = styled.div`
     margin-top: -0.2rem;
     font-size: 14px;
     color: rgba(255,255,255,0.95);
+    z-index: 99;
   }
 
   .description{
     margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.95rem;
 
     .date{
@@ -104,6 +302,54 @@ const GroupProfilePage = styled.div`
       gap: 0.5rem;
       white-space: pre-wrap;
 
+      div{
+        display: flex;
+        flex-direction: column;
+        gap: 0.05rem;
+  
+        .input_box{
+          margin-top: 0.6rem;
+          flex: 1;
+          min-width: 30vw;
+          background-color: #333333;
+          border-bottom: 2px solid rgba(255,235,255,0.6);
+          color: white;
+          border-radius: 5px;
+          z-index: 999;
+    
+          input{
+            border: none;
+            height: 100%;
+            width: 100%;
+            color: white;
+            padding: 0.4rem;
+            background-color: transparent;
+    
+            &:focus{
+              outline: none;
+            }
+          }
+        }
+  
+        button{
+          align-self: flex-end;
+          border-radius: 6px;
+          border: none;
+          font-size: 14px;
+          padding: 0.18rem 1.3rem;
+          background-color: rgba(0,250,190,0.5);
+  
+          &:focus{
+            outline: none;
+          }
+  
+          &:active{
+            background-color: rgba(0,250,190,0.7);
+          }
+        }
+      }
+
+
       .edit{
         margin-top: 0.2rem;
         display: grid;
@@ -111,10 +357,15 @@ const GroupProfilePage = styled.div`
         position: fixed;
         right: 1.5rem;
         border-radius: 5px;
-        padding: 8px;
+        padding: 6px;
         cursor: auto;
         font-size: 14px;
         transition: all 0.15s ease-in-out;
+        z-index: 999;
+
+        .icons{
+          font-size: 20px;
+        }
 
         &:hover{
           background-color: rgba(255,255,255,0.16);

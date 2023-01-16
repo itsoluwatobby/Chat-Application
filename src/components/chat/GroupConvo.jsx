@@ -7,7 +7,7 @@ import { Users } from './Users';
 import {TbCameraPlus} from 'react-icons/tb';
 import { BsEmojiSmile } from 'react-icons/bs';
 
-export const GroupConvo = ({ result, socket }) => {
+export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
   const {
     setOpen, setClick, isNext, setMessages, proceed, setProceed, conversation, searchUsers, 
     newGroup, setNewGroup, groupConversation, setCustomAdminMessage, welcomeMessage, setWelcomeMessage, chatId, setConversation, refresh, setGroupConversation
@@ -29,6 +29,7 @@ export const GroupConvo = ({ result, socket }) => {
   const filteredSearch = editedUsers && Array.isArray(editedUsers) && editedUsers.filter((user, i) => user.username.toLowerCase().includes(searchUsers.toLowerCase()))
   
   const createGroupConvo = async() => {
+    if(!groupName) setConfirmGroupName(false)
     if(newGroup.length && groupName){
       const groupIds = newGroup.map(singlePerson => singlePerson?.id)
       try{
@@ -65,15 +66,6 @@ export const GroupConvo = ({ result, socket }) => {
     })
     setGroupName('')
   }, [groupConversation.length])
-
-  // useEffect(() => {
-    
-  // }, [groupConversation.length])
-
-  // useEffect(() => {
-    
-  // }, [groupConversation.length])
-
 
   useEffect(() => {
     if(!image) return
@@ -137,6 +129,7 @@ export const GroupConvo = ({ result, socket }) => {
                 </p>
               </label>
             </div>
+        
             <div className='group_name'>
               <p className='title'>
                 Provide a group subject 
@@ -155,7 +148,7 @@ export const GroupConvo = ({ result, socket }) => {
             </div>
               <div className='proceed'>
                 <button 
-                  disabled={!canClick}
+                  // disabled={!canClick}
                   onClick={createGroupConvo}>
                     Create
                 </button>

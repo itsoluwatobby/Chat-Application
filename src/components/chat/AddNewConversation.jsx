@@ -14,11 +14,13 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
 
 // const initialState = {adminId: currentUserId, friendId}
   const createConvo = async(friendId) => {
+    socket.emit('conversation', {_id: friendId})
     const initialState = {adminId: currentUserId, friendId}
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      setConvo({...data})
-      // setConversation([...conversation, data])
+      console.log(data)
+      socket.emit('create_conversation', data)
+      setConversation([...conversation, data])
     }catch(error) {
       let errorMessage;
       error?.response?.status === 400 ? errorMessage = 'id required' :
@@ -32,17 +34,25 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
   }
 
   useEffect(() => {
-    if(!convo?._id) return
-    let isMounted = true
-    isMounted && socket.emit('conversation', convo)
-    isMounted && socket.emit('create_conversation', {new: convo, myId: currentUser?._id})
-    isMounted && socket.on('new_conversation', data => {
-      console.log(data)
+    console.log('i rendered')
+    socket.on('new_conversation', data => {
       setConversation([...conversation, data])
-      setConvo({}) 
+      console.log(data)
     })
-    return () => isMounted = false
-  })
+  }, [conversation])
+
+  // useEffect(() => {
+  //   if(!convo?._id) return
+  //   let isMounted = true
+  //   isMounted && socket.emit('conversation', convo)
+  //   isMounted && socket.emit('create_conversation', {new: convo, myId: currentUser?._id})
+  //   isMounted && socket.on('new_conversation', data => {
+  //     console.log(data)
+  //     setConversation([...conversation, data])
+  //     setConvo({}) 
+  //   })
+  //   return () => isMounted = false
+  // })
 
   return (
     <NewConversation>

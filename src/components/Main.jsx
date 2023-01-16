@@ -5,9 +5,9 @@ import {useChatContext} from '../hooks/useChatContext'
 import { useEffect, useState } from 'react'
 import { axiosAuth } from '../app/axiosAuth';
 
-export const Main = ({ socket, inputRef,  }) => {
+export const Main = ({ socket, inputRef  }) => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages,  chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setOpenGroupInfo, setCustomAdminMessage
+    setChatId, loggedIn, setClick, search, setMessages, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -15,12 +15,6 @@ export const Main = ({ socket, inputRef,  }) => {
   const [filtered, setFiltered] = useState([]);
   const [personalConvo, setPersonalConvo] = useState([]);
   const [generalConvo, setGeneralConvo] = useState([]);
-
-  useEffect(() => {
-    let isMounted = true
-    isMounted && setIsChatOpened(false)
-    return () => isMounted = false
-  }, [chatId.convoId])
 
   useEffect(() => {
     let isMounted = true
@@ -57,7 +51,7 @@ export const Main = ({ socket, inputRef,  }) => {
 
   useEffect(() => {
     let isMounted = true
-    isMounted && setIsChatOpened(true)
+    //isMounted && setIsChatOpened(false)
     return () => isMounted = false
   }, [chatId.convoId])
 
@@ -79,15 +73,11 @@ export const Main = ({ socket, inputRef,  }) => {
       isMounted = false
       controller.abort()
     }
-  }, [loggedIn, currentUserId])
+  }, [num, loggedIn, currentUserId])
 
   useEffect(() => {
     setConversation([...personalConvo, ...generalConvo])
   }, [personalConvo, generalConvo])
-
-  // const updatedUsers = conversation.map(eachUser => {
-  //   return {...eachUser, openedChat: false}
-  // })
   
   useEffect(() => {
     const filteredConversation = conversation.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
@@ -115,6 +105,7 @@ export const Main = ({ socket, inputRef,  }) => {
     setTypingEvent({})
     inputRef?.current?.focus()
     setMessages([])
+    setIsChatOpened(true)
     setCustomAdminMessage({})
     setMessage('')
   }
@@ -142,7 +133,7 @@ export const Main = ({ socket, inputRef,  }) => {
 
   
   return (
-    <MainPage onClick={() => setOpenGroupInfo(false)}>
+    <MainPage onClick={() => setOpenGroupProfile(false)}>
       <Search />
       {
         !conversation.length 
