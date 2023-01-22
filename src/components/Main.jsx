@@ -7,7 +7,7 @@ import { axiosAuth } from '../app/axiosAuth';
 
 export const Main = ({ socket, inputRef  }) => {
   const {
-    setChatId, loggedIn, setClick, search, setMessages, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num
+    setChatId, loggedIn, setClick, search, setEmojiOpen, setMessages, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -80,30 +80,37 @@ export const Main = ({ socket, inputRef  }) => {
   }, [personalConvo, generalConvo])
   
   useEffect(() => {
-    const filteredConversation = conversation.filter(user => !currentUser?.deletedConversationIds?.includes(user?.convoId))
+    const filteredConversation = conversation.filter(
+      user => !currentUser?.deletedConversationIds?.includes(user?.convoId)
+        ).sort((a, b) => b?.lastMessage?.dateTime?.localeCompare(a?.lastMessage?.dateTime));
+//.sort((a, b) => b?.createdTime?.localeCompare(a?.createdTime));
     const searchConversation = filteredConversation && filteredConversation?.filter(
       convo => (convo?.username)?.toLowerCase()?.includes(search?.toLowerCase()) 
-        || (convo?.groupName)?.toLowerCase()?.includes(search?.toLowerCase()))
+        || (convo?.groupName)?.toLowerCase()?.includes(search?.toLowerCase()));
+
     const target = searchConversation.find(
       user => !user?.groupName 
         ? user?._id === chatId?.userId 
           : user?.groupName === chatId?.groupName
-    )
+    );
+
     const others = searchConversation.filter(
       searchUser => !searchUser?.groupName 
           ? searchUser?._id !== chatId?.userId 
               : searchUser?.groupName !== chatId?.groupName
-    )
+    );
+
     const currentChat = [target, ...others]
     target ? setFiltered(currentChat) : setFiltered(searchConversation)
-  }, [currentUser, search, message])
+  }, [currentUser, search, message]);
 
   const openChat = (user) => {
     !user?.groupName 
         ? setChatId({ userId: user?._id, convoId: user?.convoId }) 
-            : setChatId({ groupName: user?.groupName, convoId: user?.convoId })
+            : setChatId({ groupName: user?.groupName, convoId: user?.convoId });
     setTypingEvent({})
     inputRef?.current?.focus()
+    setEmojiOpen(false)
     setMessages([])
     setIsChatOpened(true)
     setCustomAdminMessage({})

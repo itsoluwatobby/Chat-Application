@@ -28,7 +28,7 @@ export const GroupHead = ({
     >  
       {
         openGroupProfile && 
-          <ChatProfile groupProfile 
+          <ChatProfile 
             groupUsers={groupUsers} target={target} 
             allUsers={allUsers} socket={socket}
           />

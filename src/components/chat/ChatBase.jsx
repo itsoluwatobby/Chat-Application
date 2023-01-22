@@ -4,11 +4,11 @@ import {BsEmojiSmile} from 'react-icons/bs'
 import {HiOutlineMicrophone} from 'react-icons/hi'
 import styled from 'styled-components'
 import { useChatContext } from '../../hooks/useChatContext'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CopiedText } from './CopiedText'
 
-export const ChatBase = ({ sendMessage, socket, setEmojiOpen, inputRef }) => {
-  const {message, setMessage, chatId, currentUser, reference } = useChatContext();
+export const ChatBase = ({ sendMessage, socket, inputRef }) => {
+  const {message, setMessage, chatId, setEmojiOpen, currentUser, reference } = useChatContext();
   
   const onMessageChange = e => setMessage(e.target.value)
 

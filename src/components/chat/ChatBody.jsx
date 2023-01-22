@@ -3,18 +3,21 @@ import styled from 'styled-components';
 import { axiosAuth } from '../../app/axiosAuth';
 import { useChatContext } from '../../hooks/useChatContext';
 import { BsCheck, BsCheckAll } from 'react-icons/bs';
+import LoadingEffect from '../../assest/Eclipse-1s-118px.svg';
 
-export const ChatBody = ({ socket, setEmojiOpen }) => {
+export const ChatBody = ({ socket }) => {
   const { 
-    messages, setMessages, chatId, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation
+    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation
    } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [chatViewed, setChatViewed] = useState(false);
-  const [isEquals, setIsEquals] = useState(false);
-  const [extract, setExtract] = useState(false);
+  // const [isEquals, setIsEquals] = useState(false);
+  // const [extract, setExtract] = useState(false);
   const [targetConvo, setTargetConvo] = useState({});
-  const [lastReceived, setLastReceived] = useState({});
+  const [isCurrentChat, setIsCurrentChat] = useState(false);
+  //const [isCurrentChatMessage, setIsCurrentChatMessage] = useState({});
+  
   const messageRef = useCallback(node => {
     node && node.scrollIntoView({ smooth: true })
   }, []);
@@ -36,7 +39,7 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
   })
 
   useEffect(() => {
-    console.log({chatViewed})
+    //console.log({chatViewed})
   }, [isChatOpened])
 
   useEffect(() => {
@@ -48,7 +51,9 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
         const messages = await axiosAuth.get(`/messages/${chatId?.convoId}`, {
           signal: controller.signal
         })
-        isMounted && setMessages([...messages.data])
+        if(messages?.data[messages?.data?.length - 1]?.conversationId === chatId?.convoId){
+          isMounted && setMessages([...messages?.data])
+        } 
       }catch(error) {
         let errorMessage;
         error?.response?.status === 404 ? errorMessage = 'Say hello to start a conversation' :
@@ -66,54 +71,44 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
       controller.abort()
     }
   }, [chatId, num])
+//targetConvo?.members?.includes
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    //console.log(last)
+    const result = currentUser?._id === last?.senderId
+    setIsCurrentChat(result)
+  }, [targetConvo?._id, messages])
 
   useEffect(() => {
-    socket.on('new_message', data => {
-      setLastReceived({...data})
-    })
-  }, [messages])
+    setTargetConvo({})
+    let isMounted = true
+    const controller = new AbortController();
+    const getConversation = async() => {
+      try{
+        const {data} = chatId?.groupName 
+            ? await axiosAuth(`/group_conversation/${chatId?.convoId}`, { signal: controller.signal })
+              : await axiosAuth(`/conversation/${chatId?.convoId}`, { signal: controller.signal })
+        isMounted && setTargetConvo({...data})
+      }
+      catch(error){
+        setTargetConvo({})
+        console.error(error.message)
+      }
+    }
+    getConversation()
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
+  }, [chatId?.convoId])
 
-  // useEffect(() => {
-  //   const lastMessage = messages?.length && messages[messages.length - 1]
-  //   const targetUser = conversation && conversation.find(user => user?.convoId === lastReceived?.conversationId)
-  //   console.log(lastReceived)
-  //   console.log(targetUser)
-  //   setTargetConvo(targetUser)
-  //   setIsEquals(lastReceived?.conversationId === targetUser?.convoId)
-  // }, [chatId?.convoId, messages, lastReceived])
+  //console.log(isCurrentChat)
 
-  // useEffect(() => {
-  //   setTargetConvo({})
-  //   let isMounted = true
-  //   const controller = new AbortController();
-  //   const getConversation = async() => {
-  //     try{
-  //       const {data} = chatId?.groupName 
-  //           ? await axiosAuth(`/group_conversation/${chatId?.convoId}`, { signal: controller.signal })
-  //             : await axiosAuth(`/conversation/${chatId?.convoId}`, { signal: controller.signal })
-  //       isMounted && setTargetConvo({...data})
-  //     }
-  //     catch(error){
-  //       console.error(error.message)
-  //     }
-  //   }
-  //   getConversation()
-  //   return () => {
-  //     isMounted = false
-  //     controller.abort()
-  //   }
-  // }, [chatId?.convoId])
-
-  //console lastMessage => messages.
 
   const copyText = (text) => {
     navigator.clipboard.writeText(text)
   }
 
-  // const onMessageRef = (message) => {
-  //   setReference(message)
-  //   setIsReferenced(true)
-  // }
   const messageExtract = (
     <section 
     //onMouseEnter={() => setExtract(true)}
@@ -124,7 +119,7 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
 
   const messageContent = (
             <>
-              { 
+              {
                 messages?.map(message =>  
                   (
                     <article 
@@ -167,7 +162,7 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
                             }
                             <span className={`dateTime ${chatId?.groupName ? 'time' : 'other'}`}>
                               {message?.dateTime}
-                              <BsCheckAll className='checks'/>
+                              <BsCheckAll className={`checks ${message?.isMessageRead ? 'color' : null}`}/>
                             </span>
                           </p>
                         </div>
@@ -192,7 +187,8 @@ export const ChatBody = ({ socket, setEmojiOpen }) => {
           :
             <p className='start'>
               {loading ? 
-                <span className='loading'>loading messages...</span> 
+                // <span className='loading'>loading messages...</span> 
+                <img src={LoadingEffect} alt="loading messages..." className='loading_effect'/>
                 : 
                 <span className='start_convo'>Start a conversation</span>}
             </p> 
@@ -307,17 +303,19 @@ position: relative;
         }
 
         .text{
-          white-space: wrap;
+          white-space: pre-wrap;
           color: rgba(255,255,255,0.8);
           font-size: 13px;
           font-family: mono;
           text-align: left;
+          word-wrap: break-word;
         }
       }
     }
 
     p{
-      white-space: wrap;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     .message_base{

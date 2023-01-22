@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 export const Search = () => {
   const { 
-    setChatId, setMessageBody, setIsChatOpened, onSearchChange, search, setCurrentUser, 
+    setChatId, setMessageBody, setPreviousChatId, setIsChatOpened, onSearchChange, search, setCurrentUser, 
     currentUser, setOpen, setClick, setConversation } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()

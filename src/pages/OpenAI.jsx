@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import styled from 'styled-components';
 import {BsFillChatLeftDotsFill} from 'react-icons/bs';
 import {IoMdSend} from 'react-icons/io';
-import {FiUser} from 'react-icons/fi'
-import {SiReactos} from 'react-icons/si'
-import { openaiAxios } from '../app/axiosAuth'
-import { useChatContext } from '../hooks/useChatContext'
+import {FiUser} from 'react-icons/fi';
+import {FaTrash} from 'react-icons/fa';
+import {SiReactos} from 'react-icons/si';
+import { openaiAxios } from '../app/axiosAuth';
+import { useChatContext } from '../hooks/useChatContext';
 import { useNavigate } from 'react-router-dom';
 import Rolling from '../assest/Rolling-1s-84px.svg'; 
 
@@ -17,16 +18,14 @@ export const OpenAI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const inputRef = useRef()
-  
+
+  const dataRes = "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Et odit labore, sequi earum sunt delectus. Debitis deserunt at ea inventore? Suscipit ipsa doloribus porro fuga deserunt molestiae quas expedita delectus. Dolorem eligendi tenetur quibusdam asperiores, a sapiente dolorum voluptas quo amet, inventore commodi optio at quia ut ipsam consequatur cupiditate unde sed temporibus fugit consectetur qui iste eos. Doloribus, illum. Rerum natus voluptas neque sit ad explicabo, nobis earum voluptates quod asperiores eos ea quisquam unde fuga cum laudantium porro."
+
   const responseAutoScroll = useCallback((node) => {
     node && node.scrollIntoView({ smooth: true })
   }, [])
 
   const onUserInputChange = e => setUserInput(e.target.value);
-
-  // const filterResponse = responseMessage.filter(res => (res?.openAIRes?.text).toLowerCase().includes('warning'.toLowerCase()) || (res?.openAIRes?.text).toLowerCase().includes('error'.toLowerCase()));
-
-  //responses with warnining or error
 
   useEffect(() => {
     inputRef?.current?.focus()
@@ -47,6 +46,23 @@ export const OpenAI = () => {
       !error?.response ? errorMessage = 'No server response' :
       error?.response?.status === 400 ? errorMessage = 'userId required' :
       error?.response?.status === 403 ? errorMessage = 'no have no response' :
+      error?.response?.status === 500 ? errorMessage = 'No server response' 
+      : errorMessage = "I'm lost of words";
+    }finally{
+      setIsLoading(false)
+    }
+  }
+
+  const clearConversation = async() => {
+    setIsLoading(true)
+    try{
+      await openaiAxios.delete(`/clear_conversation/${currentUserId}`)
+      setResponseMessage([])
+    }
+    catch(error){
+      setIsLoading(false)
+      let errorMessage;
+      !error?.response ? errorMessage = 'No server response' :
       error?.response?.status === 500 ? errorMessage = 'No server response' 
       : errorMessage = "I'm lost of words";
     }finally{
@@ -90,6 +106,18 @@ export const OpenAI = () => {
     navigate('/chat')
   }
 
+  // function typingEffect(data){
+  //   const nextIndex = 0
+  //   const totalLength = data.length
+  //   let res;
+  //   setTimeout(() => nextIndex++ , 400)
+  //   if(nextIndex < totalLength){
+      
+  //     res += data.slice(0, nextIndex);
+  //   }
+  //   return res
+  // }
+
   return (
     <OpenAiChat>
       <aside>
@@ -97,7 +125,13 @@ export const OpenAI = () => {
           <p className='new_chat'>New Chat +</p>
         </div>
         <div className='base'>
-          will be back
+          <button
+            onClick={clearConversation}
+            disabled={isLoading}
+          >
+            <FaTrash className='trash'/>
+            Clear Conversation
+          </button>
         </div>
       </aside>
       <main>
@@ -112,6 +146,9 @@ export const OpenAI = () => {
                 Welcome to the new world where AI is making life easier.
                 Ask me a question.
               </span>
+              {/* <span className='welcome'>
+               {typingEffect(dataRes)}
+              </span> */}
             </p>
           </div>
             :
@@ -138,7 +175,8 @@ export const OpenAI = () => {
                   ))}
                   </p>
                   : */}
-                  <p>{aiResponse?.openAIRes?.text.trim() || <span className='welcome'>Welcome to the new world where AI is making life easier.</span>}</p>
+                  {/*|| <span className='welcome'>Welcome to the new world where AI is making life easier.</span> */}
+                  <p>{aiResponse?.openAIRes?.text.trim()}</p>
                   {/* } */}
                 </div>
               </li>
@@ -192,7 +230,7 @@ overflow-x: hidden;
   aside{
     flex: 2;
     //min-width: 30vw;
-    background-color: #323234;
+    background-color: #333333;
     display: flex;
     flex-direction: column;
     position: sticky;
@@ -224,10 +262,40 @@ overflow-x: hidden;
 
     .base{
       flex: 3;
+      display: flex;
+      flex-direction: column;
       border-top: 1px solid gray;
+      padding: 0.2rem;
+      gap: 0.3rem;
+      cursor: default;
+
+      button{
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 0.3rem 0.8rem 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        gap: 0.8rem;
+        color: white;
+        border: none;
+        background-color: transparent;
+        transition: all 0.15s ease-in-out;
+
+        &:hover{
+          background-color: rgba(255,255,255,0.06);
+        }
+
+        &:focus{
+          outline: none;
+        }
+
+        &:active{
+          background-color: rgba(255,255,255,0.1);
+        }
+      }
     }
 
-    @media (max-width: 650px){
+    @media (max-width: 850px){
       display: none;
     }
 

@@ -10,16 +10,17 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
+  const [addedConversation, setAddedConversation] = useState({});
   const [convo, setConvo] = useState({});
 
 // const initialState = {adminId: currentUserId, friendId}
   const createConvo = async(friendId) => {
-    socket.emit('conversation', {_id: friendId})
+    //socket.emit('conversation', {_id: friendId})
     const initialState = {adminId: currentUserId, friendId}
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
       console.log(data)
-      socket.emit('create_conversation', data)
+      socket.emit('create_conversation', {convo: {...data}, room: 'itsoluwatobby'})
       setConversation([...conversation, data])
     }catch(error) {
       let errorMessage;
@@ -34,25 +35,19 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
   }
 
   useEffect(() => {
-    console.log('i rendered')
     socket.on('new_conversation', data => {
-      setConversation([...conversation, data])
-      console.log(data)
+      console.log('rendered')
+      setAddedConversation({...data})
     })
   }, [conversation])
-
-  // useEffect(() => {
-  //   if(!convo?._id) return
-  //   let isMounted = true
-  //   isMounted && socket.emit('conversation', convo)
-  //   isMounted && socket.emit('create_conversation', {new: convo, myId: currentUser?._id})
-  //   isMounted && socket.on('new_conversation', data => {
-  //     console.log(data)
-  //     setConversation([...conversation, data])
-  //     setConvo({}) 
-  //   })
-  //   return () => isMounted = false
-  // })
+  console.log(addedConversation)
+  useEffect(() => {
+    if(!addedConversation) return
+    if(addedConversation?._id === currentUser?._id){
+      console.log(addedConversation)
+      setConversation([...conversation, addedConversation])
+    }
+  }, [addedConversation])
 
   return (
     <NewConversation>
@@ -87,6 +82,7 @@ const NewConversation = styled.div`
   padding: 0 0 0.3rem 0;
   max-height: 28em;
   box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
+  transition: 0.3s ease-in-out;
 
     .error{
       text-align: center;

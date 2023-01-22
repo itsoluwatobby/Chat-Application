@@ -9,35 +9,36 @@ import Eclipse from '../assest/Eclipse-1s-118px.svg';
 export const EmptyChat = () => {
   const { toggle, setToggle } = useChatContext()
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const TIMEOUT = 2500
 
-  const startChat = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, TIMEOUT);
-  }
+  const delay = () => new Promise(res => setTimeout(() => res(), TIMEOUT))
 
-  useEffect(() => {
-    toggle && startChat()
-  }, [toggle])
+  const startChat = async() => {
+    setLoading(true)
+    await delay()
+    setLoading(false)
+    !loading && navigate('/openai')
+  }
 
   return (
     <EmptyChatPage>
       <div className='chat'>
         <p className='top'>Would You Like To Chat With a Bot? 
-          <span>@openai</span>
+          <span className='open__chat'>@openai</span>
         </p>
         <div className='toggle'>
           Toggle
           <div className='button_toggle'>
-            {!toggle && <span onClick={() => setToggle(true)} className={`gray ${!toggle && 'red'}`}></span>}
+            {!toggle && <span onClick={() => {
+                setToggle(true)
+                startChat()
+              }} className={`gray ${!toggle && 'red'}`}></span>}
             {toggle && <span onClick={() => setToggle(false)} className={`green ${toggle && 'reds'}`}></span>}
           </div>
         </div>
         {loading && <img src={Eclipse} alt='' />}
-        {!loading && toggle ? <Navigate to='/openai' /> : <Navigate to='/chat' />}
+        {/* {!loading && toggle ? <Navigate to='/openai' /> : <Navigate to='/chat' />} */}
       </div>
       <SiWhatsapp className='whatsapp'/>
       <div className='info'>
@@ -72,6 +73,15 @@ position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    @media (min-width: 700px){
+      word-spacing: 5px;
+    }
+
+    .open__chat{
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
 
     span{
       color: rgba(255,255,255,0.4);

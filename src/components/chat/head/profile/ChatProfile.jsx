@@ -7,7 +7,7 @@ import { NAVIGATE } from './navigate';
 import { useChatContext } from '../../../../hooks/useChatContext';
 import { FaTimes } from 'react-icons/fa';
 
-export const ChatProfile = ({ groupProfile, groupUsers, target, allUsers, socket }) => {
+export const ChatProfile = ({user, loggedIn, loggedInUser, groupUsers, target, allUsers, socket }) => {
   const { chatId, openGroupProfile, setOpenGroupProfile } = useChatContext();
   const [buttonState, setButtonState] = useState(NAVIGATE.FST);
 
@@ -17,7 +17,7 @@ export const ChatProfile = ({ groupProfile, groupUsers, target, allUsers, socket
   }
 
   return (
-    <ChatProfilePage className={`chat_profile_container`}>
+    <ChatProfilePage className={`chat_profile_container ${loggedIn && 'current__user'}`}>
       <div className='left_container'>
         <LeftContainer 
           buttonState={buttonState}
@@ -28,7 +28,7 @@ export const ChatProfile = ({ groupProfile, groupUsers, target, allUsers, socket
         <div className='right_container'>
           <FaTimes 
             onClick={closeGroupProfile} className='times'/>
-          <GroupProfile target={target} />
+          <GroupProfile target={target} user={user} loggedInUser={loggedInUser} />
         </div>
         ||
         buttonState === NAVIGATE.SND &&
@@ -73,6 +73,12 @@ height: 70vh;
 cursor: default;
 z-index: 200;
 border-radius: 10px;
+
+.current__user{
+  position: absolute;
+  bottom: 2rem;
+  left: 0rem;
+}
 
 @media (max-width: 750px){
   max-width: 70vw;

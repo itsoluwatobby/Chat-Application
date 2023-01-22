@@ -12,19 +12,18 @@ import EmojiPicker from 'emoji-picker-react';
 export const ChatPage = (
   { result, socket, inputRef, allUsers, isMessageDeleted, isMessageDelivered, isMessageRead }) => {
   const { 
-    chatId, setMessages, messages, setClick, setOpen, setMessage, message, 
-    currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
+    chatId, setMessages, messages, setClick, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
   const [received, setReceived] = useState({});
-  const [error, setError] = useState(null)
-  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [error, setError] = useState(null);
   const [cursorPosition, setCursorPosition] = useState(null);
+  const [incoming, setIncoming] = useState({});
 
   useEffect(() => {
     if(chatId?.userId){
-      const foundUser = result.length && result.find(user => user._id === chatId?.userId)
+      const foundUser = chatId?.userId && result.length && result.find(user => user._id === chatId?.userId)
       setTargetUser(foundUser)
     }else return
   }, [chatId.convoId])
@@ -59,15 +58,22 @@ export const ChatPage = (
 
   //receive message
   useEffect(() => {
-    socket.on('new_message', (data) => { 
-      if(data?.conversationId !== chatId?.convoId) {
-        setNotification([...notification, {...data, orderId: counterRef.current++}])
-      }
-      else {
-        setMessages([...messages, data])
-      }
-    })
-  }, [messages])
+    socket.on('new_message', (data) => setIncoming({...data}))
+  }, [messages, chatId?.userId])
+ 
+  useEffect(() => {
+    if(incoming?.conversationId !== chatId?.convoId && incoming?.receiverId === currentUserId){
+      console.log('notification')
+      setNotification([...notification, {...incoming, orderId: counterRef.current++}])
+    }
+    else if(!chatId?.convoId && incoming?.receiverId === currentUserId){
+      console.log('notification notification')
+      setNotification([...notification, {...incoming, orderId: counterRef.current++}])
+    }
+    else if(incoming?.conversationId === chatId?.convoId){
+      incoming && setMessages([...messages, incoming])
+    }
+  }, [incoming])
 
   const pickEmoji = emoji => {
     let ref = inputRef?.current 
@@ -77,9 +83,9 @@ export const ChatPage = (
     setMessage(text)
     setCursorPosition(posStart.length + emoji.length)
   }
-
+// = message?.length
   // useEffect(() => {
-  //   inputRef?.current?.value?.length = message?.length
+  //   inputRef?.current?.length++
   // }, [cursorPosition])
 
   let emoji = (
@@ -113,17 +119,14 @@ export const ChatPage = (
             user={targetUser} 
             socket={socket} 
             result={result}
-            allUsers={allUsers}
-            setEmojiOpen={setEmojiOpen} 
+            allUsers={allUsers} 
             setIsChatOpened={setIsChatOpened}
           />
           <ChatBody 
-            emojiOpen={emojiOpen} 
-            setEmojiOpen={setEmojiOpen}   
+            emojiOpen={emojiOpen}    
             socket={socket}
           />
-          <ChatBase 
-            setEmojiOpen={setEmojiOpen} 
+          <ChatBase  
             sendMessage={createMessage} 
             socket={socket}
             inputRef={inputRef}

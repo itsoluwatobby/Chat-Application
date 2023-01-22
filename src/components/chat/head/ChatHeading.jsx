@@ -13,10 +13,10 @@ import { GroupHead } from './GroupHead';
 import { axiosAuth } from '../../../app/axiosAuth';
 
 export const ChatHeading = ({ 
-    user, socket, isChatOpened, setIsChatOpened, result, setEmojiOpen, allUsers
+    user, socket, isChatOpened, setIsChatOpened, result, allUsers
   }) => {
   const [width, setWidth] = useState(undefined)
-  const { chatId, setChatId, formatDate, setMessages, typingEvent, setTypingEvent, currentUser } = useChatContext();
+  const { chatId, setChatId, formatDate, setMessages, typingEvent, setTypingEvent, setEmojiOpen, currentUser } = useChatContext();
   const [resize, setResize] = useState(false);
 
   useEffect(() => {
@@ -59,6 +59,7 @@ export const ChatHeading = ({
         <UserHead 
           user={user} typingEvent={typingEvent}
           formatDate={formatDate} resize={resize}
+          socket={socket}
         />
         :
         <GroupHead 

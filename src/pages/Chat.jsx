@@ -54,7 +54,7 @@ export const Chat = () => {
   }, [currentUserId])
 
   useEffect(() => {
-    socket.emit('conversation', currentUser)
+    socket.emit('conversation', 'itsoluwatobby')
   }, [currentUser])
 
   const isMessageRead = async(msgId) => {
@@ -69,14 +69,13 @@ export const Chat = () => {
 
   const reload = () => setRefetch(prev => prev+1)
 
-  const isMessageDeleted = async() => {
+  const isMessageDeleted = async(msgId) => {
     await axiosAuth.delete(`/messages_delete`, {
 
     })
   }
   
   useEffect(() => {
-    let isMounted = true
     let controller = new AbortController();
 
     const getConversationIds = async() => {
@@ -91,10 +90,8 @@ export const Chat = () => {
       }
     }
     getConversationIds()
-    return () => {
-      isMounted = false
-      controller.abort()
-    }
+
+    return () => controller.abort()
   }, [num, loggedIn, conversation.length])
 
   useEffect(() => {

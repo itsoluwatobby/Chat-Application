@@ -4,9 +4,10 @@ import {FiSettings} from 'react-icons/fi'
 import {HiOutlineStatusOnline} from 'react-icons/hi'
 import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
+import { ChatProfile } from './chat/head/profile/ChatProfile'
 
-export const Left = () => {
-  const { currentUser, notification, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
+export const Left = ({ socket }) => {
+  const { currentUser, notification, openGroupProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
@@ -17,10 +18,10 @@ export const Left = () => {
     setSorted(sortedNotification)
   }, [notification])
 
-  const openChatFromNotification = (notify) => {
-    setChatId({ userId: notify?._id, convoId: notify?.conversationId })
-    const filterNotification = sorted?.filter(notify => notify?.senderId !== '')
-    setNotification([...filterNotification])
+  const openChatFromNotification = (user) => {
+    setChatId({ userId: user?._id, convoId: user?.conversationId })
+    const filteredNotification = sorted?.filter(notify => notify?._id !== user?._id)
+    setNotification([...filteredNotification])
   }
 
   const customNotifications = (
@@ -39,8 +40,14 @@ export const Left = () => {
     </div>
   )
 
+  useEffect(() => {
+    !notification.length && setReveal(false)
+  }, [notification])
+
   return (
-    <LeftSection onClick={() => setOpenGroupProfile(false)}>
+    <LeftSection 
+      onClick={() => setOpenGroupProfile(false)}
+    >
       <div className='top'> 
         <span 
           onClick={() => notification.length && setReveal(prev => !prev)}
@@ -52,7 +59,17 @@ export const Left = () => {
           <HiOutlineStatusOnline title='Status' className='status'/>
         </span>
       </div>
-      <div className='base'>
+      <div 
+        className='base'
+        //onClick={() => setOpenGroupProfile(true)}
+        >  
+          {/* {
+            openGroupProfile && 
+              <ChatProfile loggedIn
+                loggedInUser={currentUser} 
+                socket={socket}
+              />
+          } */}
         <FiSettings title='Settings' className='settings'/>
         <div title='Profile' className='image'>
           <img src={currentUser?.profilePicture} alt="" />
@@ -175,15 +192,21 @@ align-items: center;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    position: relative;
 
     .settings{
       font-size: 40px;
       cursor: pointer;
       padding: 10px;
       border-radius: 5px;
+      transition: all 0.15s ease-in-out;
 
       &:hover{
         background-color: rgba(255,255,255,0.1);
+      }
+
+      &:active{
+        scale: 0.92;
       }
     }
 

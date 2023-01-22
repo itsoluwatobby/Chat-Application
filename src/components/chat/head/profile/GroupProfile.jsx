@@ -7,7 +7,7 @@ import { sub } from 'date-fns';
 import { useChatContext } from '../../../../hooks/useChatContext';
 import { axiosAuth } from '../../../../app/axiosAuth';
 
-export const GroupProfile = ({ target }) => {
+export const GroupProfile = ({ target, user, loggedInUser }) => {
   const { currentUser, loadGroup, setChatId, setOpenGroupProfile } = useChatContext();
   const [enterGroupName, setEnterGroupName] = useState('');
   const [enterGroupDescription, setEnterGroupDescription] = useState('');
@@ -90,9 +90,14 @@ export const GroupProfile = ({ target }) => {
             />
             :
             <>
-              <span className='name'>{target?.groupName}</span>
+              <span className='name'>{user?.username ? user?.username : target?.groupName}</span>
               <span className='edit'>
-              {
+              {user ?  
+                user?._id === currentUser?._id &&
+                <CiEdit 
+                  onClick={() => setOpenInput(true)}
+                  className='icons'/> 
+                :
                   target?.adminId === currentUser?._id ? 
                   <CiEdit 
                     onClick={() => setOpenInput(true)}
@@ -103,10 +108,14 @@ export const GroupProfile = ({ target }) => {
             </>
           }
         </div>
-        <p className='created'>Created</p>
-        <p className='date'>{new Date(target?.createdAt?.split('T')[0]).toLocaleString()}</p>
+        {!user && 
+          <>
+            <p className='created'>Created</p>
+            <p className='date'>{new Date(target?.createdAt?.split('T')[0]).toLocaleString()}</p>
+          </>
+        }
         <div className='description'>
-          <div className='created'>Description</div>
+        <div className='created'>{user ? 'About' : 'Description'}</div>
           <div className='date'>
             {openDescription ? 
               <ProfileInputBox 
@@ -119,7 +128,7 @@ export const GroupProfile = ({ target }) => {
               />
               :
               <>
-                <span>{target?.description}</span>
+                <span>{user ? user?.about : target?.description}</span>
                 <span className='edit'>
                 {
                   target?.adminId === currentUser?._id ? 

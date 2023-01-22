@@ -1,11 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CgProfile } from 'react-icons/cg';
+import { useChatContext } from '../../../hooks/useChatContext';
+import { ChatProfile } from './profile/ChatProfile';
 
-export const UserHead = ({ user, typingEvent, resize, formatDate }) => {
+export const UserHead = ({ user, typingEvent, socket, resize, formatDate }) => {
+  const { setOpenGroupProfile, openGroupProfile } = useChatContext()
  
   return (
-    <UserConvo>  
+    <UserConvo
+    onClick={() => setOpenGroupProfile(true)}
+    >  
+      {
+        openGroupProfile && 
+          <ChatProfile userProfile 
+            //groupUsers={groupUsers} 
+            user={user} 
+            socket={socket}
+          />
+      }
       {user?.profilePicture 
           ? 
             <img src={user?.profilePicture} alt={user?.username} 

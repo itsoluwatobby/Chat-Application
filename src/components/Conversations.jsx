@@ -9,7 +9,7 @@ import { BiRefresh } from 'react-icons/bi';
 
 export const Conversations = ({ user, socket }) => {
   const {
-    setClick, setOpen, setChatId, typingEvent, conversation, refresh, currentUser, setConversation, formatDate, chatId, customAdminMessage
+    setClick, setOpen, setChatId, messages, typingEvent, conversation, refresh, currentUser, setConversation, formatDate, chatId, customAdminMessage
   } = useChatContext()
   const [reveal, setReveal] = useState(false);
   const currentUserId = localStorage.getItem('userId');
@@ -22,8 +22,8 @@ export const Conversations = ({ user, socket }) => {
       !initial?.groupName ? 
           await axiosAuth.delete(`/conversation/delete/${initial?.convoId}/${currentUserId}`)
           : await axiosAuth.delete(`/group_conversation/delete/${currentUserId}/${initial?.convoId}`)
-      setDeletedConvo([...otherConversations])
-      //setConversation([...otherConversations])
+      socket.emit('delete_conversation', { convo: [...otherConversations], room: 'itsoluwatobby' })
+      setConversation([...otherConversations])
       setChatId({})
     }
     catch(error){
@@ -37,19 +37,19 @@ export const Conversations = ({ user, socket }) => {
   }
 
   useEffect(() => {
+    socket.on('newDel_conversation', data => setDeletedConvo([...data]))
+  }, [conversation])
+
+  useEffect(() => {
     if(!deletedConvo?.length) return
-    let isMounted = true
-    isMounted && socket.emit('conversation', {_id: chatId?.userId})
-    isMounted && socket.emit('delete_conversation', {new: deletedConvo, myId: currentUser?._id, otherId: chatId?.userId})
-    isMounted && socket.on('newDel_conversation', data => {
-      setConversation([...data])
-      setDeletedConvo([])
-    })
-    return () => isMounted = false
-  })
-  
+    if(deletedConvo?.userId === currentUser?._id){
+      setConversation([...deletedConvo])
+    }
+  }, [deletedConvo])
+ 
   return (
     <Conversation
+      onDoubleClick={() => setReveal(true)}
       onClick={() => {
         setError('')
         setClick(false)
@@ -87,29 +87,34 @@ export const Conversations = ({ user, socket }) => {
             }
           </p>
           {user?.groupName &&
-            !(customAdminMessage?.groupName === user?.groupName) ?
+            (
+              !(customAdminMessage?.groupName === user?.groupName) ?
               <div className="members">
                 {user?.members.length} members
               </div>
               :
               <div className="members">{customAdminMessage?.message}</div>
+            )
+              // :
+              // conversation.map(con => (
+              //   con?._id === userLastMessage?.senderId && <p key={con?._id}>{userLastMessage?.text}</p>
+              // ))
           }
           {/* {(typingEvent && chatId?.userId === user?._id) && <p className='base'>{typingEvent}</p>} */}
-          {/* <p className='base'>{user?.lastMessage.slice(0, 15)}...</p> */}
+          {user?.lastMessage && <p className='base'>{user?.lastMessage?.text?.slice(0, 15)}...</p>}
         </div>
         {
           reveal && 
           <button
-            onMouseEnter={() => setReveal(true)}
             onMouseLeave={() => setReveal(false)}
             onClick={() => deleteConversation(user)}
           >Remove</button>
         }
-        <MdMoreHoriz 
+        {/* <MdMoreHoriz 
           onMouseEnter={() => setReveal(true)}
           onMouseLeave={() => setReveal(false)}
           className='more'
-        />
+        /> */}
         {user?.groupName && <p className='date'>{formatDate(user?.createdAt)}</p>}
     </Conversation>
   )
@@ -185,7 +190,7 @@ button{
     }
 
     .base{
-      color: lightgray;
+      color: gray;
     }
 
     .members{

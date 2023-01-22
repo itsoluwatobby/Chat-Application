@@ -46,6 +46,7 @@ export const ChatContextProvider = ({ children }) => {
   const counterRef = useRef(0);
 
   const [toggle, setToggle] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
 
   const loadGroup = () => setNum(prev => prev + 1)
   const onSearchChange = e => setSearch(e.target.value);
@@ -79,7 +80,7 @@ export const ChatContextProvider = ({ children }) => {
     setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
     customAdminMessage, setCustomAdminMessage, reference, setReference, 
     error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, 
-    toggle, setToggle
+    toggle, setToggle, emojiOpen, setEmojiOpen
   }
 
   return (
