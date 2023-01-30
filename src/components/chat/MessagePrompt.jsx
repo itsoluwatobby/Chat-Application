@@ -25,7 +25,7 @@ border-radius: 20px;
 font-size: 15px;
 border: 1px solid gray;
 box-shadow: 2px 4px 16px rgba(0,0,0,0.2);
-z-index: 199;
+z-index: 999;
 top: 13rem;
 right: 12rem;
 color: white;

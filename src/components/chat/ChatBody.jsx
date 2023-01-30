@@ -2,18 +2,17 @@ import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { axiosAuth } from '../../app/axiosAuth';
 import { useChatContext } from '../../hooks/useChatContext';
-import { BsCheck, BsCheckAll } from 'react-icons/bs';
 import LoadingEffect from '../../assest/Eclipse-1s-118px.svg';
+import { Messages } from './Messages';
+import {BsLock} from 'react-icons/bs'
 
-export const ChatBody = ({ socket }) => {
+export const ChatBody = ({ socket, inputRef }) => {
   const { 
-    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation
+    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation, setNewGroup, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll
    } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [chatViewed, setChatViewed] = useState(false);
-  // const [isEquals, setIsEquals] = useState(false);
-  // const [extract, setExtract] = useState(false);
+  const [chatViewed, setChatViewed] = useState(false)
   const [targetConvo, setTargetConvo] = useState({});
   const [isCurrentChat, setIsCurrentChat] = useState(false);
   //const [isCurrentChatMessage, setIsCurrentChatMessage] = useState({});
@@ -53,7 +52,9 @@ export const ChatBody = ({ socket }) => {
         })
         if(messages?.data[messages?.data?.length - 1]?.conversationId === chatId?.convoId){
           isMounted && setMessages([...messages?.data])
-        } 
+          reloadAll == 2 && socket.emit('reload_message', { conversationId: chatId?.convoId, data: messages?.data })
+          setReloadAll(null)
+        }
       }catch(error) {
         let errorMessage;
         error?.response?.status === 404 ? errorMessage = 'Say hello to start a conversation' :
@@ -70,7 +71,8 @@ export const ChatBody = ({ socket }) => {
       isMounted = false
       controller.abort()
     }
-  }, [chatId, num])
+  }, [chatId, num, reload, reloadAll])
+
 //targetConvo?.members?.includes
   useEffect(() => {
     const last = messages[messages.length - 1]
@@ -103,17 +105,23 @@ export const ChatBody = ({ socket }) => {
   }, [chatId?.convoId])
 
   //console.log(isCurrentChat)
-
-
-  const copyText = (text) => {
-    navigator.clipboard.writeText(text)
+  const referenceMessage = (message) => {
+    inputRef?.current.focus()
+    setReference(message)
   }
 
-  const messageExtract = (
-    <section 
-    //onMouseEnter={() => setExtract(true)}
-      className='message_extract'>
-      helloghgj jygvvgvytviiyiu iuiii
+  const groupWelcomeMessage = (
+    <section>
+      <p className='top'>
+        <BsLock className='lock'/>
+        <span>
+          Messages and calls are end-to-end encrypted. 
+          No one outside of this chat, not even Itsoluwatobby, can read or listen to them.Select to learn more.
+        </span>
+      </p>
+      <p>
+        You created group &#8220;{chatId?.groupName}&#8221;
+      </p>
     </section>
   )
 
@@ -123,49 +131,12 @@ export const ChatBody = ({ socket }) => {
                 messages?.map(message =>  
                   (
                     <article 
-                      onDoubleClick={() => setReference(message)}
-                      // onMouseEnter={() => setExtract(true)}
-                      // onMouseLeave={() => setExtract(false)}
+                      onDoubleClick={() => referenceMessage(message)}
                       ref={messageRef}
                       className={message?.senderId === currentUser?._id ? 'owner' : 'friend'} 
                       key={message?._id}>
                         {/* {extract && <button>hello</button>} */}
-                        <div>
-                          {message?.referencedMessage?._id &&
-                            <div className='copied'>
-                              <p className='referenced_message'>
-                                <span className='sender'>
-                                  {
-                                    currentUser?._id === message?.referencedMessage?.senderId 
-                                      ? 
-                                        'You' : message?.referencedMessage?.username
-                                  }
-                                </span>
-                                <span className='text'>
-                                  {
-                                    message?.referencedMessage?.text.split(' ').length > 22 
-                                      ?
-                                      message?.referencedMessage?.text.slice(0, 105) + '...' : message?.referencedMessage?.text 
-                                  }
-                                </span>
-                              </p>
-                            </div>
-                          }
-                          <p>{message?.text}</p>  
-                          <p className='message_base'>
-                            {chatId?.groupName && (
-                              message?.senderId === currentUser?._id ?
-                                <span className='you'>You</span>
-                                :
-                                <span className='you'>{message?.username}</span>
-                              )
-                            }
-                            <span className={`dateTime ${chatId?.groupName ? 'time' : 'other'}`}>
-                              {message?.dateTime}
-                              <BsCheckAll className={`checks ${message?.isMessageRead ? 'color' : null}`}/>
-                            </span>
-                          </p>
-                        </div>
+                        <Messages message={message} />
                       {/* {chatViewed && <span>user viewed your chat</span>} */}
                     </article>
                   )  
@@ -178,8 +149,11 @@ export const ChatBody = ({ socket }) => {
     <ChatBodyComponent onClick={() => {
         setEmojiOpen(false)
         setOpenGroupProfile(false)
+        setOpenUserProfile(false)
+        setNewGroup([])
       }}>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
+      {chatId?.groupName && groupWelcomeMessage}
       {
         (messages?.length || (
           welcomeMessage && chatId?.groupName
@@ -187,10 +161,10 @@ export const ChatBody = ({ socket }) => {
           :
             <p className='start'>
               {loading ? 
-                // <span className='loading'>loading messages...</span> 
                 <img src={LoadingEffect} alt="loading messages..." className='loading_effect'/>
                 : 
-                <span className='start_convo'>Start a conversation</span>}
+                <span className='start_convo'>Start a conversation</span>
+              }
             </p> 
       }
 
@@ -208,17 +182,6 @@ padding: 0.5rem 0.4rem;
 overflow-y: scroll;
 overflow-x: hidden;
 position: relative;
-
-.message_extract{
-  position: absolute;
-  background-color: #393936;
-  border-radius: 5px;
-  height: 6rem;
-  width: 8rem;
-  box-shadow: 2px 4px 16px rgba(0,0,0,0.3);
-  top: 10rem;
-  padding: 5px;
-}
 
 .start{
   margin: auto;
@@ -255,6 +218,34 @@ position: relative;
       color: lightgray;
       text-align: right;
     }
+
+    @media (max-width: 768px){
+      .message_extract{
+        top: -5rem;
+        right: 6.5rem;
+      }
+    }
+
+    @media (min-width: 768px){
+      .message_extract{
+        top: -5rem;
+        right: 11rem;
+      }
+    }
+
+    @media (min-width: 1080px){
+      .message_extract{
+        top: -5rem;
+        right: 16rem;
+      }
+    }
+
+    @media (min-width: 1240px){
+      .message_extract{
+        top: -5rem;
+        right: 22rem;
+      }
+    }
   }
 
   .friend{
@@ -267,6 +258,34 @@ position: relative;
       font-size: 13px;
       color: lightgray;
       text-align: left;
+    }
+
+    @media (max-width: 768px){
+      .message_extract{
+        top: -5rem;
+        left: 6.5rem;
+      }
+    }
+
+    @media (min-width: 768px){
+      .message_extract{
+        top: -5rem;
+        left: 11rem;
+      }
+    }
+
+    @media (min-width: 1080px){
+      .message_extract{
+        top: -5rem;
+        left: 16rem;
+      }
+    }
+
+    @media (min-width: 1240px){
+      .message_extract{
+        top: -5rem;
+        left: 22rem;
+      }
     }
   }
 
@@ -281,80 +300,38 @@ position: relative;
     padding: 0.2rem 0.28rem 0.1rem 0.3rem;
     cursor: default;
     position: relative;
+  }
 
-    .copied{
-      background-color: #363636;
-      max-width: 100%;
-      border-radius: 5px 5px;
-      padding: 0.25rem 0.35rem;
-      border-left: 3px solid rgba(0,255,205,0.85); 
+  section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5rem;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+    letter-spacing: 1px;
+    word-spacing: 0;
+    font-size: 12px;
+    font-family: sans;
 
-      .referenced_message{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        gap: 0.15rem;
+    .top{
+      background-color: rgba(205,180,155,0.2);
 
-        .sender{
-          color: rgb(0,255,200,0.85);
-          text-transform: capitalize;
-          font-size: 12px;
-        }
-
-        .text{
-          white-space: pre-wrap;
-          color: rgba(255,255,255,0.8);
-          font-size: 13px;
-          font-family: mono;
-          text-align: left;
-          word-wrap: break-word;
-        }
+      .lock{
+        font-size: 13px;
+        margin-right: 0.4rem;
       }
     }
 
     p{
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .message_base{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      .time{
-        color: rgba(255,255,255,0.5);
-        font-size: 10px;
-      }
-
-      .you{
-        color: rgba(255,255,255,0.75);
-        font-family: cursive;
-        font-size: 10px;
-      }
-
-      .dateTime{
-        display: flex;
-        align-items: center;
-        justify-content: right;
-
-        .checks{
-          margin-left: 0.2rem;
-          font-size: 20px;
-        }
-      }
-
-      .color{
-        color: rgba(0,205,0,0.95);
-      }
-    }
-
-    
-    .other{
-      width: 100%;
-      text-align: right;
-      font-size: 10px;
+      border-radius: 5px;
+      background-color: rgba(205,205,220,0.1);
+      color: rgba(255,255,255,0.65);
+      word-break: pre-wrap;
+      padding: 0.5rem;
+      line-height: 1.2rem;
+      max-width: 100%;
+      text-align: center;
     }
   }
 

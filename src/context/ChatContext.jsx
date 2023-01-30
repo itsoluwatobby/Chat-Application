@@ -42,18 +42,45 @@ export const ChatContextProvider = ({ children }) => {
   const [convo, setConvo] = useState({});
 
   const [openGroupProfile, setOpenGroupProfile] = useState(false);
+  const [openUserProfile, setOpenUserProfile] = useState(false);
   const currentUserId = localStorage.getItem('userId');
+  
   const counterRef = useRef(0);
+  const [acceptedImage, setAcceptedImage] = useState(null);
+  const [reload, setReload] = useState(null);
+  const [reloadAll, setReloadAll] = useState(null);
 
   const [toggle, setToggle] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [group, setGroup] = useState({});
 
   const loadGroup = () => setNum(prev => prev + 1)
+  const loadMessage = () => setReload(prev => prev + 1)
+  const loadMessageAll = () => setReloadAll(prev => prev + 2)
   const onSearchChange = e => setSearch(e.target.value);
 
   const formatDate = (date) => {
     const dateTime = parseISO(date)
     return formatDistanceToNow(dateTime) + ' ago'
+  }
+
+  const uploadPicture = async(image) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(image)
+    reader.onloadend = () => {
+      setAcceptedImage(reader.result)
+    }
+    return 'done'
+  }
+
+  const isMessageRead = async(msgId) => {
+    const msgRes = await axiosAuth.put(`/message_read/${msgId}`)
+    return msgRes?.data
+  }
+
+  const isMessageDelivered = async(msgId) => {
+    const msgDel = await axiosAuth.put(`/message_delivered/${msgId}`,)
+    return msgDel?.data
   }
 
   // const updateUser = async(id, initialState) => {
@@ -80,7 +107,9 @@ export const ChatContextProvider = ({ children }) => {
     setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
     customAdminMessage, setCustomAdminMessage, reference, setReference, 
     error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, 
-    toggle, setToggle, emojiOpen, setEmojiOpen
+    toggle, setToggle, emojiOpen, setEmojiOpen, group, setGroup, uploadPicture, acceptedImage, 
+    setAcceptedImage, openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, 
+    reloadAll, setReloadAll, loadMessageAll
   }
 
   return (

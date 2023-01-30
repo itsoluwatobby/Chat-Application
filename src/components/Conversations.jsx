@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import {CgProfile} from 'react-icons/cg';
 import {MdMoreHoriz} from 'react-icons/md';
-import {format, sub} from 'date-fns';
+import {format, sub, parseISO, subYears} from 'date-fns';
 import { useChatContext } from '../hooks/useChatContext';
 import { axiosAuth } from '../app/axiosAuth';
 import { BiRefresh } from 'react-icons/bi';
@@ -46,9 +46,13 @@ export const Conversations = ({ user, socket }) => {
       setConversation([...deletedConvo])
     }
   }, [deletedConvo])
- 
+//   const options = { day: 'short', month: 'numeric' }
+//  const date = new Intl.DateTimeFormat('en-US')
+
   return (
     <Conversation
+    className='convo_style'
+      title='Double Tap to Delete Conversation'
       onDoubleClick={() => setReveal(true)}
       onClick={() => {
         setError('')
@@ -56,13 +60,13 @@ export const Conversations = ({ user, socket }) => {
         setOpen(false)
       }}
     >
-      {!user?.groupName ? 
-        user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
+      {user?.groupName ? 
+        user?.groupAvatar ? <img src={user?.groupAvatar} alt={user?.groupName} 
         className='profile-picture'/> : <CgProfile className='pics'/>
         : 
-        // {/* user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
-        //     className='profile-picture'/> : <CgProfile className='pics'/> */}
-        <CgProfile className='pics'/>
+        user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
+            className='profile-picture'/> : <CgProfile className='pics'/>
+        //<CgProfile className='pics'/>
       }
         <div className='detail'>
           {error && <span>{error}</span>}
@@ -77,9 +81,9 @@ export const Conversations = ({ user, socket }) => {
                 user?.status !== 'online' ?
                 <span className='date'>
                   {user?.lastSeen ? 
-                    formatDate(user?.lastSeen) 
+                    format(parseISO(user?.lastSeen), 'd/yy')  
                       : 
-                    formatDate(sub(new Date, {minutes: 0}).toISOString())}
+                    format(new Date(), 'd/yy')}
                 </span>
                   :
                 <span className='status'>online</span>
@@ -115,7 +119,7 @@ export const Conversations = ({ user, socket }) => {
           onMouseLeave={() => setReveal(false)}
           className='more'
         /> */}
-        {user?.groupName && <p className='date'>{formatDate(user?.createdAt)}</p>}
+        {user?.groupName && <p className='date'>{format(parseISO(user?.createdAt), 'd/yy')}</p>}
     </Conversation>
   )
 }
@@ -180,7 +184,7 @@ button{
       justify-content: space-between;
       
       .date{
-        color: gray;
+        color: lightgray;
         font-size: 13px;
       }
 
@@ -200,8 +204,9 @@ button{
   }
 
   .date{
-    color: gray;
+    color: lightgray;
     font-size: 13px;
+    align-self: flex-start;
   }
 
   &:hover{

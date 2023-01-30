@@ -7,7 +7,7 @@ import { axiosAuth } from '../app/axiosAuth';
 
 export const Main = ({ socket, inputRef  }) => {
   const {
-    setChatId, loggedIn, setClick, search, setEmojiOpen, setMessages, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num
+    setChatId, loggedIn, setClick, search, setEmojiOpen, setMessages, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num, setNewGroup, setOpenUserProfile, setReference
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -105,6 +105,7 @@ export const Main = ({ socket, inputRef  }) => {
   }, [currentUser, search, message]);
 
   const openChat = (user) => {
+    setReference({})
     !user?.groupName 
         ? setChatId({ userId: user?._id, convoId: user?.convoId }) 
             : setChatId({ groupName: user?.groupName, convoId: user?.convoId });
@@ -114,6 +115,7 @@ export const Main = ({ socket, inputRef  }) => {
     setMessages([])
     setIsChatOpened(true)
     setCustomAdminMessage({})
+    setOpenUserProfile(false)
     setMessage('')
   }
 
@@ -136,16 +138,19 @@ export const Main = ({ socket, inputRef  }) => {
                     ))
                   }
               </>)
-              : (!groupConversation.length && !error) ? content = <p>No conversations, start a new conversation</p> : ''
+              : (!groupConversation.length && error) ? content = <p>No conversations yet, start a new conversation</p> : ''
 
   
   return (
-    <MainPage onClick={() => setOpenGroupProfile(false)}>
+    <MainPage onClick={() => {
+      setOpenGroupProfile(false)
+      setNewGroup([])  
+    }}>
       <Search />
       {
         !conversation.length 
                 && !groupConversation.length 
-                            && error && <p className='error'>{error}</p>
+                          && !content  && error && <p className='error'>{error}</p>
       }
       {content}
     </MainPage>
@@ -155,14 +160,18 @@ export const Main = ({ socket, inputRef  }) => {
 const MainPage = styled.div`
 height: 100%;
 display: flex;
-flex-grow: 2.5;
+// flex-grow: 2.5;
 flex-direction: column;
 gap: 0.2rem;
 padding: 0 0.2rem;
 overflow-y: scroll;
+flex: none;
+width: 350px;
+min-width: 220px;
 
 .current{
   background-color: #333;
+  border-radius: 5px;
 }
 
 .error{
@@ -195,12 +204,8 @@ overflow-y: scroll;
 
   @media (max-width: 908px){
     flex-grow: none;
-    min-width: 250px;
+    width: 220px;
   }
 
-  @media (max-width: 468px){
-    flex-grow: none;
-    max-width: 150px;
-  }
 `
 

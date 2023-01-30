@@ -74,8 +74,8 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
         setOpenDescription(false)
       }}
       className='right_container'>
-      {false ? 
-        <img src="" alt="" className='pics'/>
+      {target?.groupAvatar ? 
+        <img src={target?.groupAvatar} alt={target?.groupName} className='pics'/>
         : <CgProfile className='profile'/>
       }
         <div className='title'>
@@ -115,7 +115,7 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
           </>
         }
         <div className='description'>
-        <div className='created'>{user ? 'About' : 'Description'}</div>
+          <div className='created'>{user ? 'About' : 'Description'}</div>
           <div className='date'>
             {openDescription ? 
               <ProfileInputBox 
@@ -141,6 +141,18 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
               </>
             }
           </div>
+        </div>
+        <div className='base_buttons'>  
+          <p
+              //onClick={() => toggleButton(NAVIGATE.FST)} 
+            >
+            <span>Exit group</span>
+          </p>
+          <p
+              //onClick={() => toggleButton(NAVIGATE.FST)} 
+            >
+            <span className='report'>Report group</span>
+          </p>
         </div>
     </GroupProfilePage>
   )
@@ -200,6 +212,10 @@ const GroupProfilePage = styled.div`
   .profile{
     font-size: 5.5rem;
     color: gray;
+
+    &:hover{
+      color: rgba(0,0,0,0.25);
+    }
   }
 
   .title{
@@ -379,6 +395,46 @@ const GroupProfilePage = styled.div`
         &:hover{
           background-color: rgba(255,255,255,0.16);
         }
+      }
+    }
+  }
+
+  .base_buttons{
+    display: flex;
+    align-items: center;
+    position: absolute;
+    bottom: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1rem;
+
+    p{
+      display: grid;
+      place-content: center;
+      font-size: 14px;
+      gap: 0.8rem;
+      color: white;
+      padding: 7px;
+      cursor: default;
+      font-weight: 300;
+      border-radius: 5px;
+      width: 8.4rem;
+      background-color: rgba(255,255,255,0.05);
+      transition: all 0.15s ease-in-out;
+
+      .report{
+        color: rgba(255,90,0,0.99);
+      }
+
+      .icon{
+        font-size: 19px;
+      }
+
+      &:hover{
+        background-color: rgba(255,255,255,0.08);
+      }
+
+      &:active{
+        background-color: rgba(255,255,255,0.05);
       }
     }
   }

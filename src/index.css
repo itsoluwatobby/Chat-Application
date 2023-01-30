@@ -9,6 +9,7 @@
 
 .chat_profile_container{
   font-family: 'Nunito Sans', sans-serif;
+  transition: all 0.45s ease-in-out;
 }
 
 a:link{
@@ -16,4 +17,21 @@ a:link{
   color: white;
   white-space: pre-wrap;
 }
+
+.logged_In{
+  translate: -450% 0;
+}
+
+.chat_profile{
+  translate: 0 -250%;
+}
+
+/* @keyframes chat__profile {
+  from{
+    translate: 0 0;
+  }
+  to{
+    translate: 0 0;
+  } */
+
 

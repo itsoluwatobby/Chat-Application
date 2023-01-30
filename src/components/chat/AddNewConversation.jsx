@@ -19,7 +19,6 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
     const initialState = {adminId: currentUserId, friendId}
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      console.log(data)
       socket.emit('create_conversation', {convo: {...data}, room: 'itsoluwatobby'})
       setConversation([...conversation, data])
     }catch(error) {
@@ -40,7 +39,7 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
       setAddedConversation({...data})
     })
   }, [conversation])
-  console.log(addedConversation)
+
   useEffect(() => {
     if(!addedConversation) return
     if(addedConversation?._id === currentUser?._id){
@@ -48,7 +47,7 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
       setConversation([...conversation, addedConversation])
     }
   }, [addedConversation])
-
+//!loading && error && <p className='errors'>{error}</p>
   return (
     <NewConversation>
       <SearchCon />
@@ -72,17 +71,18 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
 
 const NewConversation = styled.div`
   position: absolute;
-  z-index: 60;
+  z-index: 699;
   top: 4rem;
   transform: translate(90%);
   width: 17.5em;
   background-color: #363636;
   border-radius: 10px;
   overflow-y: scroll;
-  padding: 0 0 0.3rem 0;
+  padding: 0 0 0.1rem 0;
   max-height: 28em;
   box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
   transition: 0.3s ease-in-out;
+  border-bottom: 10px solid rgba(0,0,0,0.2);
 
     .error{
       text-align: center;

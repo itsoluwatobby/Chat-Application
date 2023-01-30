@@ -1,19 +1,21 @@
 import styled from "styled-components"
 import {CgProfile} from 'react-icons/cg';
 import {CiSearch} from 'react-icons/ci';
+import {AiOutlineUserAdd} from 'react-icons/ai';
 import { useChatContext } from "../../../../hooks/useChatContext";
 import { useEffect, useState } from "react";
 import { axiosAuth } from "../../../../app/axiosAuth";
 
-export const UsersInGroup = ({ groupUsers, allUsers, socket }) => {
-  const { setChatId, currentUser, setMessages, setOpenGroupInfo, conversation, setConversation } = useChatContext();
+export const UsersInGroup = ({ groupUsers, allUsers, setAddParticipants, socket }) => {
+  const { chatId, setChatId, currentUser, group, setMessages, setOpenGroupInfo, conversation, setConversation } = useChatContext();
   const [search, setSearch] = useState('');
   const [searchedUsers, setSearchedUsers] = useState([]);
   const [convos, setConvos] = useState({});
   const [error, setError] = useState([]);
+  const [newConversation, setNewConversation] = useState({});
 
   useEffect(() => {
-    const searched = groupUsers.filter(user => (user?.username.toLowerCase()).includes(search.toLowerCase()))
+    const searched = groupUsers && groupUsers.filter(user => (user?.username.toLowerCase()).includes(search.toLowerCase()))
     setSearchedUsers(searched)
   }, [search])
 //RELOAD THIS FROM GET CONVERSATIONS
@@ -22,11 +24,8 @@ export const UsersInGroup = ({ groupUsers, allUsers, socket }) => {
     const initialState = { adminId: currentUser?._id, friendId }
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      setConvos({...data})
-      //setConversation([...conversation, data])
-      //setMessages([])
-      // setChatId({})
-      //data && setChatId({userId: data?._id, convoId: data?.convoId})
+      socket.emit('create_conversation', {convo: {...data}, room: 'itsoluwatobby'})
+      setConversation([...conversation, data])
     }catch(error) {
       let errorMessage;
       error?.response?.status === 400 ? errorMessage = 'id required' :
@@ -38,18 +37,18 @@ export const UsersInGroup = ({ groupUsers, allUsers, socket }) => {
   }
 
   useEffect(() => {
-    if(!convos?._id) return
-    let isMounted = true
-    isMounted && socket.emit('conversation', convos)
-    isMounted && socket.emit('create_conversation', {new: convos, myId: currentUser?._id})
-    isMounted && socket.on('new_conversation', data => {
-      setConversation([...conversation, data])
-      setMessages([])
-      setChatId({userId: data?._id, convoId: data?.convoId})
-      setConvos({}) 
+    socket.on('new_conversation', data => {
+      console.log('rendered')
+      setNewConversation({...data})
     })
-    return () => isMounted = false
-  })
+  }, [conversation])
+
+  useEffect(() => {
+    if(!newConversation) return
+    if(newConversation?._id === currentUser?._id){
+      setConversation([...conversation, newConversation])
+    }
+  }, [newConversation])
 
   return (
     <UserGroup className='group_container'>
@@ -63,6 +62,18 @@ export const UsersInGroup = ({ groupUsers, allUsers, socket }) => {
         />
         <CiSearch className='field'/>
       </div> 
+      {group?.adminId === currentUser?._id && 
+      (
+        <div
+          onClick={() => setAddParticipants(true)}
+          className='group'>
+          <div className='icon'>
+            <AiOutlineUserAdd className='group-icon'/>
+          </div>
+          <p>Add participants</p>
+        </div>
+        )
+      }
 
       <ul>
         {
@@ -78,13 +89,13 @@ export const UsersInGroup = ({ groupUsers, allUsers, socket }) => {
                   <CgProfile className='profile'/>
                 }
                 <p className='personal_detail'>
-                  <span>{user?.email}</span>
-                  <span>{user?.about}</span>
+                  {user?._id === currentUser?._id ? <span>You</span> : <span>{user?.email}</span>}
+                  {user?._id === currentUser?._id ? <span className="yourself">Message yourself</span> : <span className="yourself">{user?.about}</span>}
                 </p>
               </div>
               <p className='nick_name'>
                 <span>~{user?.username}</span>
-                <span>role</span>
+                {group?.adminId === user?._id && <span>Admin</span>}
               </p>
             </li>
           ))
@@ -133,6 +144,41 @@ const UserGroup = styled.div`
     }
   }
 
+  .group{
+    display:flex;
+    align-items: center;
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    cursor: pointer;
+    border-radius: 10px;
+    margin-top: -10px;
+    margin-bottom: -5px;
+    transition: 0.2s;
+
+    .icon{
+      padding: 0.8rem;
+      height: 42px;
+      width: 42px;
+      display: grid;
+      place-content: center;
+      background-color: rgba(0,200,150,0.85);
+      color: black;
+      font-size: 20px;
+      border-radius: 100%;
+    }
+
+    p{
+      color: white;
+    }
+
+    &:hover{
+      background-color: rgba(200,200,200,0.3);
+    }
+
+    &:active{
+      scale: 0.99;
+    }
+  }
+
   ul{
     margin-top: 0;
     padding: 0;
@@ -158,7 +204,7 @@ const UserGroup = styled.div`
         align-items: center;
         gap: 0.4rem;
 
-        pics{
+        .pics{
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 50%;
@@ -175,6 +221,11 @@ const UserGroup = styled.div`
           flex-direction: column;
           gap: 0.2rem;
           color: whitesmoke;
+
+          .yourself{
+            font-size: 11px;
+            color: rgba(255,255,255,0.82)
+          }
         }
       }
 

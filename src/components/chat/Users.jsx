@@ -10,7 +10,13 @@ export const Users = ({ user, loading, error, groupConvo, newGroup, setNewGroup 
 
   const handleChangeChecked = async(e) => {
     setIsChecked(!isChecked)
-    isChecked ? setNewGroup([...newGroup, {id: user?._id, username: user?.username}]) : newGroup.pop({id: user?._id, username: user?.username})
+    if(isChecked){
+      setNewGroup([...newGroup, {id: user?._id, username: user?.username}])
+    }
+    else{
+      const others = newGroup.filter(grp => grp?.id !== user?._id)
+      setNewGroup([...others])
+    }
   }
   
   useEffect(() => {
@@ -25,7 +31,7 @@ export const Users = ({ user, loading, error, groupConvo, newGroup, setNewGroup 
               className='profile-picture'/> : <CgProfile className='pics'/>}
               <div className='detail'>
                 {loading && <p>creating conversation...</p>}
-                {!loading && error && <p className='errors'>{error}</p>}
+                {/* {!loading && error && <p className='errors'>{error}</p>} */}
                 <div className='top'>
                   <p>{user?.username}</p>
                   <p className='date'>

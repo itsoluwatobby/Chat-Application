@@ -10,12 +10,13 @@ import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import { axiosAuth } from '../app/axiosAuth';
 import { MessagePrompt } from '../components/chat/MessagePrompt';
+import { LoggedInUserProfile } from '../components/chat/head/profile/LoggedInUser/LoggedInUserProfile';
 
 let socket
 
 export const Chat = () => {
   const { 
-    click, open, loggedIn, searchUsers, currentUser, setCurrentUser, conversation, 
+    click, chatId, open, loggedIn, setGroup, searchUsers, currentUser, setCurrentUser, conversation, 
     num } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [result, users] = useGetOthers(currentUserId)
@@ -57,23 +58,8 @@ export const Chat = () => {
     socket.emit('conversation', 'itsoluwatobby')
   }, [currentUser])
 
-  const isMessageRead = async(msgId) => {
-    const msgRes = await axiosAuth.put(`/message_read/${msgId}`)
-    return msgRes?.data
-  }
-
-  const isMessageDelivered = async(msgId) => {
-    const msgDel = await axiosAuth.put(`/message_delivered/${msgId}`)
-    return msgDel?.data
-  }
-
+  
   const reload = () => setRefetch(prev => prev+1)
-
-  const isMessageDeleted = async(msgId) => {
-    await axiosAuth.delete(`/messages_delete`, {
-
-    })
-  }
   
   useEffect(() => {
     let controller = new AbortController();
@@ -92,12 +78,23 @@ export const Chat = () => {
     getConversationIds()
 
     return () => controller.abort()
-  }, [num, loggedIn, conversation.length])
+  }, [num, currentUser, conversation.length])
 
   useEffect(() => {
     const filteredSearch = conversationIds && conversationIds.filter(user => (user.username).toLowerCase().includes(searchUsers.toLowerCase()))
     setFilteredUserSearch(filteredSearch)
-  }, [conversationIds, conversation.length ,searchUsers])
+  }, [conversationIds, click, conversation ,searchUsers])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    if(!chatId?.groupName) return
+    const getGroup = async() => {
+      const {data} = await axiosAuth(`/group_conversation/${chatId?.convoId}`, { signal: controller.signal })
+      setGroup(data)
+    }
+    getGroup()
+    return () => controller.abort()
+  }, [chatId?.groupName])
 
   return (
     <ChatApp>
@@ -113,9 +110,6 @@ export const Chat = () => {
           <ChatPage 
             result={result} socket={socket} 
             inputRef={inputRef} allUsers={users}
-            isMessageDeleted={isMessageDeleted}
-            isMessageDelivered={isMessageDelivered}
-            isMessageRead={isMessageRead}
           />
       }
       {!confirmGroupName &&
@@ -123,6 +117,10 @@ export const Chat = () => {
           setConfirmGroupName={setConfirmGroupName} 
         />
       }
+        <LoggedInUserProfile loggedIn
+            loggedInUser={currentUser} 
+            socket={socket} 
+        />
       {
         click && 
           <AddNewConversation 

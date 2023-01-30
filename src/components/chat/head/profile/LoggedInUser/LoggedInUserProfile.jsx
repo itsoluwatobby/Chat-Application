@@ -1,35 +1,25 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { GroupProfile } from './GroupProfile';
-import { LeftContainer } from './LeftContainer';
-import { UsersInGroup } from './UserInGroup';
-import { NAVIGATE } from './navigate';
-import { useChatContext } from '../../../../hooks/useChatContext';
+import { LeftContainer } from '../LeftContainer';
+import { NAVIGATE } from '../navigate';
+import { useChatContext } from '../../../../../hooks/useChatContext';
 import { FaTimes } from 'react-icons/fa';
-import { AddParticipants } from './AddParticipants';
+import { Account } from './Account';
+import { Chats } from './Chats';
 
-export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, allUsers, userProfile, socket }) => {
-  const { chatId, openGroupProfile, group, setOpenGroupProfile } = useChatContext();
+export const LoggedInUserProfile = ({ loggedIn, user, groupUsers, socket }) => {
+  const { chatId, openUserProfile, group, setOpenUserProfile } = useChatContext();
   const [buttonState, setButtonState] = useState(NAVIGATE.FST);
-  const [addParticipants, setAddParticipants] = useState(false);
-  const [searchGroup, setSearchGroup] = useState('');
-
-  const newParticipants = allUsers && Array.isArray(allUsers) && allUsers.map(eachUser => {
-    return { ...eachUser, checked: false }
-  }).filter(particip => !group?.members?.includes(particip?._id))
-
-  const filteredParticipantsSearch = newParticipants && Array.isArray(newParticipants) && newParticipants.filter((user, i) => user.username.toLowerCase().includes(searchGroup.toLowerCase()))
 
   const closeGroupProfile = () => {
-    setOpenGroupProfile(false)
+    setOpenUserProfile(false)
   }
 
   return (
-    <ChatProfilePage className={`chat_profile_container ${!openGroupProfile && 'chat_profile'} ${loggedIn && 'current__user'}`}>
+    <CurrentUserPage className={`chat_profile_container ${!openUserProfile && 'logged_In'} ${loggedIn && 'current__user'}`}>
       <div className='left_container'>
-        <LeftContainer 
+        <LeftContainer loggedIn
           buttonState={buttonState}
-          userProfile={userProfile}
           setButtonState={setButtonState} 
         />
       </div>
@@ -37,38 +27,22 @@ export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, 
         <div className='right_container'>
           <FaTimes 
             onClick={closeGroupProfile} className='times'/>
-          <GroupProfile target={target} user={user} loggedInUser={loggedInUser} />
+          <Account />
         </div>
         ||
         buttonState === NAVIGATE.SND && 
-        (
-          !addParticipants ? 
           <div className='group_container'>
             <FaTimes 
               onClick={closeGroupProfile} className='times'/>
-            <UsersInGroup 
-              groupUsers={groupUsers} 
-              allUsers={allUsers} 
+            <Chats 
               socket={socket}
-              setAddParticipants={setAddParticipants}
             />
           </div>
-            :
-          <div className='group_container'>
-            <AddParticipants  
-              filteredParticipantsSearch={filteredParticipantsSearch}
-              searchGroup={searchGroup}
-              setSearchGroup={setSearchGroup}
-              group={group}
-              setAddParticipants={setAddParticipants}
-            />
-          </div>
-        )
         ||
         buttonState === NAVIGATE.STH &&
         <EndToEnd closeGroupProfile={closeGroupProfile} />
       }
-    </ChatProfilePage>
+    </CurrentUserPage>
   )
 }
 
@@ -85,7 +59,7 @@ const EndToEnd = ({ closeGroupProfile }) => {
   )
 }
 
-const ChatProfilePage = styled.div`
+const CurrentUserPage = styled.div`
 position: fixed;
 background-color: #393736;
 box-shadow: 2px 4px 16px rgba(0,0,0,0.3);
@@ -93,7 +67,7 @@ display: flex;
 align-items: center;
 transform: translatex(50%);
 right: 15rem;
-top: 1.5rem;
+top: 9.5rem;
 max-width: 70vw;
 height: 70vh;
 cursor: default;
@@ -106,35 +80,41 @@ border-radius: 10px;
   left: 0rem;
 }
 
-@media (max-width: 750px){
+@media (max-width: 500px){
   max-width: 70vw;
   min-width: 70vw;
-  left: -6rem;
+  left: -7.8rem;
+}
+
+@media (max-width: 650px){
+  max-width: 70vw;
+  min-width: 70vw;
+  left: -8.5rem;
 }
 
 @media (min-width: 750px){
   max-width: 55vw;
-  left: 4.6rem;
+  left: -10rem;
 }
 
 @media (min-width: 850px){
   max-width: 50vw;
-  left: 5.3rem;
+  left: -11rem;
 }
 
 @media (min-width: 950px){
   max-width: 47vw;
-  left: 6.7rem;
+  left: -11rem;
 }
 
 @media (min-width: 1050px){
   max-width: 45vw;
-  left: 7.7rem;
+  left: -12rem;
 }
 
 @media (min-width: 1150px){
   max-width: 40vw;
-  left: 11rem;
+  left: -13rem;
 }
 
 .remove_group{

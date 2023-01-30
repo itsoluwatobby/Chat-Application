@@ -5,4 +5,5 @@ export const NAVIGATE = {
   "FRT": "FOURTH",
   "FTH": "FIFTH",
   "STH": "SIXTH",
+  "GTH": "SEVENTH",
 }

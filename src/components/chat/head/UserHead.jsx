@@ -5,20 +5,20 @@ import { useChatContext } from '../../../hooks/useChatContext';
 import { ChatProfile } from './profile/ChatProfile';
 
 export const UserHead = ({ user, typingEvent, socket, resize, formatDate }) => {
-  const { setOpenGroupProfile, openGroupProfile } = useChatContext()
+  const { setOpenGroupProfile, openGroupProfile, setOpenUserProfile } = useChatContext()
  
   return (
     <UserConvo
-    onClick={() => setOpenGroupProfile(true)}
+    onClick={() => {
+      setOpenUserProfile(false)
+      setOpenGroupProfile(true)
+    }}
     >  
-      {
-        openGroupProfile && 
-          <ChatProfile userProfile 
-            //groupUsers={groupUsers} 
-            user={user} 
-            socket={socket}
-          />
-      }
+      <ChatProfile userProfile 
+        //groupUsers={groupUsers} 
+        user={user} 
+        socket={socket}
+      />
       {user?.profilePicture 
           ? 
             <img src={user?.profilePicture} alt={user?.username} 

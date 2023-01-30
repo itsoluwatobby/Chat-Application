@@ -4,10 +4,10 @@ import {FiSettings} from 'react-icons/fi'
 import {HiOutlineStatusOnline} from 'react-icons/hi'
 import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
-import { ChatProfile } from './chat/head/profile/ChatProfile'
+import { LoggedInUserProfile } from './chat/head/profile/LoggedInUser/LoggedInUserProfile'
 
 export const Left = ({ socket }) => {
-  const { currentUser, notification, openGroupProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
+  const { currentUser, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
@@ -46,7 +46,7 @@ export const Left = ({ socket }) => {
 
   return (
     <LeftSection 
-      onClick={() => setOpenGroupProfile(false)}
+      //onClick={() => setOpenGroupProfile(false)}
     >
       <div className='top'> 
         <span 
@@ -61,17 +61,18 @@ export const Left = ({ socket }) => {
       </div>
       <div 
         className='base'
-        //onClick={() => setOpenGroupProfile(true)}
-        >  
-          {/* {
-            openGroupProfile && 
-              <ChatProfile loggedIn
-                loggedInUser={currentUser} 
-                socket={socket}
-              />
-          } */}
+      >  
+          {/* <LoggedInUserProfile loggedIn
+          loggedInUser={currentUser} 
+          socket={socket}
+        /> */}
         <FiSettings title='Settings' className='settings'/>
-        <div title='Profile' className='image'>
+        <div 
+           onClick={() => {
+            setOpenUserProfile(prev => !prev)
+            setOpenGroupProfile(false)
+          }}
+          title='Profile' className='image'>
           <img src={currentUser?.profilePicture} alt="" />
         </div>
       </div>
@@ -81,13 +82,15 @@ export const Left = ({ socket }) => {
 
 const LeftSection = styled.div`
 height: 100%;
-flex-grow: 0.2;
+// flex-grow: 0.2;
+flex: none;
 display: flex;
 flex-direction: column;
 background-color: #333333;
 justify-content: space-between;
 padding: 2rem 0;
 align-items: center;
+position: relative;
 
   .top{
     display: flex;

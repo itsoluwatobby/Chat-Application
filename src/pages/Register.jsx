@@ -4,14 +4,18 @@ import styled from 'styled-components'
 import { CgProfile } from 'react-icons/cg';
 import { BsImageFill } from 'react-icons/bs';
 import { axiosAuth } from '../app/axiosAuth'
+import { useChatContext } from '../hooks/useChatContext';
+import axios from 'axios';
 
 export const Register = () => {
+  const { uploadPicture, error: imageUploadError, acceptedImage, setAcceptedImage } = useChatContext()
+
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState()
+  const [file, setFile] = useState();
   const navigate = useNavigate()
   
   const canSubmit = [username, email, password].every(Boolean)
@@ -20,10 +24,11 @@ export const Register = () => {
   const onEmailChange = e => setEmail(e.target.value)
   
   const onImageChange = e => setFile(e.target.files[0])
-  file && console.log(file)
+
   useEffect(() => {
     if(!file) return
     if(file?.size > 1448576){
+
       setFile('')
       return alert('Max allowed size is 1.4mb')
     }
@@ -33,21 +38,17 @@ export const Register = () => {
   const handleRegister = async(e) => {
     e.preventDefault()
     setError('')
-    if(!canSubmit) return
 
-    const data = new FormData()
-    data.append('username', username)
-    data.append('password', password)
-    data.append('email', email)
-      // data.append('file', file)
-
-    setLoading(true)
+      if(!canSubmit) return
+      setLoading(true)
     try{
-      await axiosAuth.post('/register', data)
+      await uploadPicture(file)
+      acceptedImage && await axiosAuth.post('/register', { username, email, password, profilePicture: acceptedImage })
       setPassword('')
       setUsername('')
       setEmail('')
       setFile()
+      setAcceptedImage(null)
       navigate('/login')
     }
     catch(error){
@@ -113,7 +114,7 @@ export const Register = () => {
             />
             <label htmlFor="image">
               <BsImageFill className='input'/>
-              <p>{file ? 'File uploaded' : 'choose a file'}</p>
+              <p>{file ? 'File added' : 'choose a file'}</p>
             </label>
           </div>
           <button>Sign Up</button>

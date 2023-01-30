@@ -6,7 +6,7 @@ import { ChatProfile } from './profile/ChatProfile';
 
 export const GroupHead = ({ 
   groupConvo, typingEvent, resize, allUsers, socket, result }) => {
-  const { chatId, currentUser, groupConversation, openGroupProfile, setOpenGroupProfile, } = useChatContext();
+  const { chatId, currentUser, setOpenUserProfile, groupConversation, group, setOpenGroupProfile, } = useChatContext();
   const [groupUsers, setGroupUsers] = useState([]);
   const [target, setTarget] = useState({});
   const [users, setUsers] = useState('');
@@ -24,18 +24,18 @@ export const GroupHead = ({
 
   return (
     <HeadCompo
-      onClick={() => setOpenGroupProfile(true)}
+      onClick={() => {
+        setOpenUserProfile(false)
+        setOpenGroupProfile(true)
+      }}
     >  
-      {
-        openGroupProfile && 
-          <ChatProfile 
-            groupUsers={groupUsers} target={target} 
-            allUsers={allUsers} socket={socket}
-          />
-      }
-      {groupConvo?.profilePicture
+      <ChatProfile 
+        groupUsers={groupUsers} target={target} 
+        allUsers={allUsers} socket={socket}
+      />
+      {group?.groupAvatar
           ? 
-          <img src={groupConvo?.profilePicture} alt={groupConvo?.groupName} 
+          <img src={group?.groupAvatar} alt={groupConvo?.groupName} 
             className='profile-picture'/> 
           : <CgProfile className='pics'/>
       }
@@ -73,10 +73,10 @@ const HeadCompo = styled.div`
   }
 
   .profile-picture{
-    width: 3.2rem;
+    width: 3rem;
     flex-basis: 4;
-    height: 3.2rem;
-    border-radius: 50%;
+    height: 3rem;
+    border-radius: 100%;
     object-fit: cover;
     border: 2px solid white;
   }

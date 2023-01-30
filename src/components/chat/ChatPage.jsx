@@ -5,14 +5,14 @@ import { EmptyChat } from '../EmptyChat';
 import { ChatBody } from './ChatBody';
 import { ChatBase } from './ChatBase';
 import { useEffect, useState } from 'react';
-import {format} from 'date-fns';
+import {sub} from 'date-fns';
 import { axiosAuth } from '../../app/axiosAuth';
 import EmojiPicker from 'emoji-picker-react';
 
 export const ChatPage = (
-  { result, socket, inputRef, allUsers, isMessageDeleted, isMessageDelivered, isMessageRead }) => {
+  { result, socket, inputRef, allUsers }) => {
   const { 
-    chatId, setMessages, messages, setClick, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
+    chatId, setMessages, messages, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -38,7 +38,7 @@ export const ChatPage = (
     const newMessage = { 
       conversationId: chatId?.convoId, receiverId: chatId?.userId,
       senderId: currentUserId, username: currentUser?.username, 
-      text: message, dateTime: format(new Date(), 'p'), 
+      text: message, dateTime: sub(new Date(), {minutes: 0}).toISOString(), 
       referencedId: reference?._id
     }
     try{
@@ -74,6 +74,16 @@ export const ChatPage = (
       incoming && setMessages([...messages, incoming])
     }
   }, [incoming])
+
+  useEffect(() => {
+    //if(reloadAll == 2){
+      socket.on('message_reload', messageReload =>{
+        if(messageReload?.conversationId === chatId?.convoId){
+          setMessages([...messageReload?.data])
+        }
+      })
+    //}else return
+  }, [messages])
 
   const pickEmoji = emoji => {
     let ref = inputRef?.current 
@@ -125,6 +135,7 @@ export const ChatPage = (
           <ChatBody 
             emojiOpen={emojiOpen}    
             socket={socket}
+            inputRef={inputRef}
           />
           <ChatBase  
             sendMessage={createMessage} 

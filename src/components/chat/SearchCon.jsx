@@ -7,7 +7,7 @@ import { useChatContext } from '../../hooks/useChatContext';
 import { useEffect, useState } from 'react';
 
 export const SearchCon = ({ groupConvo }) => {
-  const {searchUsers, setSearchUsers, setOpen, setClick, proceed, setProceed, isNext, setIsNext, newGroup, open} = useChatContext()
+  const {searchUsers, setSearchUsers, setOpen, setNewGroup, setClick, proceed, setProceed, isNext, setIsNext, newGroup, open} = useChatContext()
   const [groupUser, setGroupUser] = useState([]);
   // const [openGroup, setOpenGroup] = useState(true)
   // console.log({openGroup})
@@ -43,7 +43,7 @@ export const SearchCon = ({ groupConvo }) => {
               setClick(true)
               setIsNext(false)
               setProceed(false)
-              setGroupUser([])
+              setNewGroup([])
             }}>
               <FaArrowLeft className='arrow'/>
             </div>

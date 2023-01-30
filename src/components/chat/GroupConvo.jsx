@@ -6,15 +6,19 @@ import { SearchCon } from './SearchCon';
 import { Users } from './Users';
 import {TbCameraPlus} from 'react-icons/tb';
 import { BsEmojiSmile } from 'react-icons/bs';
+import { FaTimes } from 'react-icons/fa';
+import { ImagePreview } from '../ImagePreview';
 
-export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
+export const GroupConvo = ({ 
+  result, socket, setConfirmGroupName
+}) => {
   const {
-    setOpen, setClick, isNext, setMessages, proceed, setProceed, conversation, searchUsers, 
-    newGroup, setNewGroup, groupConversation, setCustomAdminMessage, welcomeMessage, setWelcomeMessage, chatId, setConversation, refresh, setGroupConversation
+    setOpen, setClick, isNext, setMessages, proceed, setProceed, conversation, searchUsers, acceptedImage, newGroup, setNewGroup, groupConversation, setCustomAdminMessage, welcomeMessage, setWelcomeMessage, chatId, setConversation, refresh, setGroupConversation, uploadPicture
   } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState(false);
   const [image, setImage] = useState('')
   const [groupName, setGroupName] = useState('')
   const inputRef = useRef();
@@ -33,8 +37,9 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
     if(newGroup.length && groupName){
       const groupIds = newGroup.map(singlePerson => singlePerson?.id)
       try{
-        const res = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
-          memberIds: groupIds, groupName
+        //const result = await uploadPicture(image)
+        const res = acceptedImage && await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
+          memberIds: groupIds, groupName, groupAvatar: acceptedImage
         })
         setGroupConversation(prev => [...prev, res.data])
         setOpen(true)
@@ -65,13 +70,16 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
       setWelcomeMessage(data)
     })
     setGroupName('')
-  }, [groupConversation.length])
+  }, [groupConversation])
 
   useEffect(() => {
     if(!image) return
     if(image?.size > 1448576){
       setImage('')
       return alert('Max allowed size is 1.4mb')
+    }
+    else{
+      uploadPicture(image)
     }
   }, [image])
 
@@ -100,7 +108,8 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
         :
         (
           <div className='group_content'>
-            <div className='image'>
+            <div 
+              className='image'>
               <input 
                 type="file" 
                 id='image'
@@ -112,7 +121,9 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
               <label htmlFor="image">
               {
                 image ? 
-                  <img src={URL.createObjectURL(image)} alt={image.originalFilename} 
+                  <img src={URL.createObjectURL(image)} 
+                  alt={image.originalFilename} 
+                  onMouseEnter={() => setPreview(true)}
                   className='profile-picture'/> 
                   :
                   <div className='camera'>
@@ -120,7 +131,7 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
                   </div>
                 }
                 {/* change this IMAGE condition later */}
-                <p>
+                <p title='Right Click to Preview Image'>
                     {image ? 'Change group icon' 
                       : <>
                           Add group icon 
@@ -128,6 +139,12 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
                         </>}
                 </p>
               </label>
+              {(preview && image) 
+                && <ImagePreview 
+                      image={image}  
+                      setPreview={setPreview}
+                    />
+              }
             </div>
         
             <div className='group_name'>
@@ -171,16 +188,17 @@ export const GroupConvo = ({ result, socket, setConfirmGroupName }) => {
 
 const GroupConversation = styled.div`
   position: absolute;
-  z-index: 60;
+  z-index: 699;
   top: 4rem;
   transform: translate(90%);
   width: 17.5em;
   background-color: #363636;
   border-radius: 10px;
   overflow-y: scroll;
-  padding: 0 0 0.3rem 0;
+  padding: 0 0 0.1rem 0;
   max-height: 28em;
   box-shadow: -2px 4px 16px rgba(0,0,0,0.3);
+  border-bottom: 10px solid rgba(0,0,0,0.2);
 
   .error{
     text-align: center;
@@ -217,6 +235,7 @@ const GroupConversation = styled.div`
       display: flex;
       width: 100%;
       align-items: center;
+      position: relative;
 
       label{
         display: flex;
