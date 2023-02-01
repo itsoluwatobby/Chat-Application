@@ -26,6 +26,38 @@ a:link{
   translate: 0 -250%;
 }
 
+.image_style{
+  top: 2rem;
+}
+
+.right_container{
+  position: relative;
+}
+
+.upload{
+  position: absolute;
+  right: 4.5rem;
+  top: 2.5rem;
+  border: none;
+  padding: 0.4rem;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: antiquewhite;
+  transition: all 0.15s ease-in-out;
+}
+
+.upload:focus{
+  outline: none;
+}
+
+.upload:hover{
+  background-color: #fff;
+}
+
+.upload:active{
+  background-color: antiquewhite;
+}
+
 /* @keyframes chat__profile {
   from{
     translate: 0 0;

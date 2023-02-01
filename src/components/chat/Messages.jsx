@@ -76,6 +76,9 @@ export const Messages = ({ message }) => {
             </p>
           </div>
         }
+        {message?.image && <img src={message?.image} 
+        alt="image preview"  
+          className='image' />}
         <p>{message?.text}</p>  
         <p className='message_base'>
           {chatId?.groupName && (
@@ -143,6 +146,13 @@ transition: all 0.5s ease-in-out;
         word-wrap: break-word;
       }
     }
+  }
+
+  .image{
+    height: 200px;
+    width: 100%;
+    border-radius: 5px;
+    object-fit: cover;
   }
 
   p{

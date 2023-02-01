@@ -25,7 +25,7 @@ export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, 
   }
 
   return (
-    <ChatProfilePage className={`chat_profile_container ${!openGroupProfile && 'chat_profile'} ${loggedIn && 'current__user'}`}>
+    <ChatProfilePage className={`chat_profile_container ${!openGroupProfile && 'chat_profile'}`}>
       <div className='left_container'>
         <LeftContainer 
           buttonState={buttonState}

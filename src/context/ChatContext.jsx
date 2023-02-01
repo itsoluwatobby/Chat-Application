@@ -48,7 +48,10 @@ export const ChatContextProvider = ({ children }) => {
   const counterRef = useRef(0);
   const [acceptedImage, setAcceptedImage] = useState(null);
   const [reload, setReload] = useState(null);
+
+  const [updated, setUpdated] = useState(null);
   const [reloadAll, setReloadAll] = useState(null);
+  const [userGroupConvos, setUserGroupConvos] = useState([]);
 
   const [toggle, setToggle] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -82,19 +85,16 @@ export const ChatContextProvider = ({ children }) => {
     const msgDel = await axiosAuth.put(`/message_delivered/${msgId}`,)
     return msgDel?.data
   }
-
-  // const updateUser = async(id, initialState) => {
-  //   try{
-  //     const updateUser = await axiosAuth.put(`/update/${id}`, initialState)
-  //     return updateUser.data
-  //   }catch(error) {
-  //     let errorMessage;
-  //     !error.response ? errorMessage = 'no server response' : 
-  //     error.response.status === 403 ? errorMessage = 'bad credentials' :
-  //     error.response.status === 500 ? errorMessage = 'internal error' : ''
-  //     return errorMessage
-  //   }
-  // }
+  const reloadUser = () => setUpdated(prev => prev + 2)
+  const updateUserInfo = async(initialState) => {
+    try{
+      await axiosAuth.put(`/update/${currentUser?._id}`, initialState)
+      reloadUser()
+    }
+    catch(error){
+      console.log(error?.message)
+    }
+  }
   
   const value = {
     chatId, setChatId, message, setMessage, messages, loggedIn, 
@@ -109,7 +109,7 @@ export const ChatContextProvider = ({ children }) => {
     error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, 
     toggle, setToggle, emojiOpen, setEmojiOpen, group, setGroup, uploadPicture, acceptedImage, 
     setAcceptedImage, openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, 
-    reloadAll, setReloadAll, loadMessageAll
+    reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, userGroupConvos, setUserGroupConvos
   }
 
   return (

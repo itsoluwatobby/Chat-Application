@@ -1,13 +1,13 @@
 import React from 'react'
 
-export const ImagePreview = ({ image, setPreview }) => {
+export const ImagePreview = ({ image, setPreview, user, group }) => {
 
   return (
     image && <img src={URL.createObjectURL(image)} 
     alt="group profile" 
       onMouseLeave={() => setPreview(false)} 
       style={imageStyle}
-      className='image' />
+      className={`image ${(user || group) && 'image_style'}`} />
   )
 }
 
@@ -23,5 +23,6 @@ const imageStyle = {
   boxSizing: 'border-box',
   backgroundColor: 'rgba(20,255,255,0.22)',
   objectFit: 'cover',
-  transition: '0.45s ease-in-out'
+  transition: '0.45s ease-in-out',
+  zIndex: 560
 }

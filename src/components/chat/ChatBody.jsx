@@ -6,9 +6,9 @@ import LoadingEffect from '../../assest/Eclipse-1s-118px.svg';
 import { Messages } from './Messages';
 import {BsLock} from 'react-icons/bs'
 
-export const ChatBody = ({ socket, inputRef }) => {
+export const ChatBody = ({ socket, inputRef, otherUsers }) => {
   const { 
-    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation, setNewGroup, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll
+    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation, setNewGroup, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
    } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,11 +16,22 @@ export const ChatBody = ({ socket, inputRef }) => {
   const [targetConvo, setTargetConvo] = useState({});
   const [isCurrentChat, setIsCurrentChat] = useState(false);
   //const [isCurrentChatMessage, setIsCurrentChatMessage] = useState({});
+  const [addedUsersInGroup, setAddedUsersInGroup] = useState([]);
+  const [currentGroup, setCurrentGroup] = useState([]);
+
+  useEffect(() => {
+    if(!chatId?.groupName) return
+    const groupCon = userGroupConvos?.find(singleGroup => singleGroup?._id === chatId?.convoId)
+    setCurrentGroup(groupCon)
+    groupCon && setAddedUsersInGroup(() => {
+      return otherUsers.filter(user => groupCon?.members.includes(user?._id))
+    })
+  }, [chatId?.groupName])
   
   const messageRef = useCallback(node => {
     node && node.scrollIntoView({ smooth: true })
   }, []);
-  
+
   useEffect(() => {
     let isMounted = true
     socket.on('isOpened', bool => {
@@ -122,6 +133,14 @@ export const ChatBody = ({ socket, inputRef }) => {
       <p>
         You created group &#8220;{chatId?.groupName}&#8221;
       </p>
+      {
+        addedUsersInGroup && 
+          addedUsersInGroup.map(newUser => (
+            <p key={newUser?._id} className='format'>{
+              currentGroup?.adminId === currentUser?._id ? 'You' : 'Admin'} added {newUser?.username}
+            </p>
+          ))
+      }
     </section>
   )
 
@@ -153,7 +172,7 @@ export const ChatBody = ({ socket, inputRef }) => {
         setNewGroup([])
       }}>
       {/*{!loading && error && <p className='start'>{error}</p>} */}
-      {chatId?.groupName && groupWelcomeMessage}
+      {chatId?.groupName && (!addedUsersInGroup ? <p>loading...</p> : groupWelcomeMessage)}
       {
         (messages?.length || (
           welcomeMessage && chatId?.groupName
@@ -332,6 +351,12 @@ position: relative;
       line-height: 1.2rem;
       max-width: 100%;
       text-align: center;
+    }
+
+    &:has(p) .format{
+      padding: 0.35rem;
+      font-style: italic;
+      background-color: rgba(205,205,220,0.08);
     }
   }
 

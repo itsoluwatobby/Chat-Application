@@ -1,6 +1,7 @@
 import {IoIosAttach} from 'react-icons/io'
 import {BiSend} from 'react-icons/bi'
 import {BsEmojiSmile} from 'react-icons/bs'
+import {FaBlackTie, FaTimes} from 'react-icons/fa'
 import {HiOutlineMicrophone} from 'react-icons/hi'
 import styled from 'styled-components'
 import { useChatContext } from '../../hooks/useChatContext'
@@ -8,9 +9,23 @@ import { useEffect, useState } from 'react'
 import { CopiedText } from './CopiedText'
 
 export const ChatBase = ({ sendMessage, socket, inputRef }) => {
-  const {message, setMessage, chatId, setEmojiOpen, currentUser, reference } = useChatContext();
-  
+  const {message, setMessage, uploadPicture, chatId, setEmojiOpen, currentUser, reference } = useChatContext();
+  const [preview, setPreview] = useState(true);
+  const [image, setImage] = useState('');
+
   const onMessageChange = e => setMessage(e.target.value)
+  const onImageChange = e => setImage(e.target.files[0])
+
+  useEffect(() => {
+    if(!image) return
+    if(image?.size > 1448576){
+      setImage('')
+      return alert('Max allowed size is 1.4mb')
+    }
+    else{
+      uploadPicture(image)
+    }
+  }, [image])
 
   useEffect(() => {
     if(inputRef?.current?.value){
@@ -20,10 +35,32 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
       socket.emit('no-typing', { username: currentUser?.username, userId: currentUser?._id, message:'', conversationId: chatId?.convoId })
     }
   }, [message])
+//setEmojiOpen(false)
+  const imagePreview = (
+    image &&
+      <article className='main'>
+        <img src={URL.createObjectURL(image)} 
+        alt="image preview"  
+          style={imageStyle}
+          className={`image`} />
+        <FaTimes 
+          onClick={() => {
+            setPreview(false)
+            setImage('')
+          }}
+          className='trash'/>     
+      </article>
+  )
 
+  const send = () => {
+    setPreview(false)
+    setImage('')
+    sendMessage()
+  }
 
   return (
     <ChatBaseComponent>
+      {(preview && image) && imagePreview}
       {reference?.text &&
           <CopiedText />
         }
@@ -32,19 +69,37 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
           className='icon'
           onClick={() => setEmojiOpen(prev => !prev)}  
         />
-        <IoIosAttach className='icon no_icon'/>
+        <>
+          <input 
+            type="file" 
+            id='image'
+            onChange={onImageChange}
+            accept= 'image/*'
+            hidden
+          />
+          <label htmlFor="image">
+            <IoIosAttach className='icon no_icon'/>
+          </label>
+        </>
         <input 
           type="text" 
           ref={inputRef}
           placeholder='say your hello...'
           value={message}
-          onKeyDown={e => e.key === 'Enter' ? sendMessage() : null}
+          onKeyDown={e => e.key === 'Enter' ? send() : null}
           onChange={onMessageChange}
         />
-        {message ? <BiSend onClick={sendMessage} className='icon'/> : <HiOutlineMicrophone className='icon'/>}
+        {message ? <BiSend onClick={send} className='icon'/> : <HiOutlineMicrophone className='icon'/>}
       </div>
     </ChatBaseComponent>
   )
+}
+
+const imageStyle = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  borderRadius: '20px'
 }
 
 const ChatBaseComponent = styled.div`
@@ -100,5 +155,28 @@ div{
           display: none;
         }
       }
+  }
+
+  .main{
+    position: fixed;
+    bottom: 4rem;
+    width: 270px;
+    height: 220px;
+    border-radius: 20px;
+    border: 2px solid white;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
+    box-sizing: border-box;
+    background-color: rgba(20,255,255,0.22);
+  
+    .trash{
+      position: absolute;
+      color: black;
+      background-color: gray;
+      border-radius: 50%;
+      top: 8px;
+      right: 0.4rem;
+      font-size: 24px;
+      cursor: pointer;
+    }
   }
 `

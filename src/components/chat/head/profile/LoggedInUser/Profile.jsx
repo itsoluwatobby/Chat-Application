@@ -4,51 +4,46 @@ import {CgProfile} from 'react-icons/cg';
 import {CiEdit} from 'react-icons/ci';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import { sub } from 'date-fns';
-import { useChatContext } from '../../../../hooks/useChatContext';
-import { axiosAuth } from '../../../../app/axiosAuth';
-import { ImagePreview } from '../../../ImagePreview';
+import { useChatContext } from '../../../../../hooks/useChatContext';
+import { axiosAuth } from '../../../../../app/axiosAuth';
+import { ImagePreview } from '../../../../ImagePreview';
 
-export const GroupProfile = ({ target, user, loggedInUser }) => {
-  const { currentUser, loadGroup, setChatId, setOpenGroupProfile, uploadPicture, acceptedImage } = useChatContext();
-  const [enterGroupName, setEnterGroupName] = useState('');
-  const [enterGroupDescription, setEnterGroupDescription] = useState('');
+export const Profile = ({ }) => {
+  const { currentUser, setChatId, uploadPicture, acceptedImage, updateUserInfo } = useChatContext();
+  const [enterNickName, setEnterNickName] = useState('');
+  const [enterAbout, setEnterAbout] = useState('');
   const [text, setText] = useState(false);
   const [text2, setText2] = useState(false);
   const [openInput, setOpenInput] = useState(false);
-  const [openDescription, setOpenDescription] = useState(false);
+  const [openAbout, setOpenAbout] = useState(false);
   const [nameCount, setNameCount] = useState(0);
-  const [descriptionCount, setDescriptionCount] = useState(0);
+  const [aboutCount, setaboutCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(false);
   const [image, setImage] = useState('');
-  const groupNameRef = useRef();
-  const descriptionRef = useRef();
-
-  const timeEdit = new Intl.RelativeTimeFormat('en-us', {
-    dateStyle: 'short',
-    timeStyle: 'full'
-  })
+  const usernameRef = useRef();
+  const aboutRef = useRef();
 
   useEffect(() => {
-    setEnterGroupName(target?.groupName)
-    groupNameRef?.current?.focus()
+    setEnterNickName(currentUser?.username)
+    usernameRef?.current?.focus()
   }, [openInput])
 
   useEffect(() => {
-    setNameCount(enterGroupName?.length)
-  }, [enterGroupName])
+    setNameCount(enterNickName?.length)
+  }, [enterNickName])
 
   useEffect(() => {
-    setEnterGroupDescription(target?.description)
-    descriptionRef?.current?.focus()
-  }, [openDescription])
+    setEnterAbout(currentUser?.about)
+    aboutRef?.current?.focus()
+  }, [openAbout])
   
   useEffect(() => {
-    setDescriptionCount(enterGroupDescription?.length)
-  }, [enterGroupDescription])
+    setaboutCount(enterAbout?.length)
+  }, [enterAbout])
 
-  const onGroupNameChange = e => setEnterGroupName(e.target.value);
-  const onGroupDescriptionChange = e => setEnterGroupDescription(e.target.value);
+  const onUsernameChange = e => setEnterNickName(e.target.value);
+  const onAboutChange = e => setEnterAbout(e.target.value);
   const onImageChange = e => setImage(e.target.files[0])
 
   useEffect(() => {
@@ -62,151 +57,105 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
     }
   }, [image])
 
-  const updateGroupInfo = async() => {
-    setLoading(true)
-    const initialState = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id }
-    const initialState2 = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id, groupAvatar: acceptedImage }
-    try{
-      const res = acceptedImage ? 
-        await axiosAuth.put('/conversation/update_group_info', initialState)
-        :
-        await axiosAuth.put('/conversation/update_group_info', initialState2)
-      loadGroup()
-      //groupName: enterGroupName, convoId: target?._id
-      setChatId({})
-      setOpenInput(false)
-      setOpenDescription(false)
-      ///setOpenGroupProfile(true)
-    }
-    catch(error){
-      setLoading(false)
-      console.log(error?.message)
-    }finally{
-      setLoading(false)
-    }
+  const updateUser = async() => {
+    //setLoading(true)
+    const initialState = { username: enterNickName, about: enterAbout, userId: currentUser?._id }
+    const initialState2 = { username: enterNickName, about: enterAbout, userId: currentUser?._id, profilePicture: acceptedImage }
+    acceptedImage ? await updateUserInfo(initialState2) : await updateUserInfo(initialState)
+    setImage(null)
+    setOpenInput(false)
+    setOpenAbout(false)  
   }
 
   return (
-    <GroupProfilePage 
+    <UserProfilePage 
       onDoubleClick={() => {
         setOpenInput(false)
-        setOpenDescription(false)
+        setOpenAbout(false)
       }}
       className='right_container'>
-        {target?.adminId === currentUser?._id ?
-              <div 
-                className='image'>
-                <input 
-                  type="file" 
-                  id='image'
-                  onFocus={() => setError('')}
-                  onChange={onImageChange}
-                  accept= 'image/*'
-                  hidden
-                />
-                <label htmlFor="image">
-                {
-                  (!image && target?.groupAvatar) ? 
-                  <img src={target?.groupAvatar} alt={target?.groupName} className='pics'/>
+            <div 
+              className='image'>
+              <input 
+                type="file" 
+                id='image'
+                onFocus={() => setError('')}
+                onChange={onImageChange}
+                accept= 'image/*'
+                hidden
+              />
+              <label htmlFor="image">
+              {
+                (!image && currentUser?.profilePicture) ? 
+                  <img src={currentUser?.profilePicture} alt={currentUser?.username} className='pics'/>
+                :
+                image ? 
+                  <img src={URL.createObjectURL(image)} 
+                  alt={image.originalFilename} 
+                  onMouseEnter={() => setPreview(true)}
+                  className='pics'/> 
                   :
-                  image ? 
-                    <img src={URL.createObjectURL(image)} 
-                    alt={image.originalFilename} 
-                    onMouseEnter={() => setPreview(true)}
-                    className='pics'/> 
-                    :
-                    <CgProfile className='profile'/>
-                  }
-                </label>
-                {(preview && image) 
-                  && <ImagePreview group
-                        image={image}  
-                        setPreview={setPreview}
-                      />
+                  <CgProfile className='profile'/>
                 }
-              </div>
-            :
-            user?.profilePicture ? 
-              <img src={user?.profilePicture} alt={user?.username} className='pics'/>
-              : <CgProfile className='profile'/>
-            }
+              </label>
+              {(preview && image) 
+                && <ImagePreview user
+                      image={image}  
+                      setPreview={setPreview}
+                    />
+              }
+              {image && <button 
+                          onClick={updateUser}
+                          className='upload'
+                        >upload</button>}
+            </div>
+
         <div className='title'>
           {openInput ? 
             <ProfileInputBox groupName
-              refValue={groupNameRef} loading={loading}
+              refValue={usernameRef} loading={loading}
               maxValue={25} count={nameCount}
               text={text} setText={setText}
-              handleClick={updateGroupInfo}
-              inputValue={enterGroupName} 
-              onChangeType={onGroupNameChange} 
+              handleClick={updateUser}
+              inputValue={enterNickName} 
+              onChangeType={onUsernameChange} 
             />
             :
             <>
-              <span className='name'>{user?.username ? user?.username : target?.groupName}</span>
+              <span className='name'>{currentUser?.username}</span>
               <span className='edit'>
-              {user ?  
-                user?._id === currentUser?._id &&
                 <CiEdit 
                   onClick={() => setOpenInput(true)}
                   className='icons'/> 
-                :
-                  target?.adminId === currentUser?._id ? 
-                  <CiEdit 
-                    onClick={() => setOpenInput(true)}
-                    className='icons'/> 
-                  : <RiErrorWarningLine className='icon' />
-              }
-            </span>
+              </span>
             </>
           }
         </div>
-        {!user && 
-          <>
-            <p className='created'>Created</p>
-            <p className='date'>{new Date(target?.createdAt?.split('T')[0]).toLocaleString()}</p>
-          </>
-        }
         <div className='description'>
-          <div className='created'>{user ? 'About' : 'Description'}</div>
+          <div className='created'>About</div>
           <div className='date'>
-            {openDescription ? 
+            {openAbout ? 
               <ProfileInputBox 
-                refValue={descriptionRef}
-                handleClick={updateGroupInfo}
-                maxValue={512} count={descriptionCount}
+                refValue={aboutRef}
+                handleClick={updateUser}
+                maxValue={512} count={aboutCount}
                 text={text2} setText={setText2}
-                inputValue={enterGroupDescription} 
-                onChangeType={onGroupDescriptionChange} 
+                inputValue={enterAbout} 
+                onChangeType={onAboutChange} 
               />
               :
               <>
-                <span>{user ? user?.about : target?.description}</span>
+                <span>{currentUser?.about}</span>
                 <span className='edit'>
-                {
-                  target?.adminId === currentUser?._id ? 
                   <CiEdit 
-                    onClick={() => setOpenDescription(true)}
+                    onClick={() => setOpenAbout(true)}
                     className='icons'/> 
-                  : <RiErrorWarningLine className='icon' />
-                }
-              </span>
+                </span>
               </>
             }
           </div>
         </div>
-        <div className='base_buttons'>  
-          <p
-              //onClick={() => toggleButton(NAVIGATE.FST)} 
-            >
-            <span>Exit group</span>
-          </p>
-          <p
-              //onClick={() => toggleButton(NAVIGATE.FST)} 
-            >
-            <span className='report'>Report group</span>
-          </p>
-        </div>
-    </GroupProfilePage>
+    </UserProfilePage>
   )
 }
 
@@ -252,7 +201,7 @@ const ProfileInputBox = ({
 }
 
 
-const GroupProfilePage = styled.div`
+const UserProfilePage = styled.div`
 
   .pics{
     width: 5rem;

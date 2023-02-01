@@ -16,8 +16,8 @@ let socket
 
 export const Chat = () => {
   const { 
-    click, chatId, open, loggedIn, setGroup, searchUsers, currentUser, setCurrentUser, conversation, 
-    num } = useChatContext();
+    click, chatId, open, searchUsers, currentUser, setUserGroupConvos, setCurrentUser, conversation, 
+    num, updated } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [result, users] = useGetOthers(currentUserId)
   const [conversationIds, setConversationIds] = useState([]);
@@ -25,6 +25,21 @@ export const Chat = () => {
   const inputRef = useRef();
   const [refetch, setRefetch] = useState(1);
   const [confirmGroupName, setConfirmGroupName] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const getGroup = async() => {
+      try{
+        const {data} = await axiosAuth.get(`/user_group_conversations/${currentUserId}`, { signal: controller.signal })
+        setUserGroupConvos([...data])
+      }
+      catch(error){
+        console.log(error.message)
+      }
+    }
+    getGroup()
+    return () => controller.abort()
+  }, [currentUser, conversation])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -46,7 +61,7 @@ export const Chat = () => {
     currentUserId && getUser()
 
     return () => controller.abort()
-  }, [conversation])
+  }, [conversation, updated])
 
   useEffect(() => {
     if(currentUserId) {
@@ -84,17 +99,6 @@ export const Chat = () => {
     const filteredSearch = conversationIds && conversationIds.filter(user => (user.username).toLowerCase().includes(searchUsers.toLowerCase()))
     setFilteredUserSearch(filteredSearch)
   }, [conversationIds, click, conversation ,searchUsers])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    if(!chatId?.groupName) return
-    const getGroup = async() => {
-      const {data} = await axiosAuth(`/group_conversation/${chatId?.convoId}`, { signal: controller.signal })
-      setGroup(data)
-    }
-    getGroup()
-    return () => controller.abort()
-  }, [chatId?.groupName])
 
   return (
     <ChatApp>

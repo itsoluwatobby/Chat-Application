@@ -138,7 +138,7 @@ export const Main = ({ socket, inputRef  }) => {
                     ))
                   }
               </>)
-              : (!groupConversation.length && error) ? content = <p>No conversations yet, start a new conversation</p> : ''
+              : (!groupConversation.length && !conversation.length && !error) ? content = <p>No conversations yet, start a new conversation</p> : ''
 
   
   return (

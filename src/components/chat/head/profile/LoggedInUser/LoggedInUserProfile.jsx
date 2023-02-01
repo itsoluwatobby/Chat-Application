@@ -6,10 +6,12 @@ import { useChatContext } from '../../../../../hooks/useChatContext';
 import { FaTimes } from 'react-icons/fa';
 import { Account } from './Account';
 import { Chats } from './Chats';
+import { General } from './General';
+import { Profile } from './Profile';
 
 export const LoggedInUserProfile = ({ loggedIn, user, groupUsers, socket }) => {
   const { chatId, openUserProfile, group, setOpenUserProfile } = useChatContext();
-  const [buttonState, setButtonState] = useState(NAVIGATE.FST);
+  const [buttonState, setButtonState] = useState(NAVIGATE.GTH);
 
   const closeGroupProfile = () => {
     setOpenUserProfile(false)
@@ -27,14 +29,30 @@ export const LoggedInUserProfile = ({ loggedIn, user, groupUsers, socket }) => {
         <div className='right_container'>
           <FaTimes 
             onClick={closeGroupProfile} className='times'/>
+          <General />
+        </div>
+        ||
+        buttonState === NAVIGATE.SND &&
+        <div className='right_container'>
+          <FaTimes 
+            onClick={closeGroupProfile} className='times'/>
           <Account />
         </div>
         ||
-        buttonState === NAVIGATE.SND && 
+        buttonState === NAVIGATE.TRD && 
           <div className='group_container'>
             <FaTimes 
               onClick={closeGroupProfile} className='times'/>
             <Chats 
+              socket={socket}
+            />
+          </div>
+        ||
+        buttonState === NAVIGATE.GTH && 
+          <div className='group_container'>
+            <FaTimes 
+              onClick={closeGroupProfile} className='times'/>
+            <Profile 
               socket={socket}
             />
           </div>

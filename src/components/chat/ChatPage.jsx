@@ -12,7 +12,7 @@ import EmojiPicker from 'emoji-picker-react';
 export const ChatPage = (
   { result, socket, inputRef, allUsers }) => {
   const { 
-    chatId, setMessages, messages, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
+    chatId, setMessages, messages, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification, acceptedImage, setAcceptedImage
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -41,13 +41,23 @@ export const ChatPage = (
       text: message, dateTime: sub(new Date(), {minutes: 0}).toISOString(), 
       referencedId: reference?._id
     }
+    const newMessageImage = { 
+      conversationId: chatId?.convoId, receiverId: chatId?.userId,
+      senderId: currentUserId, username: currentUser?.username, text: message, 
+      image: acceptedImage, dateTime: sub(new Date(), {minutes: 0}).toISOString(), 
+      referencedId: reference?._id
+    }
     try{
-      const {data} = await axiosAuth.post('/create_message', newMessage)
+      const {data} = !acceptedImage ? 
+          await axiosAuth.post('/create_message', newMessage)
+          :
+          await axiosAuth.post('/create_message', newMessageImage)
       setMessage('')
       setEmojiOpen(false)
       setReference({})
       socket.emit('create_message', data)
       setMessages([...messages, data])
+      setAcceptedImage(null)
     }catch(error) {
       let errorMessage;
       error.response.status === 500 ? errorMessage = 'internal error' : 
@@ -136,6 +146,7 @@ export const ChatPage = (
             emojiOpen={emojiOpen}    
             socket={socket}
             inputRef={inputRef}
+            otherUsers={result}
           />
           <ChatBase  
             sendMessage={createMessage} 

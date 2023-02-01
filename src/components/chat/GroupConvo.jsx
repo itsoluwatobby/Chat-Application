@@ -38,10 +38,15 @@ export const GroupConvo = ({
       const groupIds = newGroup.map(singlePerson => singlePerson?.id)
       try{
         //const result = await uploadPicture(image)
-        const res = acceptedImage && await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
-          memberIds: groupIds, groupName, groupAvatar: acceptedImage
-        })
-        setGroupConversation(prev => [...prev, res.data])
+        const res = acceptedImage ? 
+          await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
+            memberIds: groupIds, groupName, groupAvatar: acceptedImage
+          })
+          :
+          await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
+            memberIds: groupIds, groupName
+          })
+        setGroupConversation(prev => [...prev, res?.data])
         setOpen(true)
         setProceed(false)
         setNewGroup([])
