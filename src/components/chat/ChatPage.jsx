@@ -8,11 +8,12 @@ import { useEffect, useState } from 'react';
 import {sub} from 'date-fns';
 import { axiosAuth } from '../../app/axiosAuth';
 import EmojiPicker from 'emoji-picker-react';
+import axios from 'axios';
 
 export const ChatPage = (
   { result, socket, inputRef, allUsers }) => {
   const { 
-    chatId, setMessages, messages, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification, acceptedImage, setAcceptedImage
+    chatId, setMessages, messages, url, setUrl, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -31,33 +32,33 @@ export const ChatPage = (
   useEffect(() => {
     socket.emit('start-conversation', chatId?.convoId)
     socket.emit('chat_opened', {userId: currentUser?._id, isChatOpened: true })
-  }, [chatId])
+  }, [chatId.convoId])
+
+  // const uploadToCloud = async (image) => {
+  //   const data = new FormData()
+  //   data.append('file', image)
+  //   data.append('upload_preset', 'dwb3ksib')
+
+  //   const res = await axios.post(`https://api.cloudinary.com/v1_1/dr8necpxh/image/upload`, data)
+  //   setUrl(res?.data?.url)
+  // }
 
   const createMessage = async() => {
-    if(!message) return
+    if(!message && !url) return
     const newMessage = { 
       conversationId: chatId?.convoId, receiverId: chatId?.userId,
       senderId: currentUserId, username: currentUser?.username, 
       text: message, dateTime: sub(new Date(), {minutes: 0}).toISOString(), 
-      referencedId: reference?._id
-    }
-    const newMessageImage = { 
-      conversationId: chatId?.convoId, receiverId: chatId?.userId,
-      senderId: currentUserId, username: currentUser?.username, text: message, 
-      image: acceptedImage, dateTime: sub(new Date(), {minutes: 0}).toISOString(), 
-      referencedId: reference?._id
+      referencedId: reference?._id, image: url
     }
     try{
-      const {data} = !acceptedImage ? 
-          await axiosAuth.post('/create_message', newMessage)
-          :
-          await axiosAuth.post('/create_message', newMessageImage)
+      const {data} = await axiosAuth.post('/create_message', newMessage)
       setMessage('')
       setEmojiOpen(false)
       setReference({})
       socket.emit('create_message', data)
       setMessages([...messages, data])
-      setAcceptedImage(null)
+      setUrl(null)
     }catch(error) {
       let errorMessage;
       error.response.status === 500 ? errorMessage = 'internal error' : 
@@ -73,8 +74,7 @@ export const ChatPage = (
  
   useEffect(() => {
     if(incoming?.conversationId !== chatId?.convoId && incoming?.receiverId === currentUserId){
-      console.log('notification')
-      setNotification([...notification, {...incoming, orderId: counterRef.current++}])
+     setNotification([...notification, {...incoming, orderId: counterRef.current++}])
     }
     else if(!chatId?.convoId && incoming?.receiverId === currentUserId){
       console.log('notification notification')
@@ -83,7 +83,7 @@ export const ChatPage = (
     else if(incoming?.conversationId === chatId?.convoId){
       incoming && setMessages([...messages, incoming])
     }
-  }, [incoming])
+  }, [incoming?._id])
 
   useEffect(() => {
     //if(reloadAll == 2){
@@ -129,7 +129,7 @@ export const ChatPage = (
   )
 
   return (
-    <ChatMessage onClick={() => {
+    <ChatPageComponent onClick={() => {
       setClick(false)
       setOpen(false)
       }}>
@@ -158,11 +158,11 @@ export const ChatPage = (
         :
         <EmptyChat />
       }
-    </ChatMessage>
+    </ChatPageComponent>
   )
 }
 
-const ChatMessage = styled.div`
+const ChatPageComponent = styled.div`
 height: 100%;
 flex-grow: 6;
 display: flex;

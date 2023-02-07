@@ -13,7 +13,7 @@ export const GroupConvo = ({
   result, socket, setConfirmGroupName
 }) => {
   const {
-    setOpen, setClick, isNext, setMessages, proceed, setProceed, conversation, searchUsers, acceptedImage, newGroup, setNewGroup, groupConversation, setCustomAdminMessage, welcomeMessage, setWelcomeMessage, chatId, setConversation, refresh, setGroupConversation, uploadPicture
+    setOpen, setClick, isNext, setMessages, proceed, setProceed, conversation, searchUsers, url, setUrl, newGroup, setNewGroup, groupConversation, setCustomAdminMessage, welcomeMessage, setWelcomeMessage, chatId, setConversation, refresh, setGroupConversation, uploadToCloud
   } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [error, setError] = useState(null);
@@ -37,18 +37,14 @@ export const GroupConvo = ({
     if(newGroup.length && groupName){
       const groupIds = newGroup.map(singlePerson => singlePerson?.id)
       try{
-        //const result = await uploadPicture(image)
-        const res = acceptedImage ? 
-          await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
-            memberIds: groupIds, groupName, groupAvatar: acceptedImage
+        const res = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
+            memberIds: groupIds, groupName, groupAvatar: url 
           })
-          :
-          await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
-            memberIds: groupIds, groupName
-          })
+          //add socket.emit
         setGroupConversation(prev => [...prev, res?.data])
         setOpen(true)
         setProceed(false)
+        setUrl(null)
         setNewGroup([])
         //refresh()
       }
@@ -76,7 +72,7 @@ export const GroupConvo = ({
     })
     setGroupName('')
   }, [groupConversation])
-
+  
   useEffect(() => {
     if(!image) return
     if(image?.size > 1448576){
@@ -84,7 +80,7 @@ export const GroupConvo = ({
       return alert('Max allowed size is 1.4mb')
     }
     else{
-      uploadPicture(image)
+      uploadToCloud(image)
     }
   }, [image])
 

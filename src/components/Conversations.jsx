@@ -104,8 +104,12 @@ export const Conversations = ({ user, socket }) => {
               //   con?._id === userLastMessage?.senderId && <p key={con?._id}>{userLastMessage?.text}</p>
               // ))
           }
-          {/* {(typingEvent && chatId?.userId === user?._id) && <p className='base'>{typingEvent}</p>} */}
-          {user?.lastMessage && <p className='base'>{user?.lastMessage?.text?.slice(0, 15)}...</p>}
+          {typingEvent ? 
+            (typingEvent?.userId === user?._id) && 
+                    <p className='base'>{typingEvent?.message}</p> 
+              : 
+              user?.lastMessage && 
+                  <p className='base'>{user?.lastMessage?.text?.slice(0, 15)}...</p>}
         </div>
         {
           reveal && 

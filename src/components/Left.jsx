@@ -5,6 +5,7 @@ import {HiOutlineStatusOnline} from 'react-icons/hi'
 import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
 import { LoggedInUserProfile } from './chat/head/profile/LoggedInUser/LoggedInUserProfile'
+import Notification_Bell from '../assest/notification.wav';
 
 export const Left = ({ socket }) => {
   const { currentUser, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
@@ -18,6 +19,8 @@ export const Left = ({ socket }) => {
     setSorted(sortedNotification)
   }, [notification])
 
+  //TODO
+  //make it open group messages also
   const openChatFromNotification = (user) => {
     setChatId({ userId: user?._id, convoId: user?.conversationId })
     const filteredNotification = sorted?.filter(notify => notify?._id !== user?._id)
@@ -55,17 +58,14 @@ export const Left = ({ socket }) => {
           <BsChatText title='Chats' className='chat'/>
         </span>
         {reveal && <div>{customNotifications}</div>}
+        {sorted?.length && <audio src={Notification_Bell} autoPlay/>}
         <span className={isOnline && 'status'}>
-          <HiOutlineStatusOnline title='Status' className='status'/>
+          <HiOutlineStatusOnline title={currentUser?.status === 'online' ? 'online' : 'offline'} className='status'/>
         </span>
       </div>
       <div 
         className='base'
       >  
-          {/* <LoggedInUserProfile loggedIn
-          loggedInUser={currentUser} 
-          socket={socket}
-        /> */}
         <FiSettings title='Settings' className='settings'/>
         <div 
            onClick={() => {

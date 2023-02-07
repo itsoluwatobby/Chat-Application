@@ -6,8 +6,8 @@ import { useChatContext } from "../../../../hooks/useChatContext";
 import { useEffect, useState } from "react";
 import { axiosAuth } from "../../../../app/axiosAuth";
 
-export const UsersInGroup = ({ groupUsers, allUsers, setAddParticipants, socket }) => {
-  const { chatId, setChatId, currentUser, group, setMessages, setOpenGroupInfo, conversation, setConversation } = useChatContext();
+export const UsersInGroup = ({ groupUsers, allUsers, target, setAddParticipants, socket }) => {
+  const { chatId, setChatId, currentUser, group, setMessages, openGroupInfo, setOpenGroupInfo, conversation, setConversation } = useChatContext();
   const [search, setSearch] = useState('');
   const [searchedUsers, setSearchedUsers] = useState([]);
   const [convos, setConvos] = useState({});
@@ -17,7 +17,8 @@ export const UsersInGroup = ({ groupUsers, allUsers, setAddParticipants, socket 
   useEffect(() => {
     const searched = groupUsers && groupUsers.filter(user => (user?.username.toLowerCase()).includes(search.toLowerCase()))
     setSearchedUsers(searched)
-  }, [search])
+  }, [search, chatId?.convoId, openGroupInfo])
+
 //RELOAD THIS FROM GET CONVERSATIONS
   const createConvoFromGroup = async(friendId) => {
     const duplicateConversation = conversation.find(user => user?._id === friendId)
@@ -48,7 +49,7 @@ export const UsersInGroup = ({ groupUsers, allUsers, setAddParticipants, socket 
     if(newConversation?._id === currentUser?._id){
       setConversation([...conversation, newConversation])
     }
-  }, [newConversation])
+  }, [newConversation?._id])
 
   return (
     <UserGroup className='group_container'>
@@ -62,7 +63,7 @@ export const UsersInGroup = ({ groupUsers, allUsers, setAddParticipants, socket 
         />
         <CiSearch className='field'/>
       </div> 
-      {group?.adminId === currentUser?._id && 
+      {target?.adminId === currentUser?._id && 
       (
         <div
           onClick={() => setAddParticipants(true)}
@@ -90,12 +91,12 @@ export const UsersInGroup = ({ groupUsers, allUsers, setAddParticipants, socket 
                 }
                 <p className='personal_detail'>
                   {user?._id === currentUser?._id ? <span>You</span> : <span>{user?.email}</span>}
-                  {user?._id === currentUser?._id ? <span className="yourself">Message yourself</span> : <span className="yourself">{user?.about}</span>}
+                  {user?._id === currentUser?._id ? <span className="yourself">Message yourself</span> : <span className="yourself">{user?.about.slice(0,30)}...</span>}
                 </p>
               </div>
               <p className='nick_name'>
                 <span>~{user?.username}</span>
-                {group?.adminId === user?._id && <span>Admin</span>}
+                {target?.adminId === user?._id && <span>Admin</span>}
               </p>
             </li>
           ))

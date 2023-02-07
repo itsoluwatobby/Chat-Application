@@ -11,8 +11,8 @@ import { BsLock, BsKey } from 'react-icons/bs';
 import { NAVIGATE } from './navigate';
 import { useChatContext } from '../../../../hooks/useChatContext';
 
-export const LeftContainer = ({ loggedIn, setButtonState, buttonState, userProfile }) => {
-  const { group } = useChatContext()
+export const LeftContainer = ({ loggedIn, userProfile }) => {
+  const { group, setButtonState, buttonState } = useChatContext()
   const toggleButton = (value) => {
     setButtonState(value)
   }

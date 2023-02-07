@@ -1,6 +1,8 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
 import {format, formatDistanceToNow, parseISO} from 'date-fns';
 import { axiosAuth } from '../app/axiosAuth';
+import axios from 'axios';
+import { NAVIGATE } from '../components/chat/head/profile/navigate';
 
 export const ChatContext = createContext({})
 
@@ -55,7 +57,10 @@ export const ChatContextProvider = ({ children }) => {
 
   const [toggle, setToggle] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [buttonState, setButtonState] = useState(NAVIGATE.FST);
+
   const [group, setGroup] = useState({});
+  const [url, setUrl] = useState(null);
 
   const loadGroup = () => setNum(prev => prev + 1)
   const loadMessage = () => setReload(prev => prev + 1)
@@ -67,13 +72,22 @@ export const ChatContextProvider = ({ children }) => {
     return formatDistanceToNow(dateTime) + ' ago'
   }
 
-  const uploadPicture = async(image) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(image)
-    reader.onloadend = () => {
-      setAcceptedImage(reader.result)
-    }
-    return 'done'
+  // const uploadPicture = async(image) => {
+  //   const reader = new FileReader()
+  //   reader.readAsDataURL(image)
+  //   reader.onloadend = () => {
+  //     setAcceptedImage(reader.result)
+  //   }
+  //   return 'done'
+  // }
+
+  const uploadToCloud = async (image) => {
+    const data = new FormData()
+    data.append('file', image)
+    data.append('upload_preset', 'dwb3ksib')
+
+    const res = await axios.post(`https://api.cloudinary.com/v1_1/dr8necpxh/image/upload`, data)
+    setUrl(res?.data?.url)
   }
 
   const isMessageRead = async(msgId) => {
@@ -104,12 +118,15 @@ export const ChatContextProvider = ({ children }) => {
     setConversation, result, open, setOpen, proceed, setProceed, isNext, 
     setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, 
     setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, 
-    setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, 
-    customAdminMessage, setCustomAdminMessage, reference, setReference, 
-    error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, 
-    toggle, setToggle, emojiOpen, setEmojiOpen, group, setGroup, uploadPicture, acceptedImage, 
-    setAcceptedImage, openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, 
-    reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, userGroupConvos, setUserGroupConvos
+    setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, 
+    setWelcomeMessage, customAdminMessage, setCustomAdminMessage, reference, 
+    setReference, error, setError, convo, setConvo, openGroupProfile, 
+    setOpenGroupProfile, loadGroup, toggle, setToggle, emojiOpen, setEmojiOpen, 
+    group, setGroup, acceptedImage, setAcceptedImage, 
+    openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, 
+    reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, 
+    userGroupConvos, setUserGroupConvos, url, setUrl, uploadToCloud, 
+    buttonState, setButtonState
   }
 
   return (

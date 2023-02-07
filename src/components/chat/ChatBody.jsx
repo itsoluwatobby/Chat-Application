@@ -8,7 +8,7 @@ import {BsLock} from 'react-icons/bs'
 
 export const ChatBody = ({ socket, inputRef, otherUsers }) => {
   const { 
-    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, setOpenGroupProfile, conversation, setNewGroup, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
+    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, openGroupProfile, setOpenGroupProfile, conversation, setNewGroup, openUserProfile, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
    } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,7 +38,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
       isMounted && setChatViewed(bool)
     })
     return () => isMounted = false
-  })
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -46,7 +46,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
       isMounted && setChatViewed(bool)
     })
     return () => isMounted = false
-  })
+  }, [])
 
   useEffect(() => {
     //console.log({chatViewed})
@@ -82,7 +82,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
       isMounted = false
       controller.abort()
     }
-  }, [chatId, num, reload, reloadAll])
+  }, [chatId?.convoId, num, reload, reloadAll])
 
 //targetConvo?.members?.includes
   useEffect(() => {
@@ -115,6 +115,13 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
     }
   }, [chatId?.convoId])
 
+  const closeCompos = () => {
+    setEmojiOpen(false)
+    openGroupProfile && setOpenGroupProfile(false)
+    openUserProfile && setOpenUserProfile(false)
+    setNewGroup([])
+  }
+
   //console.log(isCurrentChat)
   const referenceMessage = (message) => {
     inputRef?.current.focus()
@@ -131,7 +138,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
         </span>
       </p>
       <p>
-        You created group &#8220;{chatId?.groupName}&#8221;
+        {currentGroup?.adminId === currentUser?._id ? 'You' : 'Admin'} created group &#8220;{chatId?.groupName}&#8221;
       </p>
       {
         addedUsersInGroup && 
@@ -154,7 +161,6 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
                       ref={messageRef}
                       className={message?.senderId === currentUser?._id ? 'owner' : 'friend'} 
                       key={message?._id}>
-                        {/* {extract && <button>hello</button>} */}
                         <Messages message={message} />
                       {/* {chatViewed && <span>user viewed your chat</span>} */}
                     </article>
@@ -165,13 +171,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
           )
 
   return (
-    <ChatBodyComponent onClick={() => {
-        setEmojiOpen(false)
-        setOpenGroupProfile(false)
-        setOpenUserProfile(false)
-        setNewGroup([])
-      }}>
-      {/*{!loading && error && <p className='start'>{error}</p>} */}
+    <ChatBodyComponent onClick={closeCompos}>
       {chatId?.groupName && (!addedUsersInGroup ? <p>loading...</p> : groupWelcomeMessage)}
       {
         (messages?.length || (
@@ -186,7 +186,6 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
               }
             </p> 
       }
-
     </ChatBodyComponent>
   )
 }

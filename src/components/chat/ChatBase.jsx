@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react'
 import { CopiedText } from './CopiedText'
 
 export const ChatBase = ({ sendMessage, socket, inputRef }) => {
-  const {message, setMessage, uploadPicture, chatId, setEmojiOpen, currentUser, reference } = useChatContext();
-  const [preview, setPreview] = useState(true);
+  const {message, setMessage, chatId, setEmojiOpen, uploadToCloud, currentUser, reference, setOpenGroupProfile } = useChatContext();
+  const [reveal, setReveal] = useState(true);
   const [image, setImage] = useState('');
 
   const onMessageChange = e => setMessage(e.target.value)
@@ -23,7 +23,7 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
       return alert('Max allowed size is 1.4mb')
     }
     else{
-      uploadPicture(image)
+     uploadToCloud(image)
     }
   }, [image])
 
@@ -36,32 +36,30 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
     }
   }, [message])
 //setEmojiOpen(false)
-  const imagePreview = (
+  const imageReveal = (
     image &&
       <article className='main'>
-        <img src={URL.createObjectURL(image)} 
-        alt="image preview"  
-          style={imageStyle}
+        <img src={URL.createObjectURL(image)} alt="image reveal" style={imageStyle}
           className={`image`} />
-        <FaTimes 
-          onClick={() => {
-            setPreview(false)
+        <FaTimes onClick={() => {
+            setReveal(false)
             setImage('')
           }}
-          className='trash'/>     
+          className='trash'
+        />     
       </article>
   )
 
   const send = () => {
-    setPreview(false)
+    setReveal(false)
     setImage('')
     sendMessage()
   }
-
+// || reference?.image
   return (
     <ChatBaseComponent>
-      {(preview && image) && imagePreview}
-      {reference?.text &&
+      {reveal && imageReveal}
+      {(reference?.text) &&
           <CopiedText />
         }
       <div>
@@ -78,7 +76,12 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
             hidden
           />
           <label htmlFor="image">
-            <IoIosAttach className='icon no_icon'/>
+            <IoIosAttach 
+              onClick={() => {
+                setEmojiOpen(false)
+                //setOpenGroupProfile(false)
+              }}
+              className='icon no_icon'/>
           </label>
         </>
         <input 
@@ -89,7 +92,7 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
           onKeyDown={e => e.key === 'Enter' ? send() : null}
           onChange={onMessageChange}
         />
-        {message ? <BiSend onClick={send} className='icon'/> : <HiOutlineMicrophone className='icon'/>}
+        {(message || image) ? <BiSend onClick={send} className='icon'/> : <HiOutlineMicrophone className='icon'/>}
       </div>
     </ChatBaseComponent>
   )
@@ -170,13 +173,24 @@ div{
   
     .trash{
       position: absolute;
-      color: black;
-      background-color: gray;
+      color: rgba(0,0,0,0.6);
+      background-color: lightgray;
+      box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
       border-radius: 50%;
       top: 8px;
       right: 0.4rem;
       font-size: 24px;
       cursor: pointer;
+      transition: all 0.15s ease-in-out;
+
+      &:hover{
+        color: rgba(0,0,0,0.7);
+        scale: 0.95;
+      }
+
+      &:active{
+        scale: 1;
+      }
     }
   }
 `

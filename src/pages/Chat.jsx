@@ -25,6 +25,7 @@ export const Chat = () => {
   const inputRef = useRef();
   const [refetch, setRefetch] = useState(1);
   const [confirmGroupName, setConfirmGroupName] = useState(true);
+  const [addedConversation, setAddedConversation] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController()
@@ -39,7 +40,7 @@ export const Chat = () => {
     }
     getGroup()
     return () => controller.abort()
-  }, [currentUser, conversation])
+  }, [currentUser?._id, conversation])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -71,7 +72,7 @@ export const Chat = () => {
 
   useEffect(() => {
     socket.emit('conversation', 'itsoluwatobby')
-  }, [currentUser])
+  }, [currentUser?._id])
 
   
   const reload = () => setRefetch(prev => prev+1)
@@ -93,12 +94,12 @@ export const Chat = () => {
     getConversationIds()
 
     return () => controller.abort()
-  }, [num, currentUser, conversation.length])
+  }, [num, currentUser, conversation])
 
   useEffect(() => {
     const filteredSearch = conversationIds && conversationIds.filter(user => (user.username).toLowerCase().includes(searchUsers.toLowerCase()))
     setFilteredUserSearch(filteredSearch)
-  }, [conversationIds, click, conversation ,searchUsers])
+  }, [conversationIds, click, conversation, searchUsers])
 
   return (
     <ChatApp>
@@ -107,6 +108,7 @@ export const Chat = () => {
         socket && 
           <Main 
             socket={socket} inputRef={inputRef}
+            addedConversation={addedConversation}
           />
       }
       {
@@ -121,8 +123,7 @@ export const Chat = () => {
           setConfirmGroupName={setConfirmGroupName} 
         />
       }
-        <LoggedInUserProfile loggedIn
-            loggedInUser={currentUser} 
+        <LoggedInUserProfile
             socket={socket} 
         />
       {
@@ -130,6 +131,7 @@ export const Chat = () => {
           <AddNewConversation 
           filteredUserSearch={filteredUserSearch} socket={socket} 
             conversationIds={conversationIds} result={result}
+            setAddedConversation={setAddedConversation}
           /> 
             || 
         open && 

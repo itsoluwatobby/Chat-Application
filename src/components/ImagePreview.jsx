@@ -1,13 +1,13 @@
 import React from 'react'
 
-export const ImagePreview = ({ image, setPreview, user, group }) => {
+export const ImagePreview = ({ image, setPreview }) => {
 
   return (
-    image && <img src={URL.createObjectURL(image)} 
+    <img src={image && URL.createObjectURL(image)} 
     alt="group profile" 
       onMouseLeave={() => setPreview(false)} 
       style={imageStyle}
-      className={`image ${(user || group) && 'image_style'}`} />
+      className='image image_style' />
   )
 }
 

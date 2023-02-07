@@ -19,8 +19,6 @@ export const OpenAI = () => {
   const navigate = useNavigate();
   const inputRef = useRef()
 
-  const dataRes = "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Et odit labore, sequi earum sunt delectus. Debitis deserunt at ea inventore? Suscipit ipsa doloribus porro fuga deserunt molestiae quas expedita delectus. Dolorem eligendi tenetur quibusdam asperiores, a sapiente dolorum voluptas quo amet, inventore commodi optio at quia ut ipsam consequatur cupiditate unde sed temporibus fugit consectetur qui iste eos. Doloribus, illum. Rerum natus voluptas neque sit ad explicabo, nobis earum voluptates quod asperiores eos ea quisquam unde fuga cum laudantium porro."
-
   const responseAutoScroll = useCallback((node) => {
     node && node.scrollIntoView({ smooth: true })
   }, [])

@@ -5,12 +5,11 @@ import { SearchCon } from './SearchCon'
 import { Users } from './Users';
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
+export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, socket, result }) => {
   const { refresh, setConversation, conversation, currentUser } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
-  const [addedConversation, setAddedConversation] = useState({});
   const [convo, setConvo] = useState({});
 
 // const initialState = {adminId: currentUserId, friendId}
@@ -19,7 +18,7 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
     const initialState = {adminId: currentUserId, friendId}
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      socket.emit('create_conversation', {convo: {...data}, room: 'itsoluwatobby'})
+      socket.emit('create_conversation', { newConvo: data })
       setConversation([...conversation, data])
     }catch(error) {
       let errorMessage;
@@ -36,17 +35,18 @@ export const AddNewConversation = ({ filteredUserSearch, socket, result }) => {
   useEffect(() => {
     socket.on('new_conversation', data => {
       console.log('rendered')
-      setAddedConversation({...data})
+      console.log(data)
+      setConvo({...data})
     })
   }, [conversation])
 
   useEffect(() => {
-    if(!addedConversation) return
-    if(addedConversation?._id === currentUser?._id){
-      console.log(addedConversation)
-      setConversation([...conversation, addedConversation])
+    if(!convo) return
+    if(convo?._id === currentUser?._id){
+      console.log(convo)
+      setAddedConversation(prev => prev + 2)
     }
-  }, [addedConversation])
+  }, [convo?._id])
 //!loading && error && <p className='errors'>{error}</p>
   return (
     <NewConversation>

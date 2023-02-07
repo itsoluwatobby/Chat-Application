@@ -8,7 +8,7 @@ import { useChatContext } from '../hooks/useChatContext';
 import axios from 'axios';
 
 export const Register = () => {
-  const { uploadPicture, error: imageUploadError, acceptedImage, setAcceptedImage } = useChatContext()
+  const { uploadToCloud, url, setUrl } = useChatContext()
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -32,6 +32,9 @@ export const Register = () => {
       setFile('')
       return alert('Max allowed size is 1.4mb')
     }
+    else{
+      uploadToCloud(file)
+    }
   }, [file])
 
   //{username, password, email}
@@ -42,13 +45,12 @@ export const Register = () => {
       if(!canSubmit) return
       setLoading(true)
     try{
-      await uploadPicture(file)
-      acceptedImage && await axiosAuth.post('/register', { username, email, password, profilePicture: acceptedImage })
+      await axiosAuth.post('/register', { username, email, password, profilePicture: url })
       setPassword('')
       setUsername('')
       setEmail('')
       setFile()
-      setAcceptedImage(null)
+      setUrl(null)
       navigate('/login')
     }
     catch(error){

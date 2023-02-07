@@ -9,16 +9,18 @@ import { Chats } from './Chats';
 import { General } from './General';
 import { Profile } from './Profile';
 
-export const LoggedInUserProfile = ({ loggedIn, user, groupUsers, socket }) => {
+export const LoggedInUserProfile = ({ socket }) => {
   const { chatId, openUserProfile, group, setOpenUserProfile } = useChatContext();
   const [buttonState, setButtonState] = useState(NAVIGATE.GTH);
+  const [profileImage, setProfileImage] = useState('');
 
-  const closeGroupProfile = () => {
+  const closeUserProfile = () => {
     setOpenUserProfile(false)
+    setProfileImage(null)
   }
 
   return (
-    <CurrentUserPage className={`chat_profile_container ${!openUserProfile && 'logged_In'} ${loggedIn && 'current__user'}`}>
+    <CurrentUserPage className={`chat_profile_container ${!openUserProfile && 'logged_In'}`}>
       <div className='left_container'>
         <LeftContainer loggedIn
           buttonState={buttonState}
@@ -28,21 +30,21 @@ export const LoggedInUserProfile = ({ loggedIn, user, groupUsers, socket }) => {
       { buttonState === NAVIGATE.FST &&
         <div className='right_container'>
           <FaTimes 
-            onClick={closeGroupProfile} className='times'/>
+            onClick={closeUserProfile} className='times'/>
           <General />
         </div>
         ||
         buttonState === NAVIGATE.SND &&
         <div className='right_container'>
           <FaTimes 
-            onClick={closeGroupProfile} className='times'/>
+            onClick={closeUserProfile} className='times'/>
           <Account />
         </div>
         ||
         buttonState === NAVIGATE.TRD && 
           <div className='group_container'>
             <FaTimes 
-              onClick={closeGroupProfile} className='times'/>
+              onClick={closeUserProfile} className='times'/>
             <Chats 
               socket={socket}
             />
@@ -51,24 +53,26 @@ export const LoggedInUserProfile = ({ loggedIn, user, groupUsers, socket }) => {
         buttonState === NAVIGATE.GTH && 
           <div className='group_container'>
             <FaTimes 
-              onClick={closeGroupProfile} className='times'/>
+              onClick={closeUserProfile} className='times'/>
             <Profile 
               socket={socket}
+              profileImage={profileImage} 
+              setProfileImage={setProfileImage}
             />
           </div>
         ||
         buttonState === NAVIGATE.STH &&
-        <EndToEnd closeGroupProfile={closeGroupProfile} />
+        <EndToEnd closeUserProfile={closeUserProfile} />
       }
     </CurrentUserPage>
   )
 }
 
-const EndToEnd = ({ closeGroupProfile }) => {
+const EndToEnd = ({ closeUserProfile }) => {
 
   return (
     <div className='encrypt'>
-        <FaTimes onClick={closeGroupProfile} className='times'/>
+        <FaTimes onClick={closeUserProfile} className='times'/>
         <h2>Encryption</h2>
         <p>Oluwatobby Chat ensures your conversation with end-to-end encryption</p>
         <p>Your messages and calls stay between you and the people and businesses you choose. Not even Oluwatobby can read or listen to them</p>

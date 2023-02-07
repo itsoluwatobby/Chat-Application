@@ -18,15 +18,19 @@ export const CopiedText = () => {
                     'You' : reference?.username
               }
             </span>
-            <span className='text'>
-              {
-                reference?.text.split(' ').length > 22 
-                  ?
-                  reference?.text.slice(0, 105) + '...' : reference?.text 
-              }
-            </span>
+            {!reference?.image ?  
+              <span className='text'>
+                {
+                  reference?.text.split(' ').length > 22 
+                    ?
+                    reference?.text.slice(0, 105) + '...' : reference?.text 
+                }
+              </span>
+              :
+              <img src={reference?.image} alt="" className='image'/>
+            }
           </p>
-          {reference?.text &&
+          {(reference?.text || reference?.image) &&
             <p className='crosses'>
               <RxCross2 
                 onClick={() => setReference({})}
@@ -80,6 +84,12 @@ min-height: 3rem;
           color: rgba(255,255,255,0.65);
           font-size: 13px;
           font-family: mono;
+        }
+        
+        .image{
+          object-fit: cover;
+          width: 100px;
+          height: 100px;
         }
       }
 

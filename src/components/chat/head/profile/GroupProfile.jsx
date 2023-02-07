@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import {CgProfile} from 'react-icons/cg';
 import {CiEdit} from 'react-icons/ci';
 import { RiErrorWarningLine } from 'react-icons/ri';
-import { sub } from 'date-fns';
+import LoadingEffect from '../../../../assest/Button-Rolling-1s-24px.svg';
 import { useChatContext } from '../../../../hooks/useChatContext';
 import { axiosAuth } from '../../../../app/axiosAuth';
-import { ImagePreview } from '../../../ImagePreview';
+import { FaTimes } from 'react-icons/fa';
 
 export const GroupProfile = ({ target, user, loggedInUser }) => {
-  const { currentUser, loadGroup, setChatId, setOpenGroupProfile, uploadPicture, acceptedImage } = useChatContext();
+  const { currentUser, loadGroup, setChatId, setOpenGroupProfile, uploadToCloud, url, setUrl } = useChatContext();
   const [enterGroupName, setEnterGroupName] = useState('');
   const [enterGroupDescription, setEnterGroupDescription] = useState('');
   const [text, setText] = useState(false);
@@ -19,7 +19,7 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
   const [nameCount, setNameCount] = useState(0);
   const [descriptionCount, setDescriptionCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState(false);
+  const [reveal, setReveal] = useState(false);
   const [image, setImage] = useState('');
   const groupNameRef = useRef();
   const descriptionRef = useRef();
@@ -58,22 +58,20 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
       return alert('Max allowed size is 1.4mb')
     }
     else{
-      uploadPicture(image)
+      uploadToCloud(image)
     }
   }, [image])
 
   const updateGroupInfo = async() => {
     setLoading(true)
-    const initialState = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id }
-    const initialState2 = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id, groupAvatar: acceptedImage }
+    const initialState = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id, groupAvatar: url }
     try{
-      const res = acceptedImage ? 
-        await axiosAuth.put('/conversation/update_group_info', initialState)
-        :
-        await axiosAuth.put('/conversation/update_group_info', initialState2)
+      const res = await axiosAuth.put('/conversation/update_group_info', initialState)
       loadGroup()
       //groupName: enterGroupName, convoId: target?._id
       setChatId({})
+      setUrl(null)
+      setImage(null)
       setOpenInput(false)
       setOpenDescription(false)
       ///setOpenGroupProfile(true)
@@ -85,6 +83,16 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
       setLoading(false)
     }
   }
+
+  const imageReveal = (
+    image && 
+      <article className='main'>
+        <img src={URL.createObjectURL(image)} alt="image" className='image' />
+        <FaTimes onClick={() => setReveal(false)}
+          className='trash'
+        />     
+      </article>
+  )
 
   return (
     <GroupProfilePage 
@@ -112,17 +120,29 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
                   image ? 
                     <img src={URL.createObjectURL(image)} 
                     alt={image.originalFilename} 
-                    onMouseEnter={() => setPreview(true)}
+                    // onMouseEnter={() => setReveal(true)}
                     className='pics'/> 
                     :
                     <CgProfile className='profile'/>
                   }
                 </label>
-                {(preview && image) 
-                  && <ImagePreview group
-                        image={image}  
-                        setPreview={setPreview}
-                      />
+                {(reveal && image) && imageReveal}
+                {image && 
+                  <>
+                    <button 
+                      onClick={updateGroupInfo}
+                      className='upload'
+                    >{
+                        loading ? 
+                          <img src={LoadingEffect} alt='---' /> : 'upload'
+                      }
+                    </button>
+                    <button 
+                      onClick={() => setReveal(true)}
+                      className='upload2'
+                    >Preview
+                    </button>
+                  </>
                 }
               </div>
             :
@@ -230,7 +250,7 @@ const ProfileInputBox = ({
           onMouseLeave={() => setText(false)}
           onClick={handleClick}
         >{text ? 
-          <span>{loading ? '---' : 'Done'}</span> 
+          <span>{loading ? <img src={LoadingEffect} alt='---' /> : 'Done'}</span> 
             : 
           <span>{count}/25</span>
         }
@@ -241,7 +261,7 @@ const ProfileInputBox = ({
           onMouseLeave={() => setText(false)}
           onClick={handleClick}
         >{text ? 
-            <span>{loading ? '---' : 'Done'}</span> 
+            <span>{loading ? <img src={LoadingEffect} alt='---' /> : 'Done'}</span> 
               : 
             <span>{count || 0}/512</span>
           }
@@ -250,6 +270,22 @@ const ProfileInputBox = ({
     </div>
   )
 }
+
+// const imageStyle = {
+//   position: 'fixed',
+//   width: '270px',
+//   height: '220px',
+//   borderRadius: '20px',
+//   bottom: 0,
+//   right: '0.3rem',
+//   border: '2px solid white',
+//   boxShahow: '2px 4px 16px rgba(0,0,0,0.25)',
+//   boxSizing: 'border-box',
+//   backgroundColor: 'rgba(20,255,255,0.22)',
+//   objectFit: 'cover',
+//   transition: '0.45s ease-in-out',
+//   zIndex: 560
+// }
 
 
 const GroupProfilePage = styled.div`
@@ -312,6 +348,10 @@ const GroupProfilePage = styled.div`
         font-size: 14px;
         padding: 0.18rem 1.3rem;
         background-color: rgba(0,250,190,0.5);
+
+        img{
+          width: 13px;
+        }
 
         &:focus{
           outline: none;
@@ -487,6 +527,48 @@ const GroupProfilePage = styled.div`
 
       &:active{
         background-color: rgba(255,255,255,0.05);
+      }
+    }
+  }
+
+  .main{
+    position: fixed;
+    top: 2rem;
+    width: 270px;
+    height: 220px;
+    border-radius: 20px;
+    border: 2px solid white;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
+    box-sizing: border-box;
+    background-color: rgba(20,255,255,0.22);
+    z-index: 500;
+
+    .image{
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      object-fit: cover;      
+    }
+  
+    .trash{
+      position: absolute;
+      color: rgba(0,0,0,0.6);
+      background-color: lightgray;
+      box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
+      border-radius: 50%;
+      top: 8px;
+      right: 0.4rem;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+
+      &:hover{
+        color: rgba(0,0,0,0.7);
+        scale: 0.95;
+      }
+
+      &:active{
+        scale: 1;
       }
     }
   }

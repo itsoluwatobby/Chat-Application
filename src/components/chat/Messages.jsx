@@ -30,21 +30,21 @@ export const Messages = ({ message }) => {
     init?.option === 'forAll' && loadMessageAll()
   }
   
-  const msgConst = { messageId: message?._id, adminId: currentUser?._id }
+  const msgConstruct = { messageId: message?._id, adminId: currentUser?._id }
 
   const messageExtract = (
     <section 
     //onMouseEnter={() => setExtract(true)}
       className='message_extract'>
         <div 
-          onClick={() => isMessageDeleted({ ...msgConst, option: 'forMe' })}
+          onClick={() => isMessageDeleted({ ...msgConstruct, option: 'forMe' })}
           className='compo1'>
           <FaTrash className='trash' />
           Delete For me
         </div>
         {message?.senderId === currentUser?._id && (
             <div 
-              onClick={() => isMessageDeleted({ ...msgConst, option: 'forAll' })}
+              onClick={() => isMessageDeleted({ ...msgConstruct, option: 'forAll' })}
               className='compo1 compo2'>
               <FaTrash className='trash' />
               Delete For Everyone
@@ -76,9 +76,17 @@ export const Messages = ({ message }) => {
             </p>
           </div>
         }
-        {message?.image && <img src={message?.image} 
-        alt="image preview"  
-          className='image' />}
+        {message?.image && (
+            message?.senderId !== currentUser?._id ? 
+              <a href={message?.image} title='Tap to View' target='_blank'>
+                <img src={message?.image} alt="image preview"  
+                  className='image' />
+              </a> 
+                : 
+              <img src={message?.image} alt="image preview"  
+                className='image' />
+          )
+        }
         <p>{message?.text}</p>  
         <p className='message_base'>
           {chatId?.groupName && (

@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import {CgProfile} from 'react-icons/cg';
 import {CiEdit} from 'react-icons/ci';
 import { RiErrorWarningLine } from 'react-icons/ri';
-import { sub } from 'date-fns';
+import LoadingEffect from '../../../../../assest/Button-Rolling-1s-24px.svg';
 import { useChatContext } from '../../../../../hooks/useChatContext';
 import { axiosAuth } from '../../../../../app/axiosAuth';
-import { ImagePreview } from '../../../../ImagePreview';
+import { FaTimes } from 'react-icons/fa';
 
-export const Profile = ({ }) => {
-  const { currentUser, setChatId, uploadPicture, acceptedImage, updateUserInfo } = useChatContext();
+export const Profile = ({ profileImage, setProfileImage }) => {
+  const { currentUser, setChatId, uploadToCloud, url, setUrl, updateUserInfo } = useChatContext();
   const [enterNickName, setEnterNickName] = useState('');
   const [enterAbout, setEnterAbout] = useState('');
   const [text, setText] = useState(false);
@@ -19,8 +19,7 @@ export const Profile = ({ }) => {
   const [nameCount, setNameCount] = useState(0);
   const [aboutCount, setaboutCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState(false);
-  const [image, setImage] = useState('');
+  const [reveal, setReveal] = useState(false);
   const usernameRef = useRef();
   const aboutRef = useRef();
 
@@ -44,28 +43,46 @@ export const Profile = ({ }) => {
 
   const onUsernameChange = e => setEnterNickName(e.target.value);
   const onAboutChange = e => setEnterAbout(e.target.value);
-  const onImageChange = e => setImage(e.target.files[0])
+  const onProfileImageChange = e => setProfileImage(e.target.files[0])
 
   useEffect(() => {
-    if(!image) return
-    if(image?.size > 1448576){
-      setImage('')
+    if(!profileImage) return
+    if(profileImage?.size > 1448576){
+      setProfileImage('')
       return alert('Max allowed size is 1.4mb')
     }
     else{
-      uploadPicture(image)
+      uploadToCloud(profileImage)
     }
-  }, [image])
+  }, [profileImage])
 
   const updateUser = async() => {
-    //setLoading(true)
-    const initialState = { username: enterNickName, about: enterAbout, userId: currentUser?._id }
-    const initialState2 = { username: enterNickName, about: enterAbout, userId: currentUser?._id, profilePicture: acceptedImage }
-    acceptedImage ? await updateUserInfo(initialState2) : await updateUserInfo(initialState)
-    setImage(null)
-    setOpenInput(false)
-    setOpenAbout(false)  
+    setLoading(true)
+    try{
+      const initialState = { username: enterNickName, about: enterAbout, userId: currentUser?._id, profilePicture: url }
+      await updateUserInfo(initialState)
+      setProfileImage(null)
+      setUrl(null)
+      setOpenInput(false)
+      setOpenAbout(false)
+    }
+    catch(error){
+      console.log(error.message)
+    }
+    finally{
+      setLoading(false)
+    }
   }
+
+  const imageReveal = (
+    profileImage &&
+      <article className='main'>
+        <img src={URL.createObjectURL(profileImage)} alt={profileImage?.originalFilename} className='image' />
+        <FaTimes onClick={() => setReveal(false)}
+          className='trash'
+        />     
+      </article>
+  )
 
   return (
     <UserProfilePage 
@@ -80,34 +97,42 @@ export const Profile = ({ }) => {
                 type="file" 
                 id='image'
                 onFocus={() => setError('')}
-                onChange={onImageChange}
+                onChange={onProfileImageChange}
                 accept= 'image/*'
                 hidden
               />
               <label htmlFor="image">
               {
-                (!image && currentUser?.profilePicture) ? 
+                (!profileImage && currentUser?.profilePicture) ? 
                   <img src={currentUser?.profilePicture} alt={currentUser?.username} className='pics'/>
                 :
-                image ? 
-                  <img src={URL.createObjectURL(image)} 
-                  alt={image.originalFilename} 
-                  onMouseEnter={() => setPreview(true)}
+                profileImage ? 
+                  <img src={URL.createObjectURL(profileImage)} 
+                  alt={profileImage.originalFilename} 
+                  // onMouseEnter={() => setReveal(true)}
                   className='pics'/> 
                   :
                   <CgProfile className='profile'/>
                 }
               </label>
-              {(preview && image) 
-                && <ImagePreview user
-                      image={image}  
-                      setPreview={setPreview}
-                    />
+              {(reveal && profileImage) && imageReveal}
+              {profileImage && 
+                <>
+                  <button 
+                    onClick={updateUser}
+                    className='upload'
+                  >{
+                      loading ? 
+                        <img src={LoadingEffect} alt='---' /> : 'upload'
+                    }
+                  </button>
+                  <button 
+                    onClick={() => setReveal(true)}
+                    className='upload2'
+                  >Preview
+                  </button>
+                </>
               }
-              {image && <button 
-                          onClick={updateUser}
-                          className='upload'
-                        >upload</button>}
             </div>
 
         <div className='title'>
@@ -179,7 +204,7 @@ const ProfileInputBox = ({
           onMouseLeave={() => setText(false)}
           onClick={handleClick}
         >{text ? 
-          <span>{loading ? '---' : 'Done'}</span> 
+          <span>{loading ? <img src={LoadingEffect} alt='---' /> : 'Done'}</span> 
             : 
           <span>{count}/25</span>
         }
@@ -190,7 +215,7 @@ const ProfileInputBox = ({
           onMouseLeave={() => setText(false)}
           onClick={handleClick}
         >{text ? 
-            <span>{loading ? '---' : 'Done'}</span> 
+            <span>{loading ? <img src={LoadingEffect} alt='---' /> : 'Done'}</span> 
               : 
             <span>{count || 0}/512</span>
           }
@@ -199,7 +224,6 @@ const ProfileInputBox = ({
     </div>
   )
 }
-
 
 const UserProfilePage = styled.div`
 
@@ -217,6 +241,15 @@ const UserProfilePage = styled.div`
     &:hover{
       color: rgba(0,0,0,0.25);
     }
+  }
+
+  img{
+    width: 15px;
+    object-fit: cover;
+  }
+
+  .upload{
+    width: 50px;
   }
 
   .title{
@@ -261,6 +294,10 @@ const UserProfilePage = styled.div`
         font-size: 14px;
         padding: 0.18rem 1.3rem;
         background-color: rgba(0,250,190,0.5);
+
+        img{
+          width: 15px;
+        }
 
         &:focus{
           outline: none;
@@ -364,6 +401,10 @@ const UserProfilePage = styled.div`
           font-size: 14px;
           padding: 0.18rem 1.3rem;
           background-color: rgba(0,250,190,0.5);
+
+          img{
+            width: 15px;
+          }
   
           &:focus{
             outline: none;
@@ -436,6 +477,48 @@ const UserProfilePage = styled.div`
 
       &:active{
         background-color: rgba(255,255,255,0.05);
+      }
+    }
+  }
+
+  .main{
+    z-index: 90;
+    position: fixed;
+    top: 2rem;
+    width: 270px;
+    height: 220px;
+    border-radius: 20px;
+    border: 2px solid white;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
+    box-sizing: border-box;
+    z-index: 500;
+
+    .image{
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      object-fit: cover;      
+    }
+  
+    .trash{
+      position: absolute;
+      color: rgba(0,0,0,0.6);
+      background-color: lightgray;
+      box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
+      border-radius: 50%;
+      top: 8px;
+      right: 0.4rem;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+
+      &:hover{
+        color: rgba(0,0,0,0.7);
+        scale: 0.95;
+      }
+
+      &:active{
+        scale: 1;
       }
     }
   }

@@ -4,10 +4,11 @@ import { Search } from './Search'
 import {useChatContext} from '../hooks/useChatContext'
 import { useEffect, useState } from 'react'
 import { axiosAuth } from '../app/axiosAuth';
+import { NAVIGATE } from './chat/head/profile/navigate'
 
-export const Main = ({ socket, inputRef  }) => {
+export const Main = ({ socket, inputRef, addedConversation }) => {
   const {
-    setChatId, loggedIn, setClick, search, setEmojiOpen, setMessages, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num, setNewGroup, setOpenUserProfile, setReference
+    setChatId, loggedIn, setClick, search, setEmojiOpen, setMessages, openGroupProfile, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num, setNewGroup, openUserProfile, setOpenUserProfile, setReference, setButtonState
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -47,7 +48,7 @@ export const Main = ({ socket, inputRef  }) => {
       controller.abort()  
       isMounted = false
     }
-  }, [loggedIn, currentUserId])
+  }, [loggedIn, currentUserId, addedConversation])
 
   useEffect(() => {
     let isMounted = true
@@ -73,12 +74,12 @@ export const Main = ({ socket, inputRef  }) => {
       isMounted = false
       controller.abort()
     }
-  }, [num, loggedIn, currentUserId])
+  }, [num, loggedIn, currentUserId, addedConversation])
 
   useEffect(() => {
     setConversation([...personalConvo, ...generalConvo])
   }, [personalConvo, generalConvo])
-  
+
   useEffect(() => {
     const filteredConversation = conversation.filter(
       user => !currentUser?.deletedConversationIds?.includes(user?.convoId)
@@ -99,10 +100,10 @@ export const Main = ({ socket, inputRef  }) => {
           ? searchUser?._id !== chatId?.userId 
               : searchUser?.groupName !== chatId?.groupName
     );
-
+ 
     const currentChat = [target, ...others]
     target ? setFiltered(currentChat) : setFiltered(searchConversation)
-  }, [currentUser, search, message]);
+  }, [conversation.length, currentUser?._id, search, message]);
 
   const openChat = (user) => {
     setReference({})
@@ -111,12 +112,18 @@ export const Main = ({ socket, inputRef  }) => {
             : setChatId({ groupName: user?.groupName, convoId: user?.convoId });
     setTypingEvent({})
     inputRef?.current?.focus()
+    setButtonState(NAVIGATE.FST)
     setEmojiOpen(false)
     setMessages([])
     setIsChatOpened(true)
     setCustomAdminMessage({})
     setOpenUserProfile(false)
     setMessage('')
+  }
+
+  const closeCompos = () => {
+    openGroupProfile && setOpenGroupProfile(false)
+    setNewGroup([])
   }
 
   let content;
@@ -142,10 +149,7 @@ export const Main = ({ socket, inputRef  }) => {
 
   
   return (
-    <MainPage onClick={() => {
-      setOpenGroupProfile(false)
-      setNewGroup([])  
-    }}>
+    <MainPage onClick={closeCompos}>
       <Search />
       {
         !conversation.length 

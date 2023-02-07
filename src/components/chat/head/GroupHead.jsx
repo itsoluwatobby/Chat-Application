@@ -15,12 +15,11 @@ export const GroupHead = ({
   useEffect(() => {
     const targetGroup = groupConversation.find(group => group?.groupName === chatId?.groupName);
     const groupIds = targetGroup && targetGroup?.members.map(user => user?.userId);
-    const groupNames = targetGroup && targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', ')
-    setUsers(groupNames);
+    targetGroup && setUsers(() => targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', '));
     setTarget(targetGroup)
     const usersGroup = groupIds && Array.isArray(allUsers) && allUsers.filter(user => groupIds?.includes(user?._id));
     Array.isArray(usersGroup) && setGroupUsers([...usersGroup]);
-  }, [chatId?.groupName])
+  }, [chatId?.convoId])
 
   return (
     <HeadCompo

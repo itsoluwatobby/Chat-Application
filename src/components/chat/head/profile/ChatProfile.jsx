@@ -9,8 +9,7 @@ import { FaTimes } from 'react-icons/fa';
 import { AddParticipants } from './AddParticipants';
 
 export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, allUsers, userProfile, socket }) => {
-  const { chatId, openGroupProfile, group, setOpenGroupProfile } = useChatContext();
-  const [buttonState, setButtonState] = useState(NAVIGATE.FST);
+  const { chatId, openGroupProfile, buttonState, setButtonState, group, setOpenGroupProfile } = useChatContext();
   const [addParticipants, setAddParticipants] = useState(false);
   const [searchGroup, setSearchGroup] = useState('');
 
@@ -23,14 +22,13 @@ export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, 
   const closeGroupProfile = () => {
     setOpenGroupProfile(false)
   }
+  // console.log(openGroupProfile)
 
   return (
     <ChatProfilePage className={`chat_profile_container ${!openGroupProfile && 'chat_profile'}`}>
       <div className='left_container'>
         <LeftContainer 
-          buttonState={buttonState}
           userProfile={userProfile}
-          setButtonState={setButtonState} 
         />
       </div>
       { buttonState === NAVIGATE.FST &&
@@ -49,6 +47,7 @@ export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, 
             <UsersInGroup 
               groupUsers={groupUsers} 
               allUsers={allUsers} 
+              target={target}
               socket={socket}
               setAddParticipants={setAddParticipants}
             />

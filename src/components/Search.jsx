@@ -49,7 +49,7 @@ export const Search = () => {
         setOpen(false)  
       }} className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
-        <Link to='/'><p className='logged_user'>{currentUser?.username || 'Itsoluwatobby'}</p></Link>
+        <p className='logged_user'>{currentUser?.username || 'Itsoluwatobby'}</p>
         <button onClick={handleLogout} className='logout'>Logout</button>
       </div>
       <div className='topbar'>
