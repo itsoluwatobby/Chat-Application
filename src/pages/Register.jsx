@@ -108,13 +108,13 @@ export const Register = () => {
           <div className='image'>
             <input 
               type="file" 
-              id='image'
+              id='images'
               onFocus={() => setError('')}
               onChange={onImageChange}
               accept= '.jpg,.jpeg,.png'
               hidden
             />
-            <label htmlFor="image">
+            <label htmlFor="images">
               <BsImageFill className='input'/>
               <p>{file ? 'File added' : 'choose a file'}</p>
             </label>

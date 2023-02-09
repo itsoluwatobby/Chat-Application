@@ -106,13 +106,13 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
                 className='image'>
                 <input 
                   type="file" 
-                  id='image'
+                  id='newImage'
                   onFocus={() => setError('')}
                   onChange={onImageChange}
                   accept= 'image/*'
                   hidden
                 />
-                <label htmlFor="image">
+                <label htmlFor="newImage">
                 {
                   (!image && target?.groupAvatar) ? 
                   <img src={target?.groupAvatar} alt={target?.groupName} className='pics'/>

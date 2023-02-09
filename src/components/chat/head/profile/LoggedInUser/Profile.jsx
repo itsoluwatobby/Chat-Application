@@ -95,13 +95,13 @@ export const Profile = ({ profileImage, setProfileImage }) => {
               className='image'>
               <input 
                 type="file" 
-                id='image'
+                id='profileImage'
                 onFocus={() => setError('')}
                 onChange={onProfileImageChange}
                 accept= 'image/*'
                 hidden
               />
-              <label htmlFor="image">
+              <label htmlFor="profileImage">
               {
                 (!profileImage && currentUser?.profilePicture) ? 
                   <img src={currentUser?.profilePicture} alt={currentUser?.username} className='pics'/>

@@ -70,12 +70,12 @@ export const ChatBase = ({ sendMessage, socket, inputRef }) => {
         <>
           <input 
             type="file" 
-            id='image'
+            id='sendImage'
             onChange={onImageChange}
             accept= 'image/*'
             hidden
           />
-          <label htmlFor="image">
+          <label htmlFor="sendImage">
             <IoIosAttach 
               onClick={() => {
                 setEmojiOpen(false)

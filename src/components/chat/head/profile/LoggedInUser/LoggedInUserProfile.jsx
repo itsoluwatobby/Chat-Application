@@ -8,10 +8,11 @@ import { Account } from './Account';
 import { Chats } from './Chats';
 import { General } from './General';
 import { Profile } from './Profile';
+import { useEffect } from 'react';
 
 export const LoggedInUserProfile = ({ socket }) => {
-  const { chatId, openUserProfile, group, setOpenUserProfile } = useChatContext();
-  const [buttonState, setButtonState] = useState(NAVIGATE.GTH);
+  const { buttonState, setButtonState, chatId, openUserProfile, group, setOpenUserProfile } = useChatContext();
+ // const [buttonState, setButtonState] = useState(NAVIGATE.GTH);
   const [profileImage, setProfileImage] = useState('');
 
   const closeUserProfile = () => {
@@ -19,12 +20,16 @@ export const LoggedInUserProfile = ({ socket }) => {
     setProfileImage(null)
   }
 
+  useEffect(() => {
+    setButtonState(NAVIGATE.GTH)
+  }, [openUserProfile])
+
   return (
     <CurrentUserPage className={`chat_profile_container ${!openUserProfile && 'logged_In'}`}>
       <div className='left_container'>
         <LeftContainer loggedIn
-          buttonState={buttonState}
-          setButtonState={setButtonState} 
+          // buttonState={buttonState}
+          // setButtonState={setButtonState} 
         />
       </div>
       { buttonState === NAVIGATE.FST &&

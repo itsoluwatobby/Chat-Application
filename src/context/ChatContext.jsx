@@ -60,6 +60,7 @@ export const ChatContextProvider = ({ children }) => {
   const [buttonState, setButtonState] = useState(NAVIGATE.FST);
 
   const [group, setGroup] = useState({});
+  const [mode, setMode] = useState(false);
   const [url, setUrl] = useState(null);
 
   const loadGroup = () => setNum(prev => prev + 1)
@@ -126,7 +127,7 @@ export const ChatContextProvider = ({ children }) => {
     openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, 
     reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, 
     userGroupConvos, setUserGroupConvos, url, setUrl, uploadToCloud, 
-    buttonState, setButtonState
+    buttonState, setButtonState, mode, setMode
   }
 
   return (
