@@ -66,7 +66,7 @@ export const Chat = () => {
 
   useEffect(() => {
     if(currentUserId) {
-      socket = io.connect('http://localhost:5000')
+      socket = io.connect('https://whatsapp-clone-api-vuwx.onrender.com')
     }
   }, [currentUserId])
 
