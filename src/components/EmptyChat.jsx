@@ -7,7 +7,7 @@ import { useChatContext } from '../hooks/useChatContext'
 import Eclipse from '../assest/Eclipse-1s-118px.svg';
 
 export const EmptyChat = () => {
-  const { toggle, setToggle } = useChatContext()
+  const { toggle, setToggle, mode } = useChatContext()
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const TIMEOUT = 2500
@@ -22,7 +22,7 @@ export const EmptyChat = () => {
   }
 
   return (
-    <EmptyChatPage>
+    <EmptyChatPage className={mode ? 'light__mode' : 'empty__mode'}>
       <div className='chat'>
         <p className='top'>Would You Like To Chat With a Bot? 
           <span className='open__chat'>@openai</span>

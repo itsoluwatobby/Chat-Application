@@ -82,6 +82,37 @@ a:link{
   background-color: aliceblue;
 }
 
+.light__mode{
+  color: black;
+  background-color: whitesmoke;
+}
+
+.dark__mode{
+  color: white;
+  background-color: rgba(0,0,0,0.85);
+}
+
+.leftLight__mode{
+  color: black;
+  background-color: rgba(0,0,0,0.3);
+}
+
+.empty__mode{
+  color: black;
+  background-color: #333333;
+}
+
+.leftContainer__mode{
+  color: white;
+  background-color: #333333;
+}
+
+.search__container{
+  background-color: rgba(25,30,28);
+  color: white;
+}
+
+
 /* @keyframes chat__profile {
   from{
     translate: 0 0;

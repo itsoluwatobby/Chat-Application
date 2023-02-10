@@ -5,7 +5,7 @@ import { MdLightMode } from 'react-icons/md'
 import { useChatContext } from '../../../../../hooks/useChatContext';
 
 export const General = () => {
-  const { setMode } = useChatContext()
+  const { setMode, mode } = useChatContext()
   return (
     <GeneralComponent>
       <h2>General</h2>
@@ -13,12 +13,12 @@ export const General = () => {
         <h2>Theme</h2>
         <p>App color theme</p>
         <button
-          onClick={() => setMode(prev => !prev)}
+          //onClick={() => setMode(prev => !prev)}
         >
           {
-            true ? <BiMoon className='icon' /> : <MdLightMode className='icon' />
+            mode ? <BiMoon className='icon' /> : <MdLightMode className='icon' />
           }
-          {true ? 'Dark' : 'Light'}
+          {mode ? 'Dark' : 'Light'}
         </button>
       </div>
     </GeneralComponent>

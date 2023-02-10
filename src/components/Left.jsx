@@ -8,7 +8,7 @@ import { LoggedInUserProfile } from './chat/head/profile/LoggedInUser/LoggedInUs
 import Notification_Bell from '../assest/notification.wav';
 
 export const Left = ({ socket }) => {
-  const { currentUser, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
+  const { currentUser, mode, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
@@ -48,7 +48,7 @@ export const Left = ({ socket }) => {
   }, [notification])
 
   return (
-    <LeftSection 
+    <LeftSection className={mode ? 'leftLight__mode' : 'leftContainer__mode'}
       //onClick={() => setOpenGroupProfile(false)}
     >
       <div className='top'> 
@@ -86,7 +86,6 @@ height: 100%;
 flex: none;
 display: flex;
 flex-direction: column;
-background-color: #333333;
 justify-content: space-between;
 padding: 2rem 0;
 align-items: center;

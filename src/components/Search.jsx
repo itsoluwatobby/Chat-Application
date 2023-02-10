@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 export const Search = () => {
   const { 
-    setChatId, setMessageBody, setPreviousChatId, setIsChatOpened, onSearchChange, search, setCurrentUser, 
+    setChatId, mode, setMessageBody, setPreviousChatId, setIsChatOpened, onSearchChange, search, setCurrentUser, 
     currentUser, setOpen, setClick, setConversation } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()
@@ -81,7 +81,7 @@ export const Search = () => {
   )
 
   return (
-    <SearchComponent>
+    <SearchComponent className={mode ? 'light__mode' : 'search__container'}>
       {searchContent}
     </SearchComponent>
   )
@@ -95,7 +95,6 @@ width: 100%;
 gap: 0.7rem;
 position: sticky;
 top: 0;
-background-color: rgba(25,30,28);
 z-index: 50;
 
   .new-chat{
@@ -143,7 +142,7 @@ z-index: 50;
       font-size: 18px;
       cursor: pointer;
       text-decoration: none;
-      color: white;
+      // color: white;
     }
   }
 
@@ -194,7 +193,6 @@ z-index: 50;
     align-items: center;
     width: 100%;
     height: 33px;
-    background-color: #333333;
     padding: 0 0.4rem;
     color: white;
     border-radius: 5px;

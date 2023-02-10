@@ -9,10 +9,12 @@ import { Home } from './pages/Home'
 import { Chat } from './pages/Chat'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { OpenAI } from './pages/OpenAI'
+import { useChatContext } from './hooks/useChatContext'
 
 export const App = () => {
+  const { mode } = useChatContext()
   return (
-    <Container>
+    <Container className={mode ? 'light__mode' : 'dark__mode'}>
       <Routes>
         <Route path='/' element={<Layout />}>
 
@@ -35,9 +37,7 @@ export const App = () => {
 }
 
 const Container = styled.div`
-  background-color: rgba(0,0,0,0.85);
-  min-height: 100vh;
-  width: 100vw;
-  color: white;
+min-height: 100vh;
+width: 100vw;
 
 `
