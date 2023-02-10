@@ -61,6 +61,7 @@ height: 100%;
 flex-direction: column;
 gap: 1.5rem;
 position: relative;
+color: white;
 
 .chat{
   position: absolute;
