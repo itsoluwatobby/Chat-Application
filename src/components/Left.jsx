@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react'
-import {BsChatText} from 'react-icons/bs'
-import {FiSettings} from 'react-icons/fi'
-import {HiOutlineStatusOnline} from 'react-icons/hi'
-import styled from 'styled-components'
-import { useChatContext } from '../hooks/useChatContext'
-import { LoggedInUserProfile } from './chat/head/profile/LoggedInUser/LoggedInUserProfile'
+import { useEffect, useState } from 'react';
+import {BsChatText} from 'react-icons/bs';
+import {FiSettings} from 'react-icons/fi';
+import {HiOutlineStatusOnline} from 'react-icons/hi';
+import styled from 'styled-components';
+import { useChatContext } from '../hooks/useChatContext';
 import Notification_Bell from '../assest/notification.wav';
 
 export const Left = ({ socket }) => {
-  const { currentUser, mode, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
+  const { currentUser, soundNotification, mode, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
@@ -27,6 +26,10 @@ export const Left = ({ socket }) => {
     setNotification([...filteredNotification])
   }
 
+  useEffect(() => {
+    !notification.length && setReveal(false)
+  }, [notification])
+
   const customNotifications = (
     <div className='notification_container'>
       {sorted.length && 
@@ -43,13 +46,8 @@ export const Left = ({ socket }) => {
     </div>
   )
 
-  useEffect(() => {
-    !notification.length && setReveal(false)
-  }, [notification])
-
   return (
     <LeftSection className={mode ? 'leftLight__mode' : 'leftContainer__mode'}
-      //onClick={() => setOpenGroupProfile(false)}
     >
       <div className='top'> 
         <span 
@@ -58,7 +56,7 @@ export const Left = ({ socket }) => {
           <BsChatText title='Chats' className='chat'/>
         </span>
         {reveal && <div>{customNotifications}</div>}
-        {sorted?.length && <audio src={Notification_Bell} autoPlay/>}
+        {soundNotification && <audio src={Notification_Bell} autoPlay/>}
         <span className={isOnline && 'status'}>
           <HiOutlineStatusOnline title={currentUser?.status === 'online' ? 'online' : 'offline'} className='status'/>
         </span>

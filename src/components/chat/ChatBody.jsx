@@ -6,7 +6,7 @@ import LoadingEffect from '../../assest/Eclipse-1s-118px.svg';
 import { Messages } from './Messages';
 import {BsLock} from 'react-icons/bs'
 
-export const ChatBody = ({ socket, inputRef, otherUsers }) => {
+export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMessageLoading }) => {
   const { 
     messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, openGroupProfile, setOpenGroupProfile, conversation, setNewGroup, openUserProfile, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
    } = useChatContext();
@@ -58,14 +58,15 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
     setLoading(true)
     const fetchMessages = async() => {
       try{
-        const messages = await axiosAuth.get(`/messages/${chatId?.convoId}`, {
+        const { data } = await axiosAuth.get(`/messages/${chatId?.convoId}`, {
           signal: controller.signal
         })
-        if(messages?.data[messages?.data?.length - 1]?.conversationId === chatId?.convoId){
-          isMounted && setMessages([...messages?.data])
-          reloadAll == 2 && socket.emit('reload_message', { conversationId: chatId?.convoId, data: messages?.data })
+        // if(data[data?.length - 1]?.senderId === currentUser?._id || data[data?.length - 1]?.receiverId === currentUser?._id){
+          isMounted && setMessages([...data])
+          reloadAll == 2 && socket.emit('reload_message', { conversationId: data[data?.length - 1]?.conversationId, data: data })
           setReloadAll(null)
-        }
+          setMessageLoading(null)
+        //}
       }catch(error) {
         let errorMessage;
         error?.response?.status === 404 ? errorMessage = 'Say hello to start a conversation' :
@@ -82,15 +83,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers }) => {
       isMounted = false
       controller.abort()
     }
-  }, [chatId?.convoId, num, reload, reloadAll])
-
-//targetConvo?.members?.includes
-  useEffect(() => {
-    const last = messages[messages.length - 1]
-    //console.log(last)
-    const result = currentUser?._id === last?.senderId
-    setIsCurrentChat(result)
-  }, [targetConvo?._id, messages])
+  }, [chatId?.convoId, num, reload, reloadAll, messageLoading])
 
   useEffect(() => {
     setTargetConvo({})

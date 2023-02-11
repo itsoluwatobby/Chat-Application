@@ -17,7 +17,7 @@ export const GroupConvo = ({
   } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingNewGroup, setLoadingNewGroup] = useState(false);
   const [preview, setPreview] = useState(false);
   const [image, setImage] = useState('')
   const [groupName, setGroupName] = useState('')
@@ -36,6 +36,7 @@ export const GroupConvo = ({
     if(!groupName) setConfirmGroupName(false)
     if(newGroup.length && groupName){
       const groupIds = newGroup.map(singlePerson => singlePerson?.id)
+      setLoadingNewGroup(true)
       try{
         const res = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
             memberIds: groupIds, groupName, groupAvatar: url 
@@ -46,6 +47,7 @@ export const GroupConvo = ({
         setProceed(false)
         setUrl(null)
         setNewGroup([])
+        setGroupName(null)
         //refresh()
       }
       catch(error) {
@@ -57,7 +59,7 @@ export const GroupConvo = ({
         setError(errorMessage)
       }
       finally{
-        setLoading(false)
+        setLoadingNewGroup(false)
       }
     }
     else return
@@ -90,7 +92,7 @@ export const GroupConvo = ({
 
   return (
     <GroupConversation>
-      <SearchCon groupConvo/>
+      <SearchCon groupConvo loading={loadingNewGroup} groupName={groupName}/>
       {!(proceed && isNext) ?
         (
           !Array.isArray(result) ?
@@ -98,9 +100,8 @@ export const GroupConvo = ({
           :
           filteredSearch.map(user => (
             <div onClick={() => setError('')} key={user._id}>
-              <Users 
-                user={user} loading={loading} 
-                error={error} groupConvo  
+              <Users groupConvo
+                user={user}   
                 newGroup={newGroup} setNewGroup={setNewGroup}
               />
             </div>

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { axiosAuth } from '../app/axiosAuth';
 import { NAVIGATE } from './chat/head/profile/navigate'
 
-export const Main = ({ socket, inputRef, addedConversation }) => {
+export const Main = ({ socket, inputRef, loadMessages, addedConversation }) => {
   const {
     setChatId, loggedIn, setClick, search, setEmojiOpen, setMessages, openGroupProfile, setOpenGroupProfile, chatId, conversation, setConversation, messages, groupConversation, setGroupConversation, notification, setNotification, setIsChatOpened, currentUser, setTypingEvent, message, setMessage, setCustomAdminMessage, num, setNewGroup, openUserProfile, setOpenUserProfile, setReference, setButtonState
   } = useChatContext()
@@ -111,6 +111,7 @@ export const Main = ({ socket, inputRef, addedConversation }) => {
         ? setChatId({ userId: user?._id, convoId: user?.convoId }) 
             : setChatId({ groupName: user?.groupName, convoId: user?.convoId });
     setTypingEvent({})
+    loadMessages()
     inputRef?.current?.focus()
     setButtonState(NAVIGATE.FST)
     setEmojiOpen(false)

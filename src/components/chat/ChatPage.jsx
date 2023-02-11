@@ -11,9 +11,9 @@ import EmojiPicker from 'emoji-picker-react';
 import axios from 'axios';
 
 export const ChatPage = (
-  { result, socket, inputRef, allUsers }) => {
+  { result, socket, inputRef, allUsers, messageLoading, setMessageLoading }) => {
   const { 
-    chatId, setMessages, messages, url, setUrl, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification
+    chatId, setMessages, messages, url, setUrl, setClick, reloadAll, setOpen, setMessage, message, emojiOpen, setEmojiOpen, currentUser, setResponse, reference, setReference, counterRef, setNotification, setIsChatOpened, notification, setSoundNotification
   } = useChatContext()
   const currentUserId = localStorage.getItem('userId') || ''
   const [targetUser, setTargetUser] = useState({});
@@ -21,6 +21,7 @@ export const ChatPage = (
   const [error, setError] = useState(null);
   const [cursorPosition, setCursorPosition] = useState(null);
   const [incoming, setIncoming] = useState({});
+  const [deletedMessage, setDeletedMessage] = useState([]);
 
   useEffect(() => {
     if(chatId?.userId){
@@ -33,15 +34,6 @@ export const ChatPage = (
     socket.emit('start-conversation', chatId?.convoId)
     socket.emit('chat_opened', {userId: currentUser?._id, isChatOpened: true })
   }, [chatId.convoId])
-
-  // const uploadToCloud = async (image) => {
-  //   const data = new FormData()
-  //   data.append('file', image)
-  //   data.append('upload_preset', 'dwb3ksib')
-
-  //   const res = await axios.post(`https://api.cloudinary.com/v1_1/dr8necpxh/image/upload`, data)
-  //   setUrl(res?.data?.url)
-  // }
 
   const createMessage = async() => {
     if(!message && !url) return
@@ -74,7 +66,9 @@ export const ChatPage = (
  
   useEffect(() => {
     if(incoming?.conversationId !== chatId?.convoId && incoming?.receiverId === currentUserId){
-     setNotification([...notification, {...incoming, orderId: counterRef.current++}])
+      setSoundNotification(false)
+      setNotification([...notification, {...incoming, orderId: counterRef.current++}])
+      setSoundNotification(true)
     }
     else if(!chatId?.convoId && incoming?.receiverId === currentUserId){
       console.log('notification notification')
@@ -86,14 +80,17 @@ export const ChatPage = (
   }, [incoming?._id])
 
   useEffect(() => {
-    //if(reloadAll == 2){
-      socket.on('message_reload', messageReload =>{
-        if(messageReload?.conversationId === chatId?.convoId){
-          setMessages([...messageReload?.data])
-        }
-      })
-    //}else return
+    socket.on('message_reload', messageReload =>{
+      console.log(messageReload)
+      setDeletedMessage(messageReload?.data)
+    })
   }, [messages])
+
+  useEffect(() => {
+    if(deletedMessage[0]?.conversationId === chatId?.convoId){
+      setMessages([...deletedMessage])
+    }
+  }, [deletedMessage])
 
   const pickEmoji = emoji => {
     let ref = inputRef?.current 
@@ -147,6 +144,8 @@ export const ChatPage = (
             socket={socket}
             inputRef={inputRef}
             otherUsers={result}
+            messageLoading={messageLoading} 
+            setMessageLoading={setMessageLoading}
           />
           <ChatBase  
             sendMessage={createMessage} 

@@ -4,7 +4,7 @@ import {CgProfile} from 'react-icons/cg';
 import { useChatContext } from '../../hooks/useChatContext';
 import {format} from 'date-fns';
 
-export const Users = ({ user, loading, error, groupConvo, newGroup, setNewGroup }) => {
+export const Users = ({ user, groupConvo, newGroup, setNewGroup }) => {
   const {formatDate, proceed, setProceed, open, setIsNext} = useChatContext();
   const [isChecked, setIsChecked] = useState(true)
 
@@ -30,8 +30,6 @@ export const Users = ({ user, loading, error, groupConvo, newGroup, setNewGroup 
             {user?.profilePicture ? <img src={user.profilePicture} alt={user.username} 
               className='profile-picture'/> : <CgProfile className='pics'/>}
               <div className='detail'>
-                {loading && <p>creating conversation...</p>}
-                {/* {!loading && error && <p className='errors'>{error}</p>} */}
                 <div className='top'>
                   <p>{user?.username}</p>
                   <p className='date'>

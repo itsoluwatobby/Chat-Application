@@ -5,8 +5,9 @@ import {BsPersonCircle} from 'react-icons/bs';
 import styled from 'styled-components';
 import { useChatContext } from '../../hooks/useChatContext';
 import { useEffect, useState } from 'react';
+import { LoadingConstruct } from '../LoadingConstruct';
 
-export const SearchCon = ({ groupConvo }) => {
+export const SearchCon = ({ groupConvo, loading, name, groupName }) => {
   const {searchUsers, setSearchUsers, setOpen, setNewGroup, setClick, proceed, setProceed, isNext, setIsNext, newGroup, open} = useChatContext()
   const [groupUser, setGroupUser] = useState([]);
   // const [openGroup, setOpenGroup] = useState(true)
@@ -51,6 +52,7 @@ export const SearchCon = ({ groupConvo }) => {
         New {groupConvo ? 'Group' : 'Chat'}
       </div>
       <div className='search'>
+        {loading && <LoadingConstruct name={name} group={groupName}  />}
         {!newGroup.length ?
           <>
             <input 
@@ -77,6 +79,7 @@ export const SearchCon = ({ groupConvo }) => {
               <TiGroupOutline className='group-icon'/>
             </div>
             <p>New group</p>
+            {/* {loading && <LoadingConstruct name={name} />} */}
           </div>
         )
         :
@@ -151,6 +154,7 @@ z-index: 50;
     color: white;
     border-radius: 5px;
     box-shadow: 0 2px 0 #28a99e;
+    position: relative;
 
     .selected_container{
       display: flex;

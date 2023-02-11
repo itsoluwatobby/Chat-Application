@@ -5,20 +5,20 @@ import { SearchCon } from './SearchCon'
 import { Users } from './Users';
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, socket, result }) => {
+export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, loadConversation, socket, result }) => {
   const { refresh, setConversation, conversation, currentUser } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null);
   const [convo, setConvo] = useState({});
+  const [name, setName] = useState(null);
 
-// const initialState = {adminId: currentUserId, friendId}
   const createConvo = async(friendId) => {
-    //socket.emit('conversation', {_id: friendId})
     const initialState = {adminId: currentUserId, friendId}
+    setLoading(true)
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      socket.emit('create_conversation', { newConvo: data })
+      socket.emit('create_conversation', { conversation: data })
       setConversation([...conversation, data])
     }catch(error) {
       let errorMessage;
@@ -34,32 +34,36 @@ export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, s
 
   useEffect(() => {
     socket.on('new_conversation', data => {
-      console.log('rendered')
       console.log(data)
       setConvo({...data})
     })
   }, [conversation])
 
   useEffect(() => {
-    if(!convo) return
     if(convo?._id === currentUser?._id){
       console.log(convo)
-      setAddedConversation(prev => prev + 2)
+      setConversation(prev => [...prev, convo])
+      setConvo({})
     }
   }, [convo?._id])
-//!loading && error && <p className='errors'>{error}</p>
+  
+  const create = (user) => {
+    setName(user?.username)
+    createConvo(user?._id)
+  }
+
   return (
     <NewConversation>
-      <SearchCon />
+      <SearchCon loading={loading} name={name}/>
       {typeof result === 'string' ?
         <p className='error'>{result}</p>
       :
         filteredUserSearch.length ?
           filteredUserSearch.map(user => (
             <div onClick={() => {
-              createConvo(user?._id)
+              create(user)
             }} key={user._id}>
-              <Users user={user} loading={loading} error={error}/>
+              <Users user={user} />
             </div>
             ))
             :

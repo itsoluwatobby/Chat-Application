@@ -8,11 +8,11 @@ import { useChatContext } from '../hooks/useChatContext';
 import { useGetOthers } from '../hooks/useGetOthers';
 import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
-import { axiosAuth } from '../app/axiosAuth';
+import { axiosAuth, GLOBAL_URL, LOCAL_URL } from '../app/axiosAuth';
 import { MessagePrompt } from '../components/chat/MessagePrompt';
 import { LoggedInUserProfile } from '../components/chat/head/profile/LoggedInUser/LoggedInUserProfile';
 
-let socket
+let socket;
 
 export const Chat = () => {
   const { 
@@ -26,6 +26,10 @@ export const Chat = () => {
   const [refetch, setRefetch] = useState(1);
   const [confirmGroupName, setConfirmGroupName] = useState(true);
   const [addedConversation, setAddedConversation] = useState(null);
+  const [messageLoading, setMessageLoading] = useState(null);
+
+  const loadConversation = () => setAddedConversation(prev => prev + 2)
+  const loadMessages = () => setMessageLoading(prev => prev + 2)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -66,7 +70,8 @@ export const Chat = () => {
 
   useEffect(() => {
     if(currentUserId) {
-      socket = io.connect('https://whatsapp-clone-api-vuwx.onrender.com')
+      socket = io.connect(GLOBAL_URL)
+      //LOCAL_URL
     }
   }, [currentUserId])
 
@@ -109,6 +114,7 @@ export const Chat = () => {
           <Main 
             socket={socket} inputRef={inputRef}
             addedConversation={addedConversation}
+            loadMessages={loadMessages}
           />
       }
       {
@@ -116,6 +122,8 @@ export const Chat = () => {
           <ChatPage 
             result={result} socket={socket} 
             inputRef={inputRef} allUsers={users}
+            messageLoading={messageLoading} 
+            setMessageLoading={setMessageLoading}
           />
       }
       {!confirmGroupName &&
@@ -132,6 +140,7 @@ export const Chat = () => {
           filteredUserSearch={filteredUserSearch} socket={socket} 
             conversationIds={conversationIds} result={result}
             setAddedConversation={setAddedConversation}
+            loadConversation={loadConversation}
           /> 
             || 
         open && 
