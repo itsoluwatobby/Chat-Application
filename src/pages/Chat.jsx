@@ -25,10 +25,9 @@ export const Chat = () => {
   const inputRef = useRef();
   const [refetch, setRefetch] = useState(1);
   const [confirmGroupName, setConfirmGroupName] = useState(true);
-  const [addedConversation, setAddedConversation] = useState(null);
+  const [addedConversation, setAddedConversation] = useState(undefined);
   const [messageLoading, setMessageLoading] = useState(null);
 
-  const loadConversation = () => setAddedConversation(prev => prev + 2)
   const loadMessages = () => setMessageLoading(prev => prev + 2)
 
   useEffect(() => {
@@ -74,9 +73,9 @@ export const Chat = () => {
       //LOCAL_URL
     }
   }, [currentUserId])
-
+//room:'itsoluwatobby' 
   useEffect(() => {
-    socket.emit('conversation', 'itsoluwatobby')
+    socket.emit('conversation', { room: 'itsoluwatobby' })
   }, [currentUser?._id])
 
   
@@ -140,7 +139,6 @@ export const Chat = () => {
           filteredUserSearch={filteredUserSearch} socket={socket} 
             conversationIds={conversationIds} result={result}
             setAddedConversation={setAddedConversation}
-            loadConversation={loadConversation}
           /> 
             || 
         open && 

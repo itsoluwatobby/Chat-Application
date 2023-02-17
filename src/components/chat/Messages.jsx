@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const Messages = ({ message }) => {
+export const Messages = ({ message, dates }) => {
   const { currentUser, chatId, loadMessage, loadMessageAll } = useChatContext();
   const [extract, setExtract] = useState(false);
 
@@ -110,6 +110,15 @@ export const Messages = ({ message }) => {
       onMouseEnter={() => setExtract(true)}
       onMouseLeave={() => setExtract(false)}
     >
+      {
+        dates.includes(
+          format(parseISO(message?.dateTime), 'd/yy')) 
+            &&  (
+                  <p>
+                    {format(parseISO(message?.dateTime), 'd/yy')}
+                  </p>
+                )
+      }
       { message?.isMessageDeleted?.includes(currentUser?._id) ? <i className='deleted'>You deleted this message.</i> : message_content }
     </MessagesComponent>
   )

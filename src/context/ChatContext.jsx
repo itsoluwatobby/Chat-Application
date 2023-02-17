@@ -64,6 +64,7 @@ export const ChatContextProvider = ({ children }) => {
 
   const [soundNotification, setSoundNotification] = useState(false);
   const [url, setUrl] = useState(null);
+  const [addParticipants, setAddParticipants] = useState(false);
 
   const loadGroup = () => setNum(prev => prev + 1)
   const loadMessage = () => setReload(prev => prev + 1)
@@ -114,7 +115,7 @@ export const ChatContextProvider = ({ children }) => {
   }
   
   const value = {
-    chatId, setChatId, message, setMessage, messages, loggedIn, 
+    chatId, setChatId, message, setMessage, messages, loggedIn, addParticipants, setAddParticipants, 
     setLoggedIn, setMessages, messageBody, setMessageBody, click, 
     setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, formatDate, currentUser, setCurrentUser, num, conversation, setConversation, result, open, setOpen, proceed, setProceed, isNext, setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, customAdminMessage, setCustomAdminMessage, reference, setReference, error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, toggle, setToggle, emojiOpen, setEmojiOpen, group, setGroup, acceptedImage, setAcceptedImage, openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, userGroupConvos, setUserGroupConvos, url, setUrl, uploadToCloud, buttonState, setButtonState, mode, setMode, soundNotification, setSoundNotification
   }

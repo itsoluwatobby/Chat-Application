@@ -21,7 +21,7 @@ export const GroupConvo = ({
   const [preview, setPreview] = useState(false);
   const [image, setImage] = useState('')
   const [groupName, setGroupName] = useState('')
-  const inputRef = useRef();
+  const inputRef = useRef(undefined);
   
   const onImageChange = e => setImage(e.target.files[0])
   
@@ -38,11 +38,11 @@ export const GroupConvo = ({
       const groupIds = newGroup.map(singlePerson => singlePerson?.id)
       setLoadingNewGroup(true)
       try{
-        const res = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
+        const {data} = await axiosAuth.post(`/conversation/create_group/${currentUserId}`, {
             memberIds: groupIds, groupName, groupAvatar: url 
           })
           //add socket.emit
-        setGroupConversation(prev => [...prev, res?.data])
+        setConversation([...conversation, data])
         setOpen(true)
         setProceed(false)
         setUrl(null)

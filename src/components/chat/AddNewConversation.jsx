@@ -5,7 +5,7 @@ import { SearchCon } from './SearchCon'
 import { Users } from './Users';
 import { axiosAuth } from '../../app/axiosAuth';
 
-export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, loadConversation, socket, result }) => {
+export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, socket, result }) => {
   const { refresh, setConversation, conversation, currentUser } = useChatContext()
   const currentUserId = localStorage.getItem('userId')
   const [loading, setLoading] = useState(false)
@@ -18,7 +18,7 @@ export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, l
     setLoading(true)
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      socket.emit('create_conversation', { conversation: data })
+      socket.emit('create_conversation', { conversation: data, creator: currentUser?._id, room: 'itsoluwatobby' })
       setConversation([...conversation, data])
     }catch(error) {
       let errorMessage;
@@ -34,18 +34,12 @@ export const AddNewConversation = ({ filteredUserSearch, setAddedConversation, l
 
   useEffect(() => {
     socket.on('new_conversation', data => {
-      console.log(data)
-      setConvo({...data})
+      if(data?.conversation?._id === currentUser?._id){
+        console.log(data)
+        setAddedConversation(prev => prev + 2)
+      }
     })
   }, [conversation])
-
-  useEffect(() => {
-    if(convo?._id === currentUser?._id){
-      console.log(convo)
-      setConversation(prev => [...prev, convo])
-      setConvo({})
-    }
-  }, [convo?._id])
   
   const create = (user) => {
     setName(user?.username)

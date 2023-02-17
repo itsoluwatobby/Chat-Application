@@ -3,13 +3,15 @@ import { BsArrowLeft, BsPersonCircle } from 'react-icons/bs';
 import styled from 'styled-components';
 import { axiosAuth } from '../../../../app/axiosAuth';
 import { useChatContext } from '../../../../hooks/useChatContext';
+import { LoadingConstruct } from '../../../LoadingConstruct';
 import { MessagePrompt } from '../../MessagePrompt';
 import { Participants } from './Participants';
 
 export const AddParticipants = ({ 
-  filteredParticipantsSearch, searchGroup, setSearchGroup, group, setAddParticipants }) => {
-  const { newGroup, setNewGroup, chatId, currentUser, conversation, setConversation } = useChatContext();
+  filteredParticipantsSearch, searchGroup, setSearchGroup, group }) => {
+  const { newGroup, setNewGroup, chatId, currentUser, conversation, setAddParticipants, setConversation } = useChatContext();
   const [promptWindow, setPromptWindow] = useState(false);
+  const [loadAdding, setLoadAdding] = useState(false);
 
   const onGroupUserChange = e => setSearchGroup(e.target.value)
 
@@ -17,21 +19,32 @@ export const AddParticipants = ({
   
   const addUserToGroup = async() => {
     //filter conversation prevoius conversation
-    const othersInConversation = conversation.filter(converse => converse?.convoId !== chatId?.convoId)
+    const othersInConversation = conversation.filter(converse => converse?.convoId !== group?.convoId)
     const groupIds = newGroup.map(singlePerson => singlePerson?.id)
     const initialState = {groupId: chatId?.convoId, memberIds: [...groupIds]}
+    setLoadAdding(true)
+    try{
+    setConversation([])
     const {data} = await axiosAuth.put(`/add_userToGroup/${currentUser?._id}`, initialState)
-    data && setConversation([...othersInConversation, data])
+    setConversation([data, ...othersInConversation])        
     setPromptWindow(false)
     setNewGroup([])
     setAddParticipants(false)
+    }
+    catch(error){
+      setConversation([...conversation])
+      console.log(error)
+    }
+    finally{
+      setLoadAdding(false)
+    }
   }
   
   useEffect(() => {
     setGroupUser(newGroup)
     return () => setGroupUser([])
   }, [newGroup])
-
+  
   let selectedContact = (
     <div className='selected_container'>
       {newGroup.length ? 
@@ -49,7 +62,7 @@ export const AddParticipants = ({
     <article className='message_prompt'>
       <div className='top'>
         <p className='add_participant'>Add participant?</p>
-        <p>You will add <b>{newGroup.length}</b> {newGroup.length === 1 ? 'participant' : 'participants'} to {group?.groupName}.</p>
+        <p>You will add <b>{newGroup.length}</b> {newGroup.length === 1 ? 'participant' : 'participants'} to <span>{group?.groupName}</span>.</p>
       </div>
       <div className='base'>
         <button onClick={addUserToGroup}>Yes</button>
@@ -102,7 +115,16 @@ export const AddParticipants = ({
              :
             <p>user not found</p>
           }
-          {promptWindow && messagePrompt}
+          {
+            (promptWindow && !loadAdding) 
+              ? messagePrompt : (
+                  loadAdding && 
+                    <LoadingConstruct add 
+                      loading={loadAdding} 
+                      group={group?.groupName} 
+                    />
+                  )
+          }
       </BaseComponent>
     </ParticipantsComponent>
   )
@@ -384,6 +406,13 @@ gap: 0;
 
       .add_participant{
         font-weight: 600;
+      }
+
+      p{
+        span{
+          color: lightgreen;
+          text-transform: uppercase;
+        }
       }
     }
 

@@ -6,21 +6,23 @@ import { ChatProfile } from './profile/ChatProfile';
 
 export const GroupHead = ({ 
   groupConvo, typingEvent, resize, allUsers, socket, result }) => {
-  const { chatId, currentUser, setOpenUserProfile, groupConversation, group, setOpenGroupProfile, } = useChatContext();
+  const { chatId, currentUser, setOpenUserProfile, groupConversation, group, setOpenGroupProfile, conversation } = useChatContext();
   const [groupUsers, setGroupUsers] = useState([]);
   const [target, setTarget] = useState({});
   const [users, setUsers] = useState('');
-// console.log(chatId)
-// console.log(groupConversation)
+  const [memberIds, setMemberIds] = useState([]);
+
   useEffect(() => {
+    setGroupUsers([])
     const targetGroup = groupConversation.find(group => group?.groupName === chatId?.groupName);
     const groupIds = targetGroup && targetGroup?.members.map(user => user?.userId);
     targetGroup && setUsers(() => targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', '));
     setTarget(targetGroup)
+    setMemberIds(() => targetGroup && targetGroup?.members.map(targ => targ?.userId))
     const usersGroup = groupIds && Array.isArray(allUsers) && allUsers.filter(user => groupIds?.includes(user?._id));
     Array.isArray(usersGroup) && setGroupUsers([...usersGroup]);
-  }, [chatId?.convoId])
-
+  }, [chatId?.convoId, conversation])
+  
   return (
     <HeadCompo
       onClick={() => {
@@ -31,6 +33,7 @@ export const GroupHead = ({
       <ChatProfile 
         groupUsers={groupUsers} target={target} 
         allUsers={allUsers} socket={socket}
+        memberIds={memberIds}
       />
       {group?.groupAvatar
           ? 

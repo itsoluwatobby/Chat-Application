@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { GroupProfile } from './GroupProfile';
 import { LeftContainer } from './LeftContainer';
@@ -8,21 +8,26 @@ import { useChatContext } from '../../../../hooks/useChatContext';
 import { FaTimes } from 'react-icons/fa';
 import { AddParticipants } from './AddParticipants';
 
-export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, allUsers, userProfile, socket }) => {
-  const { chatId, openGroupProfile, buttonState, setButtonState, group, setOpenGroupProfile } = useChatContext();
-  const [addParticipants, setAddParticipants] = useState(false);
+export const ChatProfile = ({ user, memberIds, loggedIn, loggedInUser, groupUsers, target, allUsers, userProfile, socket }) => {
+  const { chatId, conversation, openGroupProfile, addParticipants, buttonState, setButtonState, setOpenGroupProfile } = useChatContext();
   const [searchGroup, setSearchGroup] = useState('');
+  const [filteredParticipantsSearch, setFilteredParticipantsSearch] = useState([]);
 
-  const newParticipants = allUsers && Array.isArray(allUsers) && allUsers.map(eachUser => {
-    return { ...eachUser, checked: false }
-  }).filter(particip => !group?.members?.includes(particip?._id))
-
-  const filteredParticipantsSearch = newParticipants && Array.isArray(newParticipants) && newParticipants.filter((user, i) => user.username.toLowerCase().includes(searchGroup.toLowerCase()))
+  useEffect(() => {
+    const newParticipants = allUsers && Array.isArray(allUsers) && allUsers.map(eachUser => {
+      return { ...eachUser, checked: false }
+    }).filter(particip => !memberIds?.includes(particip?._id))
+  
+    setFilteredParticipantsSearch(() => {
+      return (
+        newParticipants && Array.isArray(newParticipants) && newParticipants.filter((user, i) => user.username.toLowerCase().includes(searchGroup.toLowerCase()))
+      )
+    })
+  }, [conversation, addParticipants])
 
   const closeGroupProfile = () => {
     setOpenGroupProfile(false)
   }
-  // console.log(openGroupProfile)
 
   return (
     <ChatProfilePage className={`chat_profile_container ${!openGroupProfile && 'chat_profile'}`}>
@@ -49,7 +54,6 @@ export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, 
               allUsers={allUsers} 
               target={target}
               socket={socket}
-              setAddParticipants={setAddParticipants}
             />
           </div>
             :
@@ -58,8 +62,7 @@ export const ChatProfile = ({ user, loggedIn, loggedInUser, groupUsers, target, 
               filteredParticipantsSearch={filteredParticipantsSearch}
               searchGroup={searchGroup}
               setSearchGroup={setSearchGroup}
-              group={group}
-              setAddParticipants={setAddParticipants}
+              group={target}
             />
           </div>
         )

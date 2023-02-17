@@ -4,11 +4,12 @@ import { axiosAuth } from '../../app/axiosAuth';
 import { useChatContext } from '../../hooks/useChatContext';
 import LoadingEffect from '../../assest/Eclipse-1s-118px.svg';
 import { Messages } from './Messages';
-import {BsLock} from 'react-icons/bs'
+import {BsLock} from 'react-icons/bs';
+import { format, parseISO } from 'date-fns';
 
 export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMessageLoading }) => {
   const { 
-    messages, setMessages, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, openGroupProfile, setOpenGroupProfile, conversation, setNewGroup, openUserProfile, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
+    messages, setMessages, setAddParticipants, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, openGroupProfile, setOpenGroupProfile, conversation, setNewGroup, openUserProfile, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
    } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +19,22 @@ export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMess
   //const [isCurrentChatMessage, setIsCurrentChatMessage] = useState({});
   const [addedUsersInGroup, setAddedUsersInGroup] = useState([]);
   const [currentGroup, setCurrentGroup] = useState([]);
+  const [dates, setDates] = useState([]);
+  const [dateResult, setDateResult] = useState(undefined);
+  const [scrollEffect, setScrollEffect] = useState({
+    xScroll : null, yScroll: null
+  });
+  
+   //GROUP messages according to date
+   useEffect(() => {
+     let result = [];
+     messages.map(msg => {
+      const res = format(parseISO(msg?.dateTime), 'd/yy')
+      if(!result.includes(res))
+      result.push(res)
+     })
+     result && setDates(result)
+   }, [messages])
 
   useEffect(() => {
     if(!chatId?.groupName) return
@@ -61,12 +78,10 @@ export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMess
         const { data } = await axiosAuth.get(`/messages/${chatId?.convoId}`, {
           signal: controller.signal
         })
-        // if(data[data?.length - 1]?.senderId === currentUser?._id || data[data?.length - 1]?.receiverId === currentUser?._id){
           isMounted && setMessages([...data])
           reloadAll == 2 && socket.emit('reload_message', { conversationId: data[data?.length - 1]?.conversationId, data: data })
           setReloadAll(null)
           setMessageLoading(null)
-        //}
       }catch(error) {
         let errorMessage;
         error?.response?.status === 404 ? errorMessage = 'Say hello to start a conversation' :
@@ -110,6 +125,7 @@ export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMess
 
   const closeCompos = () => {
     setEmojiOpen(false)
+    setAddParticipants(false)
     openGroupProfile && setOpenGroupProfile(false)
     openUserProfile && setOpenUserProfile(false)
     setNewGroup([])
@@ -120,6 +136,30 @@ export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMess
     inputRef?.current.focus()
     setReference(message)
   }
+    
+  // useEffect(() => {
+  //   const scrollListener = () => setScrollEffect(() => {
+  //     return {xScroll: window.scrollX, yScroll: window.scrollY}
+  //   });
+  //   window.addEventListener('scroll', scrollListener)
+
+  //   return () => {
+  //     window.removeEventListener('scroll', scrollListener)
+  //     setScrollEffect({xScroll: null, yScroll: null})
+  //   }
+  // }, [])
+
+  // useEffect(() => {
+  //   setDateResult(() => {
+  //     messages.map(message => {
+  //         if(dates.includes(format(parseISO(message?.dateTime), 'd/yy'))){
+  //           return format(parseISO(message?.dateTime), 'd/yy')
+  //         }      
+  //       }
+  //     )
+  //   })
+  // },[])
+  // console.log({dateResult})
 
   const groupWelcomeMessage = (
     <section>
@@ -145,26 +185,29 @@ export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMess
   )
 
   const messageContent = (
-            <>
-              {
-                messages?.map(message =>  
-                  (
-                    <article 
-                      onDoubleClick={() => referenceMessage(message)}
-                      ref={messageRef}
-                      className={message?.senderId === currentUser?._id ? 'owner' : 'friend'} 
-                      key={message?._id}>
-                        <Messages message={message} />
-                      {/* {chatViewed && <span>user viewed your chat</span>} */}
-                    </article>
-                  )  
-                )
-              }
-            </>
-          )
+    <>
+      {dates &&
+        messages?.map(message => 
+          (
+            <article 
+              onDoubleClick={() => referenceMessage(message)}
+              ref={messageRef}
+              className={message?.senderId === currentUser?._id ? 'owner' : 'friend'} 
+              key={message?._id}>
+                <Messages message={message} dates={dates} />
+              {/* {chatViewed && <span>user viewed your chat</span>} */}
+            </article>
+          )  
+        )
+      }
+    </>
+  )
 
   return (
     <ChatBodyComponent onClick={closeCompos}>
+      {/* <p className='date_compo'>
+        <span>hello</span>
+      </p> */}
       {chatId?.groupName && (!addedUsersInGroup ? <p>loading...</p> : groupWelcomeMessage)}
       {
         (messages?.length || (
@@ -193,6 +236,21 @@ padding: 0.5rem 0.4rem;
 overflow-y: scroll;
 overflow-x: hidden;
 position: relative;
+
+.date_compo{
+  display: grid;
+  position: sticky;
+  top: 0;
+  place-content: center;
+
+  span{
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center; 
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.3);
+    background-color: rgba(0,0,0,0.6);
+  }
+}
 
 .start{
   margin: auto;

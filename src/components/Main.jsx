@@ -22,6 +22,7 @@ export const Main = ({ socket, inputRef, loadMessages, addedConversation }) => {
     const controller = new AbortController()
     const fetchUsersInConversation = async() => {
       let count = 0
+      addedConversation === 2 && console.log('loading again')
       try{
         setLoading(true)
         setError('')
@@ -60,6 +61,7 @@ export const Main = ({ socket, inputRef, loadMessages, addedConversation }) => {
     let isMounted = true
     const controller = new AbortController()
     const usersInGroup = async() => {
+      addedConversation === 2 && console.log('loading group again')
       try{
         const groupMembers = await axiosAuth.get(`/usersInGroup/${currentUserId}`, {
             signal: controller.signal 

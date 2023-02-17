@@ -8,6 +8,7 @@
 1. Express.js
 1. Socket.io-client
 1. Socket.io
+1.  Openai.io
 ***
 *User Interface Dependencies*
 ===
@@ -30,13 +31,21 @@
 
 * [x] Last seen
 
-* [ ] User profile page
+* [x] User profile page
 
 * [x] Group profile page
 
 * [x] Integrated openai with chat app
 
 * [x] Room chat feature
+
+* [x] Delete message for a single user
+
+* [x] Delete message for both users
+
+* [x] image sharing
+
+* [x] Emojis
 
 * [ ] User status update
 

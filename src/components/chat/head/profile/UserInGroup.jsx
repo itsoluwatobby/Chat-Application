@@ -6,8 +6,8 @@ import { useChatContext } from "../../../../hooks/useChatContext";
 import { useEffect, useState } from "react";
 import { axiosAuth } from "../../../../app/axiosAuth";
 
-export const UsersInGroup = ({ groupUsers, allUsers, target, setAddParticipants, socket }) => {
-  const { chatId, setChatId, currentUser, group, setMessages, openGroupInfo, setOpenGroupInfo, conversation, setConversation } = useChatContext();
+export const UsersInGroup = ({ groupUsers, allUsers, target, socket }) => {
+  const { chatId, setChatId, currentUser, group, setMessages, openGroupInfo, setAddParticipants, setOpenGroupInfo, openGroupProfile, setOpenGroupProfile, conversation, setConversation } = useChatContext();
   const [search, setSearch] = useState('');
   const [searchedUsers, setSearchedUsers] = useState([]);
   const [convos, setConvos] = useState({});
@@ -17,7 +17,7 @@ export const UsersInGroup = ({ groupUsers, allUsers, target, setAddParticipants,
   useEffect(() => {
     const searched = groupUsers && groupUsers.filter(user => (user?.username.toLowerCase()).includes(search.toLowerCase()))
     setSearchedUsers(searched)
-  }, [search, chatId?.convoId, openGroupInfo])
+  }, [groupUsers, search, chatId?.convoId, openGroupInfo])
 
 //RELOAD THIS FROM GET CONVERSATIONS
   const createConvoFromGroup = async(friendId) => {
@@ -25,8 +25,10 @@ export const UsersInGroup = ({ groupUsers, allUsers, target, setAddParticipants,
     const initialState = { adminId: currentUser?._id, friendId }
     try{
       const {data} = await axiosAuth.post(`/conversation/create`, initialState)
-      socket.emit('create_conversation', {convo: {...data}, room: 'itsoluwatobby'})
-      setConversation([...conversation, data])
+      socket.emit('create_conversation', { conversation: data, creator: currentUser?._id, room: 'itsoluwatobby'})
+      const res = setConversation([data, ...conversation])
+      //res && setChatId({userId: data?._id, convoId: data?.convoId})
+      setOpenGroupProfile(false)
     }catch(error) {
       let errorMessage;
       error?.response?.status === 400 ? errorMessage = 'id required' :
@@ -37,19 +39,19 @@ export const UsersInGroup = ({ groupUsers, allUsers, target, setAddParticipants,
     }
   }
 
-  useEffect(() => {
-    socket.on('new_conversation', data => {
-      console.log('rendered')
-      setNewConversation({...data})
-    })
-  }, [conversation])
+  // useEffect(() => {
+  //   socket.on('new_conversation', data => {
+  //     console.log('rendered')
+  //     setNewConversation({...data})
+  //   })
+  // }, [conversation])
 
-  useEffect(() => {
-    if(!newConversation) return
-    if(newConversation?._id === currentUser?._id){
-      setConversation([...conversation, newConversation])
-    }
-  }, [newConversation?._id])
+  // useEffect(() => {
+  //   if(!newConversation) return
+  //   if(newConversation?._id === currentUser?._id){
+  //     setConversation([...conversation, newConversation])
+  //   }
+  // }, [newConversation?._id])
 
   return (
     <UserGroup className='group_container'>

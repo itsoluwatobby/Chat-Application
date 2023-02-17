@@ -46,8 +46,6 @@ export const Conversations = ({ user, socket }) => {
       setConversation([...deletedConvo])
     }
   }, [deletedConvo])
-//   const options = { day: 'short', month: 'numeric' }
-//  const date = new Intl.DateTimeFormat('en-US')
 
   return (
     <Conversation
@@ -66,7 +64,6 @@ export const Conversations = ({ user, socket }) => {
         : 
         user?.profilePicture ? <img src={user?.profilePicture} alt={user?.username} 
             className='profile-picture'/> : <CgProfile className='pics'/>
-        //<CgProfile className='pics'/>
       }
         <div className='detail'>
           {error && <span>{error}</span>}
