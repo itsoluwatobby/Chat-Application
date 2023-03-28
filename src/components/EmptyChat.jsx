@@ -24,7 +24,7 @@ export const EmptyChat = () => {
   return (
     <EmptyChatPage className={mode ? 'light__mode' : 'empty__mode'}>
       <div className='chat'>
-        <p className='top'>Would You Like To Chat With a Bot? 
+        <p className='top'>Connect with Chat GPT 
           <span className='open__chat'>@openai</span>
         </p>
         <div className='toggle'>

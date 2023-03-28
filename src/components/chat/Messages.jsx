@@ -110,7 +110,7 @@ export const Messages = ({ message, dates }) => {
       onMouseEnter={() => setExtract(true)}
       onMouseLeave={() => setExtract(false)}
     >
-      {
+      {/* {
         dates.includes(
           format(parseISO(message?.dateTime), 'd/yy')) 
             &&  (
@@ -118,7 +118,7 @@ export const Messages = ({ message, dates }) => {
                     {format(parseISO(message?.dateTime), 'd/yy')}
                   </p>
                 )
-      }
+      } */}
       { message?.isMessageDeleted?.includes(currentUser?._id) ? <i className='deleted'>You deleted this message.</i> : message_content }
     </MessagesComponent>
   )

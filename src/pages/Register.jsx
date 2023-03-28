@@ -131,6 +131,11 @@ const Section = styled.div`
 height: calc(100vh - 36px);
 width: 100vw;
 font-size: 18px;
+background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
+background-position: center;
+background-size: cover;
+background-repeat: no-repeat;
+background-blend-mode: color;
 
   .register-form{
     flex-grow: 1;

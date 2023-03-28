@@ -10,8 +10,8 @@ export const Top = () => {
         <Link to='/'><p>Itsoluwatobby</p></Link>
       </div>
       <ul className='button-top'>
-        <li><Link to='login'>Login</Link></li>
-        <li><Link to='register'>Register</Link></li>
+        <li><Link to='login' className='links'>Login</Link></li>
+        <li><Link to='register' className='links'>Register</Link></li>
       </ul>
     </TopComponent>
   )
@@ -19,9 +19,10 @@ export const Top = () => {
 
 const TopComponent = styled.div`
 padding: 8px 10px;
-box-shadow: 2px 4px 16px rgba(0,0,0,0.25);
+box-shadow: -2px 4px 16px rgba(50,150,150,0.25);
 display: flex;
 align-items: center;
+background-image: conic-gradient(black, gray, black);
 justify-content: space-between;
   
   .logo{
@@ -64,6 +65,10 @@ justify-content: space-between;
 
       &:hover{
         color: rgba(255,255,255,0.35);
+      }
+
+      .links{
+        color: lightgray;
       }
     }
   }

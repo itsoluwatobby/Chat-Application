@@ -17,6 +17,12 @@ text-align: center;
 display: flex;
 flex-direction : column;
 gap: 5rem;
+background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
+background-position: center;
+background-size: cover;
+background-repeat: no-repeat;
+background-blend-mode: color;
+height: 100%;
 
 p{
   font-family: mono;

@@ -20,5 +20,5 @@ width: 100vw;
 display: flex;
 font-size: 18px;
 flex-direction: column;
-gap: 2rem;
+//gap: 2rem;
 `
