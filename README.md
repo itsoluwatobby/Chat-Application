@@ -35,7 +35,7 @@
 
 * [x] Group profile page
 
-* [x] Integrated openai with chat app
+* [] Integrated openai with chat app  _**API-KEY free use expired**_
 
 * [x] Room chat feature
 
