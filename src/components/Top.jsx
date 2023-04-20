@@ -7,7 +7,7 @@ export const Top = ({ setOpenModal }) => {
     <TopComponent>
       <div className='logo'>
         <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
-        <Link to='/'><p>Itsoluwatobby</p></Link>
+        <Link to='/' className='logo_off'><p>Itsoluwatobby</p></Link>
       </div>
       <ul className='button-top'>
         <li
@@ -50,6 +50,13 @@ justify-content: space-between;
       cursor: pointer;
       text-decoration: none;
       color: white;
+    }
+
+    @media (max-width: 508px){
+      
+      .logo_off{
+        display: none;
+      }
     }
   }
 

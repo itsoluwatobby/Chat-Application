@@ -139,6 +139,10 @@ a:link{
   border-radius: 10px;
 }
 
+.article{
+  position: relative;
+}
+
 .article .about_topic{
   padding: 0.5rem;
   font-size: 35px;

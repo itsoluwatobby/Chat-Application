@@ -59,7 +59,7 @@ position: relative;
 }
 h1{
   text-align: center;
-  font-size: 3rem;
+  font-size: 2.9rem;
   text-transform: capitalize;
   text-shadow: -2px 0 3px #FF0000, 0 2px 10px #0000FF;
 }

@@ -150,7 +150,7 @@ export const GroupConvo = ({
             </div>
         
             <div className='group_name'>
-              <p className='title'>
+              <p className='title_caption'>
                 Provide a group subject 
                 <span> required*</span>
               </p>
@@ -192,6 +192,7 @@ const GroupConversation = styled.div`
   position: absolute;
   z-index: 699;
   top: 4rem;
+  left: -5rem;
   transform: translate(90%);
   width: 17.5em;
   background-color: #363636;
@@ -281,7 +282,7 @@ const GroupConversation = styled.div`
 
     .group_name{
 
-      .title{
+      .title_caption{
         margin-left: 1rem;
         padding-bottom: 0.6rem;
         font-size: 15px;

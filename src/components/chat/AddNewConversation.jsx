@@ -71,6 +71,7 @@ const NewConversation = styled.div`
   position: absolute;
   z-index: 699;
   top: 4rem;
+  left: -4.8rem;
   transform: translate(90%);
   width: 17.5em;
   background-color: #363636;
