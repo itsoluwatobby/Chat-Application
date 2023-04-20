@@ -17,7 +17,7 @@ let socket;
 export const Chat = () => {
   const { 
     click, chatId, open, searchUsers, currentUser, setUserGroupConvos, setCurrentUser, conversation, 
-    num, updated } = useChatContext();
+    num, updated, active } = useChatContext();
   const currentUserId = localStorage.getItem('userId');
   const [result, users] = useGetOthers(currentUserId)
   const [conversationIds, setConversationIds] = useState([]);
@@ -109,12 +109,14 @@ export const Chat = () => {
     <ChatApp>
       <Left />
       {
-        socket && 
+        active && (
+          socket && 
           <Main 
             socket={socket} inputRef={inputRef}
             addedConversation={addedConversation}
             loadMessages={loadMessages}
           />
+          ) 
       }
       {
         socket && 

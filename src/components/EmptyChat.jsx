@@ -23,7 +23,7 @@ export const EmptyChat = () => {
 
   return (
     <EmptyChatPage className={mode ? 'light__mode' : 'empty__mode'}>
-      <div className='chat'>
+      {/* <div className='chat'>
         <p className='top'>Connect with Chat GPT 
           <span className='open__chat'>@openai</span>
         </p>
@@ -38,8 +38,8 @@ export const EmptyChat = () => {
           </div>
         </div>
         {loading && <img src={Eclipse} alt='' />}
-        {/* {!loading && toggle ? <Navigate to='/openai' /> : <Navigate to='/chat' />} */}
-      </div>
+        {!loading && toggle ? <Navigate to='/openai' /> : <Navigate to='/chat' />} *
+      </div> */}
       <SiWhatsapp className='whatsapp'/>
       <div className='info'>
         <p className='top'>Itsoluwatobby for Windows</p>
@@ -158,6 +158,8 @@ color: white;
 }
 
   .whatsapp{
+    margin-top: -4rem;
+
     font-size: 4.2rem;
     color: rgba(255,255,255,0.2);
   }

@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 export const Search = () => {
   const { 
-    setChatId, setMessageBody, setPreviousChatId, setIsChatOpened, onSearchChange, search, setCurrentUser, 
+    setChatId, setMessageBody, setPreviousChatId, setIsChatOpened, onSearchChange, search, setCurrentUser, setActive, 
     currentUser, setOpen, setClick, setConversation } = useChatContext()
   const currentUserId = localStorage.getItem('userId');
   const navigate = useNavigate()
@@ -22,6 +22,7 @@ export const Search = () => {
       setMessageBody({})
       setCurrentUser({})
       setIsChatOpened(false)
+      setActive(false)
       setConversation([])
       localStorage.setItem('isLoggedIn', false)
       localStorage.removeItem('userId')

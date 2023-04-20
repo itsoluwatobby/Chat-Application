@@ -3,8 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
 import { axiosAuth } from '../app/axiosAuth'
+import { AboutModal } from '../components/AboutModal';
 
-export const Login = () => {
+export const Login = ({ openModal, setOpenModal }) => {
   const [email, setEmail] = useState('')
   const { loggedIn, setLoggedIn } = useChatContext()
   const [password, setPassword] = useState('')
@@ -67,6 +68,13 @@ export const Login = () => {
           <button disabled={!canSubmit}>Sign in</button>
           <p>Don't have an account? <Link to='/register'>Register here</Link></p>
         </form>
+      {
+        openModal && (
+          <div className='modal_container'>
+            <AboutModal setOpenModal={setOpenModal} />
+          </div>
+        )
+      }
       </div>
     </Section>
   )
@@ -76,13 +84,17 @@ const Section = styled.div`
 height: calc(100vh - 36px);
 width: 100vw;
 font-size: 18px;
-background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
-background-position: center;
-background-size: cover;
-background-repeat: no-repeat;
-background-blend-mode: color;
+// background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
+// background-position: center;
+// background-size: cover;
+// background-repeat: no-repeat;
+// background-blend-mode: color;
+background-image: conic-gradient(black, gray, black);
+overflow: hidden;
+justify-content: space-evenly;
 
   .login-form{
+    position: relative;
     flex-grow: 1;
     display: flex;
     justify-content: center;
@@ -93,6 +105,7 @@ background-blend-mode: color;
 
       h1{
         text-align: center;
+        padding-top: 2rem;
         text-transform: capitalize;
       }
 
@@ -176,6 +189,22 @@ background-blend-mode: color;
         width: 58%;
         
       }
+    }
+  }
+
+  .modal_container{
+    border: 3px groove gray;
+    border-radius: 10px;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
+    padding: 8px;
+    z-index: 999;
+    margin-top: -24rem;
+    background-color: rgba(0,0,0,0.8);
+
+    @media (min-width: 768px){
+      position: absolute;
+      left: 3rem;
+      top: 20rem;
     }
   }
 

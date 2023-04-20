@@ -1,14 +1,15 @@
 import {Outlet, useLocation} from 'react-router-dom'
 import styled from 'styled-components'
 import { Top } from './Top'
+import { useState } from 'react'
 
-export const PublicRoute = () => {
+export const PublicRoute = ({ setOpenModal }) => {
   const {pathname} = useLocation()
   // const path = ['/register', '/login']
 
   return (
     <Main>
-      <Top />
+      <Top setOpenModal={setOpenModal}/>
       <Outlet />
     </Main>
   )

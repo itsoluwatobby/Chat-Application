@@ -2,7 +2,7 @@ import {RiWhatsappFill} from 'react-icons/ri'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-export const Top = () => {
+export const Top = ({ setOpenModal }) => {
   return (
     <TopComponent>
       <div className='logo'>
@@ -10,8 +10,16 @@ export const Top = () => {
         <Link to='/'><p>Itsoluwatobby</p></Link>
       </div>
       <ul className='button-top'>
-        <li><Link to='login' className='links'>Login</Link></li>
-        <li><Link to='register' className='links'>Register</Link></li>
+        <li
+          onClick={() => setOpenModal(false)}
+        ><Link to='login' className='links'>Login</Link></li>
+        <li
+          onClick={() => setOpenModal(false)}
+        ><Link to='register' className='links'>Register</Link></li>
+        <li
+          onClick={() => setOpenModal(prev => !prev)}
+          title='About Developer'
+          className='links'>About</li>
       </ul>
     </TopComponent>
   )
@@ -19,10 +27,11 @@ export const Top = () => {
 
 const TopComponent = styled.div`
 padding: 8px 10px;
-box-shadow: -2px 4px 16px rgba(50,150,150,0.25);
+box-shadow: 2px 4px 16px rgba(0,50,10,0.8);
 display: flex;
 align-items: center;
-background-image: conic-gradient(black, gray, black);
+background-image: gray;
+border: none;
 justify-content: space-between;
   
   .logo{
@@ -58,6 +67,7 @@ justify-content: space-between;
       border: none;
       color: lightgray;
       cursor: pointer;
+      transform: all 0.24s ease-in-out;
 
       &:focus{
         outline: none
@@ -69,6 +79,11 @@ justify-content: space-between;
 
       .links{
         color: lightgray;
+        transform: all 0.24s ease-in-out;
+
+        &:hover{
+          color: rgba(255,255,255,0.35);
+        }
       }
     }
   }

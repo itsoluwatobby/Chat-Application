@@ -10,18 +10,35 @@ import { Chat } from './pages/Chat'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { OpenAI } from './pages/OpenAI'
 import { useChatContext } from './hooks/useChatContext'
+import { useState } from 'react'
 
 export const App = () => {
   const { mode } = useChatContext()
+  const [openModal, setOpenModal] = useState(false);
+
   return (
     <Container className={mode ? 'light__mode' : 'dark__mode'}>
       <Routes>
         <Route path='/' element={<Layout />}>
 
-          <Route element={<PublicRoute />}>
-            <Route index element={<Home />} />
-            <Route path='register' element={<Register />} />
-            <Route path='login' element={<Login />} />
+          <Route element={<PublicRoute 
+            setOpenModal={setOpenModal}
+          />}>
+            <Route index element={<Home 
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+              />} 
+            />
+            <Route path='register' element={<Register 
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+              />} 
+            />
+            <Route path='login' element={<Login 
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+              />}
+            />
           </Route>
           
           <Route element={<ProtectedRoute />}>
@@ -43,5 +60,6 @@ width: 100vw;
 // background-position: center;
 // background-size: cover;
 // background-repeat: no-repeat;
+
 
 `

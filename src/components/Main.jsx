@@ -175,6 +175,7 @@ overflow-y: scroll;
 flex: none;
 width: 350px;
 min-width: 220px;
+transition: all 0.25s ease-in-out;
 
 .current{
   background-color: #333;

@@ -7,7 +7,7 @@ import { useChatContext } from '../hooks/useChatContext';
 import Notification_Bell from '../assest/notification.wav';
 
 export const Left = ({ socket }) => {
-  const { currentUser, soundNotification, mode, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId } = useChatContext()
+  const { currentUser, soundNotification, mode, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId, active, setActive } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
   const [sorted, setSorted] = useState([]);
@@ -50,6 +50,14 @@ export const Left = ({ socket }) => {
     <LeftSection className={mode ? 'leftLight__mode' : 'leftContainer__mode'}
     >
       <div className='top'> 
+        <div 
+          title={active ? 'Hide Contacts' : 'Show Contacts'}
+          onClick={() => setActive(prev => !prev)}
+          className={`burger_menu ${active ? 'active' : ''}`}>
+          <div className='bar1'></div>
+          <div className='bar2'></div>
+          <div className='bar3'></div>
+        </div>
         <span 
           onClick={() => notification.length && setReveal(prev => !prev)}
           className={notification.length && 'status'}>
@@ -88,12 +96,54 @@ justify-content: space-between;
 padding: 2rem 0;
 align-items: center;
 position: relative;
+background-color: #333639;
+box-shadow: 2px 4px 16px rgba(0,0,0,0.7);
 
   .top{
+    margin-top: -8px;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     position: relative;
+
+    .burger_menu{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 12px 5px;
+      border-radius: 5px;
+      box-shadow: 10px;
+      background-color: #363636;
+      cursor: pointer;
+      transition: all 0.24s ease-in-out;
+
+      .bar1, .bar2, .bar3{
+        width: 22px;
+        height: 2px;
+        background-color: lightgray;
+      }
+
+      &:hover{
+        opacity: 0.8;
+        background-color: rgba(255,255,255,0.1);
+      }
+    }
+
+    .burger_menu.active{
+      background-color: rgba(255,255,255,0.1);
+      // .bar1{
+      //   transform: translate(0, 11px), rotate(-45deg);
+      // }
+      
+      // .bar3{
+      //   transform: translate(0, -11px), rotate(45deg);
+      // }
+
+      // .bar2{
+      //   opacity: 0;
+      // }
+    }
 
     .notification_container{
       position: absolute;
