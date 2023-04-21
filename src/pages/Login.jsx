@@ -209,7 +209,7 @@ justify-content: space-evenly;
 
      @media (max-width: 508px){
       position: absolute;
-      top: 22rem;
+      top: 18rem;
     }
   }
 
