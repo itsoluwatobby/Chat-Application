@@ -298,7 +298,7 @@ justify-content: space-evenly;
     background-color: rgba(0,0,0,0.95);
 
     @media (max-width: 508px){
-      margin-top: -33.5rem;
+      margin-top: -39rem;
     }
 
     @media (min-width: 768px){
