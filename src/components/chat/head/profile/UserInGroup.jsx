@@ -82,6 +82,7 @@ export const UsersInGroup = ({ groupUsers, allUsers, target, socket }) => {
         {
           searchedUsers.map(user => (
             <li 
+            title={user?._id != currentUser?._id && `Start a conversation with ${user?.username}`}
               key={user?._id}
               onClick={() => createConvoFromGroup(user?._id)}
               className='user_detail'>

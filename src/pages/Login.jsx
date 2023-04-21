@@ -198,8 +198,12 @@ justify-content: space-evenly;
     box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
     padding: 8px;
     z-index: 999;
-    margin-top: -33.5rem;
+    margin-top: -26rem;
     background-color: rgba(0,0,0,0.95);
+
+    @media (max-width: 508px){
+      margin-top: -33.5rem;
+    }
 
     @media (min-width: 768px){
       position: absolute;

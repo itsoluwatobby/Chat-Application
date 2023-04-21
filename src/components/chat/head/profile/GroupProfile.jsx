@@ -64,15 +64,15 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
 
   const updateGroupInfo = async() => {
     setLoading(true)
-    const initialState = { groupName: enterGroupName, groupDescription: enterGroupDescription, groupId: target?._id, groupAvatar: url }
+    const initialState = { groupName: enterGroupName, description: enterGroupDescription, groupId: target?._id, groupAvatar: url }
     try{
       const res = await axiosAuth.put('/conversation/update_group_info', initialState)
       loadGroup()
       //groupName: enterGroupName, convoId: target?._id
-      setChatId({})
+      //setChatId({})
       setUrl(null)
       setImage(null)
-      setOpenInput(false)
+      // setOpenInput(false)
       setOpenDescription(false)
       ///setOpenGroupProfile(true)
     }

@@ -93,10 +93,10 @@ background-color: #393736;
 box-shadow: 2px 4px 16px rgba(0,0,0,0.3);
 display: flex;
 align-items: center;
-transform: translatex(50%);
+transform: translatex(46%);
 right: 15rem;
 top: 1.5rem;
-max-width: 70vw;
+max-width: 65vw;
 height: 70vh;
 cursor: default;
 z-index: 200;
@@ -109,8 +109,8 @@ border-radius: 10px;
 }
 
 @media (max-width: 750px){
-  max-width: 70vw;
-  min-width: 70vw;
+  max-width: 63vw;
+  min-width: 63vw;
   left: -6rem;
 }
 
