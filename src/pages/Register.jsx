@@ -294,7 +294,7 @@ justify-content: space-evenly;
     box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
     padding: 8px;
     z-index: 999;
-    margin-top: -33rem;
+    margin-top: -38rem;
     background-color: rgba(0,0,0,0.95);
 
     @media (min-width: 768px){
