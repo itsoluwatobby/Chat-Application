@@ -206,6 +206,11 @@ justify-content: space-evenly;
       left: 3rem;
       top: 20rem;
     }
+
+     @media (max-width: 508px){
+      position: absolute;
+      top: 24rem;
+    }
   }
 
 `
