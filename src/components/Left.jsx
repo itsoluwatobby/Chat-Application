@@ -10,6 +10,7 @@ export const Left = ({ socket }) => {
   const { currentUser, soundNotification, mode, notification, setOpenUserProfile, setOpenGroupProfile, setNotification, chatId, setChatId, active, setActive } = useChatContext()
   const isOnline = currentUser?.status === 'online' ? true : undefined 
   const [reveal, setReveal] = useState(false);
+  const { setClick } = useChatContext();
   const [sorted, setSorted] = useState([]);
 
   useEffect(() => {
@@ -52,7 +53,10 @@ export const Left = ({ socket }) => {
       <div className='top'> 
         <div 
           title={active ? 'Hide Contacts' : 'Show Contacts'}
-          onClick={() => setActive(prev => !prev)}
+          onClick={() => {
+            setClick(false)
+            setActive(prev => !prev)}
+          }
           className={`burger_menu ${active ? 'active' : ''}`}>
           <div className='bar1'></div>
           <div className='bar2'></div>

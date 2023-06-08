@@ -6,8 +6,9 @@ import styled from 'styled-components';
 import { useChatContext } from '../../hooks/useChatContext';
 import { useEffect, useState } from 'react';
 import { LoadingConstruct } from '../LoadingConstruct';
+import { ErrorModel } from '../ErrorModel';
 
-export const SearchCon = ({ groupConvo, loading, name, groupName }) => {
+export const SearchCon = ({ groupConvo, loading, name, groupName, error }) => {
   const {searchUsers, setSearchUsers, setOpen, setNewGroup, setClick, proceed, setProceed, isNext, setIsNext, newGroup, open} = useChatContext()
   const [groupUser, setGroupUser] = useState([]);
   // const [openGroup, setOpenGroup] = useState(true)
@@ -53,6 +54,7 @@ export const SearchCon = ({ groupConvo, loading, name, groupName }) => {
       </div>
       <div className='search'>
         {loading && <LoadingConstruct name={name} group={groupName}  />}
+        {/* {error && <ErrorModel error={error} />} */}
         {!newGroup.length ?
           <>
             <input 

@@ -6,22 +6,24 @@ import { ChatProfile } from './profile/ChatProfile';
 
 export const GroupHead = ({ 
   groupConvo, typingEvent, resize, allUsers, socket, result }) => {
-  const { chatId, currentUser, setOpenUserProfile, groupConversation, group, setOpenGroupProfile, conversation } = useChatContext();
+  const { chatId, currentUser, made, setOpenUserProfile, groupConversation, group, setOpenGroupProfile, conversation } = useChatContext();
   const [groupUsers, setGroupUsers] = useState([]);
   const [target, setTarget] = useState({});
   const [users, setUsers] = useState('');
   const [memberIds, setMemberIds] = useState([]);
 
   useEffect(() => {
-    setGroupUsers([])
-    const targetGroup = groupConversation.find(group => group?.groupName === chatId?.groupName);
-    const groupIds = targetGroup && targetGroup?.members.map(user => user?.userId);
-    targetGroup && setUsers(() => targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', '));
-    setTarget(targetGroup)
-    setMemberIds(() => targetGroup && targetGroup?.members.map(targ => targ?.userId))
-    const usersGroup = groupIds && Array.isArray(allUsers) && allUsers.filter(user => groupIds?.includes(user?._id));
-    Array.isArray(usersGroup) && setGroupUsers([...usersGroup]);
-  }, [chatId?.convoId, conversation])
+    if(chatId?.groupName){
+      setGroupUsers([])
+      const targetGroup = groupConversation.find(group => group?.groupName === chatId?.groupName);
+      const groupIds = targetGroup && targetGroup?.members.map(user => user?.userId);
+      targetGroup?.members && setUsers(targetGroup?.members.map(user => user?.username).join().replaceAll(',', ', '));
+      setTarget(targetGroup)
+      setMemberIds(() => targetGroup && targetGroup?.members.map(targ => targ?.userId))
+      const usersGroup = groupIds && Array.isArray(allUsers) && allUsers.filter(user => groupIds?.includes(user?._id));
+      Array.isArray(usersGroup) && setGroupUsers([...usersGroup]);
+    }
+  }, [chatId?.groupName, groupConversation.length])
   
   return (
     <HeadCompo
@@ -50,7 +52,7 @@ export const GroupHead = ({
           </p>
             :
           <p className='base text-edit'>
-            {resize ? users : users?.slice(0,15)+'...'}
+            {users && resize ? users : users?.slice(0,15)+'...'}
           </p>
         }
       </div>

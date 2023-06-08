@@ -1,6 +1,6 @@
 import {Outlet, useLocation} from 'react-router-dom'
 import styled from 'styled-components'
-import { Top } from './Top'
+import { Top } from '../components/Top'
 import { useState } from 'react'
 
 export const PublicRoute = ({ setOpenModal }) => {

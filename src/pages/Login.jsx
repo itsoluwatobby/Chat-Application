@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { useChatContext } from '../hooks/useChatContext'
 import { axiosAuth } from '../app/axiosAuth'
 import { AboutModal } from '../components/AboutModal';
+import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
 
 export const Login = ({ openModal, setOpenModal }) => {
   const [email, setEmail] = useState('')
@@ -11,6 +12,7 @@ export const Login = ({ openModal, setOpenModal }) => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState('')
+  const [reveal, setReveal] = useState(false);
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -61,9 +63,20 @@ export const Login = ({ openModal, setOpenModal }) => {
             <label htmlFor="email">Email:</label>
             <input type="email" onFocus={() => setError('')} autoComplete='off' autoFocus required onChange={onEmailChange} placeholder='John Doe'/>
           </div>
-          <div className='form-input'>
+          <div className='form-input pass_reveal'>
             <label htmlFor="password">Password:</label>
-            <input type="password" onFocus={() => setError('')} onChange={onPasswordChange} required placeholder='12doe77john'/>
+            <input type={reveal ? "text" : "password"} onFocus={() => setError('')} onChange={onPasswordChange} required placeholder='12doe77john'/>
+            {
+              reveal ? 
+                      <AiFillEye 
+                        onClick={() => setReveal(false)}
+                        className='eyes'/> 
+                        : 
+                      <AiFillEyeInvisible 
+                        onClick={() => setReveal(true)}
+                        className='eyes'
+                      />
+            }
           </div>
           <button disabled={!canSubmit}>Sign in</button>
           <p>Don't have an account? <Link to='/register'>Register here</Link></p>
@@ -153,6 +166,19 @@ justify-content: space-evenly;
             &:focus{
               outline: none;
             }
+          }
+        }
+        
+        .pass_reveal{
+          position: relative;
+
+          .eyes{
+            position: absolute;
+            right: 0.5rem;
+            top: 28px;
+            color: rgba(0,0,0,0.8);
+            font-size: 24px;
+            cursor: pointer;
           }
         }
 

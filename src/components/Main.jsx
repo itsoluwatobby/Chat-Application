@@ -69,7 +69,9 @@ export const Main = ({ socket, inputRef, loadMessages, addedConversation }) => {
           setGroupConversation([...groupMembers?.data])
           isMounted && setGeneralConvo([...groupMembers?.data])
 
-      }catch(error) {console.log(error?.message)}
+      }catch(error) {
+        console.log(error?.message)
+      }
     }
     usersInGroup()
     return () => {
@@ -108,6 +110,7 @@ export const Main = ({ socket, inputRef, loadMessages, addedConversation }) => {
   }, [conversation.length, currentUser?._id, search, message]);
 
   const openChat = (user) => {
+    setChatId({})
     setReference({})
     !user?.groupName 
         ? setChatId({ userId: user?._id, convoId: user?.convoId }) 

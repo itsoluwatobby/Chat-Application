@@ -161,23 +161,24 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
               onChangeType={onGroupNameChange} 
             />
             :
-            <>
+            <div className='title_space'>
               <span className='name'>{user?.username ? user?.username : target?.groupName}</span>
               <span className='edit'>
-              {user ?  
-                user?._id === currentUser?._id &&
-                <CiEdit 
-                  onClick={() => setOpenInput(true)}
-                  className='icons'/> 
-                :
-                  target?.adminId === currentUser?._id ? 
-                  <CiEdit 
-                    onClick={() => setOpenInput(true)}
-                    className='icons'/> 
-                  : <RiErrorWarningLine className='icon' />
-              }
-            </span>
-            </>
+                {user ?  
+                  user?._id === currentUser?._id &&
+                    <CiEdit 
+                      onClick={() => setOpenInput(true)}
+                      className='icons'
+                    /> 
+                  :
+                    target?.adminId === currentUser?._id ? 
+                    <CiEdit 
+                      onClick={() => setOpenInput(true)}
+                      className='icons'/> 
+                    : <RiErrorWarningLine className='icon' />
+                }
+              </span>
+            </div>
           }
         </div>
         {!user && 
@@ -200,7 +201,7 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
               />
               :
               <>
-                <span>{user ? user?.about : target?.description}</span>
+                <span>{(user ? user?.about : target?.description) || 'No Description'}</span>
                 <span className='edit'>
                 {
                   target?.adminId === currentUser?._id ? 
@@ -307,11 +308,17 @@ const GroupProfilePage = styled.div`
   }
 
   .title{
+    width: 10rem;
     display: flex;
-    align-items: center;
     gap: 1rem;
     z-index: 99;
 
+    .title_space{
+      display: flex;
+      align-items: flex-start;
+      width: 100%;
+      justify-content: space-between;
+    }
     div{
       display: flex;
       flex-direction: column;
@@ -340,6 +347,7 @@ const GroupProfilePage = styled.div`
           }
         }
       }
+    
 
       button{
         align-self: flex-end;
@@ -368,11 +376,13 @@ const GroupProfilePage = styled.div`
       font-size: 1.8rem;
       font-weight: 300;
       white-space: pre-wrap;
+      text-align: left;
     }
 
     .edit{
       flex: none;
       margin-top: 0.4rem;
+      margin-right: -1rem;
       position: fixed;
       right: 1.5rem;
       border-radius: 5px;

@@ -80,7 +80,7 @@ export const UsersInGroup = ({ groupUsers, allUsers, target, socket }) => {
 
       <ul>
         {
-          searchedUsers.map(user => (
+          searchedUsers?.map(user => (
             <li 
             title={user?._id != currentUser?._id && `Start a conversation with ${user?.username}`}
               key={user?._id}

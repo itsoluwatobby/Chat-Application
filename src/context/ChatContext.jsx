@@ -21,6 +21,7 @@ export const ChatContextProvider = ({ children }) => {
 
   const [currentUser, setCurrentUser] = useState({});
   const [num, setNum] = useState(0);
+  const [made, setmade] = useState(0);
   const [result, setResult] = useState([]);
 
   const [errors, setErrors] = useState(null);
@@ -68,6 +69,7 @@ export const ChatContextProvider = ({ children }) => {
   const [addParticipants, setAddParticipants] = useState(false);
 
   const loadGroup = () => setNum(prev => prev + 1)
+  const refresh = () => setMade(prev => prev + 1)
   const loadMessage = () => setReload(prev => prev + 1)
   const loadMessageAll = () => setReloadAll(prev => prev + 2)
   const onSearchChange = e => setSearch(e.target.value);
@@ -122,8 +124,7 @@ export const ChatContextProvider = ({ children }) => {
   const value = {
     chatId, setChatId, message, setMessage, messages, loggedIn, addParticipants, setAddParticipants, 
     setLoggedIn, setMessages, messageBody, setMessageBody, click, 
-    setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, formatDate, currentUser, setCurrentUser, num, conversation, setConversation, result, open, setOpen, proceed, setProceed, isNext, setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, customAdminMessage, setCustomAdminMessage, reference, setReference, error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, toggle, setToggle, emojiOpen, setEmojiOpen, group, setGroup, acceptedImage, setAcceptedImage, openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, userGroupConvos, setUserGroupConvos, url, setUrl, uploadToCloud, buttonState, setButtonState, mode, setMode, soundNotification, setSoundNotification, 
-    active, setActive
+    setClick, searchUsers, setSearchUsers, createNewConvo, setCreateNewConvo, formatDate, currentUser, setCurrentUser, num, conversation, setConversation, result, open, setOpen, proceed, setProceed, isNext, setIsNext, onSearchChange, search, newGroup, setNewGroup, notification, setNotification, counterRef, isChatOpened, setIsChatOpened, groupConversation, setGroupConversation, typingEvent, setTypingEvent, welcomeMessage, setWelcomeMessage, customAdminMessage, setCustomAdminMessage, reference, setReference, error, setError, convo, setConvo, openGroupProfile, setOpenGroupProfile, loadGroup, toggle, setToggle, emojiOpen, setEmojiOpen, group, setGroup, acceptedImage, setAcceptedImage, openUserProfile, setOpenUserProfile, reload, setReload, loadMessage, reloadAll, setReloadAll, loadMessageAll, updated, updateUserInfo, userGroupConvos, setUserGroupConvos, url, setUrl, uploadToCloud, buttonState, setButtonState, mode, setMode, soundNotification, setSoundNotification, refresh, made, active, setActive
   }
 
   return (

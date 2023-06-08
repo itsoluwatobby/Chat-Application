@@ -48,14 +48,14 @@ export const GroupConvo = ({
         setUrl(null)
         setNewGroup([])
         setGroupName(null)
-        //refresh()
+        // refresh()
       }
-      catch(error) {
+      catch(err) {
         let errorMessage;
-        error?.response?.status === 400 ? errorMessage = 'id required' :
+        err?.response?.status === 400 ? errorMessage = 'id required' :
         // error?.response?.status === 404 ? errorMessage = 'not found' :
-        error?.response?.status === 409 ? errorMessage = 'conversation already exist' :
-        error?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
+        err?.response?.status === 409 ? errorMessage = 'conversation already exist' :
+        err?.response?.status === 500 ? errorMessage = 'internal error' : errorMessage = 'no server response'
         setError(errorMessage)
       }
       finally{
@@ -92,7 +92,7 @@ export const GroupConvo = ({
 
   return (
     <GroupConversation>
-      <SearchCon groupConvo loading={loadingNewGroup} groupName={groupName}/>
+      <SearchCon groupConvo setError={setError} loading={loadingNewGroup} error={error} groupName={groupName}/>
       {!(proceed && isNext) ?
         (
           !Array.isArray(result) ?

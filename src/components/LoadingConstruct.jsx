@@ -2,11 +2,17 @@ import styled from "styled-components";
 import Eclipse from '../assest/Eclipse-1s-118px.svg';
 
 export const LoadingConstruct = ({ name, group, add }) => {
-
+  const groupName = group?.length > 10 ? group.substring(0, 10)+'...' : group  
   return (
     <LoadingComponent className='loading__construct'>
       <img src={Eclipse} alt='creating conversation...' />
-      <p className="create"><i>{add ? 'Adding users to' :'Creating'} {group ? 'group' : 'a Conversation with'} <span>{name || group}</span>...</i></p>
+      <p className="create">
+        <i>
+          {add ? 'Adding users to' :'Creating'} &nbsp;
+          {group ? 'group' : 'a Conversation with'} &nbsp;
+            <span>{name || groupName}</span>...
+        </i>
+      </p>
     </LoadingComponent>
   )
 }
