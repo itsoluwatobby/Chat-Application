@@ -1,6 +1,8 @@
 # Whatsapp Desktop Clone With Socket.io
 ### A personal chat application project using whatsapp desktop version as the UI template 
 
+[deployed link](https://whatsapp-desktop-clone.onrender.com/)
+
 > **Tools Used**
 
 1. React
