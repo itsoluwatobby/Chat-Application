@@ -1,14 +1,15 @@
 import {RiWhatsappFill} from 'react-icons/ri'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import { Lgscreen, MaxMobile } from './utils/responsiveness'
 
 export const Top = ({ setOpenModal }) => {
   return (
     <TopComponent>
-      <div className='logo'>
-        <Link to='/'><RiWhatsappFill className='whatsapp-logo'/></Link>
-        <Link to='/' className='logo_off'><p>Itsoluwatobby</p></Link>
-      </div>
+      <Link to='/' className='logo'>
+        <p><span className='firstLetter'>S</span>wift</p>
+        <RiWhatsappFill className='whatsapp-logo'/>
+      </Link>
       <ul className='button-top'>
         <li
           onClick={() => setOpenModal(false)}
@@ -26,22 +27,23 @@ export const Top = ({ setOpenModal }) => {
 }
 
 const TopComponent = styled.div`
-padding: 8px 10px;
+padding: 16px 25px 0 25px;
 box-shadow: 2px 4px 16px rgba(0,50,10,0.8);
 display: flex;
 align-items: center;
-background-image: gray;
+background-color: rgba(0,0,0,0.3);
 border: none;
 justify-content: space-between;
   
   .logo{
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.8rem;
 
     .whatsapp-logo{
       color: green;
-      font-size: 24px;
+      font-size: 28px;
       cursor: pointer;
     }
 
@@ -50,22 +52,33 @@ justify-content: space-between;
       cursor: pointer;
       text-decoration: none;
       color: white;
+
+      .firstLetter {
+        font-size: 36px;
+        font-weight: 700;
+      }
     }
 
     @media (max-width: 508px){
       
-      .logo_off{
+      p{
         display: none;
       }
     }
   }
 
   ul{
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
+    width: 20%;
     list-style: none;
     padding: 0;
+
+    ${MaxMobile({
+      width: '40%',
+    })}
     
     li{
       padding: 0.3rem;
@@ -81,7 +94,7 @@ justify-content: space-between;
       }
 
       &:hover{
-        color: rgba(255,255,255,0.35);
+        color: rgba(255,255,255,0.7);
       }
 
       .links{
@@ -89,9 +102,13 @@ justify-content: space-between;
         transform: all 0.24s ease-in-out;
 
         &:hover{
-          color: rgba(255,255,255,0.35);
+          color: rgba(255,255,255,0.8);
         }
       }
     }
   }
+
+  ${Lgscreen({
+    padding: '16px 40px 0 40px'
+  })}
 `

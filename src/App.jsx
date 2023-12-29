@@ -9,6 +9,7 @@ import { Home } from './pages/Home'
 import { Chat } from './pages/Chat'
 import { ProtectedRoute } from './layout/ProtectedRoute'
 import { OpenAI } from './pages/OpenAI'
+import NotFound from './pages/NotFound'
 import { useChatContext } from './hooks/useChatContext'
 import { useState } from 'react'
 
@@ -47,6 +48,8 @@ export const App = () => {
           </Route>
         
         </Route>
+
+        <Route path="*" element={<NotFound />} />
       
       </Routes>
     </Container>

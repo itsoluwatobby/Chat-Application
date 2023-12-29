@@ -9,7 +9,7 @@ import { disableReactDevTools } from '@fvilers/disable-react-devtools'
 process.env.NODE_ENV === 'production' && disableReactDevTools();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  //<React.StrictMode> 
+  <React.StrictMode> 
     <ChatContextProvider>
       <Router>
         <Routes>
@@ -17,5 +17,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Routes>
       </Router>
     </ChatContextProvider>
-  //</React.StrictMode>,
+  </React.StrictMode>,
 )
