@@ -1,7 +1,7 @@
 import {RiWhatsappFill} from 'react-icons/ri'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { Lgscreen, MaxMobile } from './utils/responsiveness'
+import { Lgscreen, MaxMobile, Mobile } from '../utils/responsiveness'
 
 export const Top = ({ setOpenModal }) => {
   return (
@@ -59,12 +59,10 @@ justify-content: space-between;
       }
     }
 
-    @media (max-width: 508px){
-      
-      p{
-        display: none;
-      }
-    }
+    ${Mobile({
+      display: 'none;'
+    })}
+
   }
 
   ul{
@@ -72,13 +70,9 @@ justify-content: space-between;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 20%;
+    gap: 1.5rem;
     list-style: none;
     padding: 0;
-
-    ${MaxMobile({
-      width: '40%',
-    })}
     
     li{
       padding: 0.3rem;

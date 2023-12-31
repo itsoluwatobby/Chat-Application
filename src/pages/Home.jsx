@@ -4,7 +4,7 @@ import background1 from '/images/bg-1.png'
 import background2 from '/images/bg-2.png'
 import background3 from '/images/bg-3.png'
 import { AboutModal } from '../components/AboutModal'
-import { CustomStyles } from '../components/utils/responsiveness'
+import { CustomStyles } from '../utils/responsiveness'
 import { useNavigate } from 'react-router-dom'
 import {RiWhatsappFill} from 'react-icons/ri'
 
