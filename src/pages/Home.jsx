@@ -4,7 +4,7 @@ import background1 from '/images/bg-1.png'
 import background2 from '/images/bg-2.png'
 import background3 from '/images/bg-3.png'
 import { AboutModal } from '../components/AboutModal'
-import { CustomStyles } from '../utils/responsiveness'
+import { CustomStyles, Lgscreen } from '../utils/responsiveness'
 import { useNavigate } from 'react-router-dom'
 import {RiWhatsappFill} from 'react-icons/ri'
 
@@ -35,6 +35,10 @@ export const Home = ({ openModal, setOpenModal }) => {
         
         {/* <p className='chatgpt'>Chat App in conjunction with ChatGPT</p> */}
       </div>
+
+      <p className='info cont'>
+        The smartest way to communicate with your close ones
+      </p>
 
       <RiWhatsappFill className='iconfill' />
       {
@@ -71,7 +75,11 @@ background-image: conic-gradient(black, gray, black);
 overflow: hidden;
 position: relative;
 align-items: center;
-padding: 5rem 3rem 3rem;
+padding: 5rem 2.5rem 2.5rem;
+
+  ${Lgscreen({
+    padding: '5rem 8rem'
+  })}
 
   .det{
     display: flex;
@@ -165,5 +173,14 @@ padding: 5rem 3rem 3rem;
     top: 35rem;
     align-self: center;
   }
+}
+
+.cont {
+  font-size: 15px;
+  border-radius: 10px;
+  border: 2px solid gray;
+  padding: 5px 15px;
+  box-shadow: 3px 4px 4px rgba(0,0,0,0.8);
+  text-align: center;
 }
 `

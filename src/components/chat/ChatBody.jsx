@@ -9,7 +9,9 @@ import { format, parseISO } from 'date-fns';
 
 export const ChatBody = ({ socket, inputRef, otherUsers, messageLoading, setMessageLoading }) => {
   const { 
-    messages, setMessages, setAddParticipants, chatId, setEmojiOpen, currentUser, welcomeMessage, num, isChatOpened, setReference, openGroupProfile, setOpenGroupProfile, conversation, setNewGroup, openUserProfile, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
+    messages, setMessages, setAddParticipants, chatId, setEmojiOpen, currentUser, welcomeMessage, num, 
+    isChatOpened, setReference, openGroupProfile, setOpenGroupProfile, conversation, setNewGroup, 
+    openUserProfile, setOpenUserProfile, reload, setReload, reloadAll, setReloadAll, userGroupConvos
    } = useChatContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

@@ -12,22 +12,22 @@ export const Mobile = (props) => {
 }
 
 /**
- * @description max-width: 679px
+ * @description max-width: 680px
  */
 export const MaxMobile = (props) => {
   return css`
-    @media (max-width: 679px) {
+    @media (max-width: 680px) {
       ${props}
     }
   `
 }
 
 /**
- * @description max-width: 759px
+ * @description max-width: 760px
  */
 export const Midscreen = (props) => {
   return css`
-    @media (max-width: 759px) {
+    @media (max-width: 760px) {
       ${props}
     }
   `

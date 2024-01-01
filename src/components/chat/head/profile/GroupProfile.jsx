@@ -216,11 +216,11 @@ export const GroupProfile = ({ target, user, loggedInUser }) => {
           </div>
         </div>
         <div className='base_buttons'>  
-          <p
-              //onClick={() => toggleButton(NAVIGATE.FST)} 
+          {/* <p
+              // onClick={() => toggleButton(NAVIGATE.FST)} 
             >
             <span>Exit group</span>
-          </p>
+          </p> */}
           <p
               //onClick={() => toggleButton(NAVIGATE.FST)} 
             >

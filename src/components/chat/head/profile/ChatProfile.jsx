@@ -9,7 +9,9 @@ import { FaTimes } from 'react-icons/fa';
 import { AddParticipants } from './AddParticipants';
 
 export const ChatProfile = ({ user, memberIds, loggedIn, loggedInUser, groupUsers, target, allUsers, userProfile, socket }) => {
-  const { chatId, conversation, openGroupProfile, addParticipants, buttonState, setButtonState, setOpenGroupProfile } = useChatContext();
+  const { 
+    buttonState, setButtonState, addParticipants, openGroupProfile, setOpenGroupProfile, conversation, 
+   } = useChatContext();
   const [searchGroup, setSearchGroup] = useState('');
   const [filteredParticipantsSearch, setFilteredParticipantsSearch] = useState([]);
 

@@ -3,13 +3,13 @@ import styled from 'styled-components'
 import { Top } from '../components/Top'
 import { useState } from 'react'
 
-export const PublicRoute = ({ setOpenModal }) => {
+export const PublicRoute = ({ openModal, setOpenModal }) => {
   const {pathname} = useLocation()
   // const path = ['/register', '/login']
 
   return (
     <Main>
-      <Top setOpenModal={setOpenModal}/>
+      <Top setOpenModal={setOpenModal} openModal={openModal} />
       <Outlet />
     </Main>
   )

@@ -17,6 +17,9 @@ a:link{
   color: white;
   white-space: pre-wrap;
 }
+a:visited{
+  color: white;
+}
 
 .logged_In{
   translate: -450% 0;

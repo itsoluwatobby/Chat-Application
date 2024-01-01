@@ -7,6 +7,7 @@ import { axiosAuth } from '../app/axiosAuth'
 import { useChatContext } from '../hooks/useChatContext';
 import { AboutModal } from '../components/AboutModal';
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
+import { CustomStyles, MaxMobile, Midscreen } from '../utils/responsiveness';
 
 export const Register = ({ openModal, setOpenModal }) => {
   const { uploadToCloud, url, setUrl } = useChatContext();
@@ -67,7 +68,23 @@ export const Register = ({ openModal, setOpenModal }) => {
   return (
     <Section>
       <div className='register-form'>
-        <h1>This is where the world connects better</h1>
+        <ContainerLogo className='container-logo'>
+          <div className='inner-container'>
+            <p className='title-logo'><span className='firstLetter'>S</span>wift Chat</p>
+            <p className='info'>
+              Chat with friends and family.
+              Connect with all with ease and speed
+            </p>
+
+            {/* <button
+              onClick={() => navigate('/login')}
+              >
+              Get Started
+            </button> */}
+          </div>
+
+          <h1>This is where the world connects better</h1>
+        </ContainerLogo>
         <form onSubmit={handleRegister}>
           <h2>Sign Up</h2>
           {loading && <p className='loading'>In progress...</p>}
@@ -102,7 +119,7 @@ export const Register = ({ openModal, setOpenModal }) => {
             <input type={reveal ? "text" : "password"}
               id='password' onFocus={() => setError('')}
               onChange={onPasswordChange}
-              placeholder='12doe77john'
+              placeholder='**************'
             />
             {
               reveal ? 
@@ -131,7 +148,7 @@ export const Register = ({ openModal, setOpenModal }) => {
             </label>
           </div>
           <button>Sign Up</button>
-        <p>Already have an account? <Link to='/login'>Login in</Link></p>
+        <p className='login-account'>Already have an account? <Link to='/login' className='login'>Login</Link></p>
         </form>
         {
           openModal && (
@@ -149,32 +166,35 @@ const Section = styled.div`
 height: calc(100vh - 36px);
 width: 100vw;
 font-size: 18px;
-// background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
-// background-position: center;
-// background-size: cover;
-// background-repeat: no-repeat;
-// background-blend-mode: color;
 background-image: conic-gradient(black, gray, black);
-overflow: hidden;
+// overflow: hidden;
 justify-content: space-evenly;
+overflow-y: scroll;
+
+  &::-webkit-scrollbar{
+    width: 1px;
+  }
 
   .register-form{
     position: relative;
-    flex-grow: 1;
+    flex: none;
     display: flex;
     justify-content: center;
     width: 100%;
-    align-items: flex-start;
+    height: 100%;
+    padding: 0rem 3rem;
     margin-top: 3rem;
     gap: 1.5rem;
 
       h1{
         text-align: center;
-        padding-top: 2rem;
+        align-self: center;
+        padding: 2rem 0.5rem 0;
         text-transform: capitalize;
       }
 
       form{
+        height: 65%;
         background-color: rgba(0,0,0,0.45);
         display: flex;
         flex-direction: column;
@@ -183,6 +203,14 @@ justify-content: space-evenly;
         border-radius: 10px; 
         padding: 1rem 1.5rem;
         gap: 0.6rem;
+        font-size: 16px;
+
+        ${MaxMobile(
+          {
+            width: '60%',
+            justifyContent: 'center',
+          }
+        )}
 
         h2{
           text-transform: capitalize;
@@ -233,11 +261,15 @@ justify-content: space-evenly;
           input{
             border: none;
             padding: 7px;
-            font-size: 18px;
+            font-size: 16px;
             border-radius: 7px;
           
             &:focus{
               outline: none;
+            }
+
+            &::placeholder {
+              font-size: 14px;
             }
           }
         }
@@ -252,6 +284,21 @@ justify-content: space-evenly;
             color: rgba(0,0,0,0.8);
             font-size: 24px;
             cursor: pointer;
+          }
+        }
+
+        .login-account {
+          font-size: 15px;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .login{
+            text-decoration: underline;
+
+            &:hover{
+              opacity: 0.7;
+            }
           }
         }
 
@@ -277,11 +324,12 @@ justify-content: space-evenly;
         }
 
         button{
-          width: 100%;
-          padding: 7px;
-          font-size: 20px;
+          align-self: center;
+          width: 60%;
+          padding: 10px;
+          font-size: 16px;
           border-radius: 5px;
-          border: none;
+          border: 0;
           cursor: pointer;
 
           &:hover{
@@ -331,5 +379,64 @@ justify-content: space-evenly;
       top: 30rem;
     }
   }
+
+`
+
+const ContainerLogo = styled.div`
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  .inner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    ${Midscreen(
+      {
+        display: 'none'
+      }
+    )}
+    
+    .title-logo {
+    font-size: 2.9rem;
+    text-transform: capitalize;
+    text-shadow: -2px 0 3px #FF0000, 0 2px 10px #0000FF;
+
+    .firstLetter {
+      font-size: 4rem;
+    }
+  }
+
+  .info {
+    font-size: 17px;
+    line-height: 18px;
+    word-spacing: 2px;
+    letter-spacing: 1px;
+    width: 260px;
+    padding: 10px;
+    text-align: center;
+    font-family: sans;
+    white-space: pre-wrap;
+  }
+  
+  button{
+    ${CustomStyles.button({
+      "background": 'linear-gradient(rgba(220,180,0,0.5),rgba(20,200,50,0.5));',
+      "padding": '10px 20px;',
+    })}
+    
+    &:focus{
+      outline: 0;
+    }
+    
+    &:hover{
+      background-color: rgba(20,200,50,0.6);
+    }
+  }
+}
 
 `

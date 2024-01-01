@@ -5,6 +5,7 @@ import { useChatContext } from '../hooks/useChatContext'
 import { axiosAuth } from '../app/axiosAuth'
 import { AboutModal } from '../components/AboutModal';
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
+import { CustomStyles, MaxMobile, Midscreen } from '../utils/responsiveness';
 
 export const Login = ({ openModal, setOpenModal }) => {
   const [email, setEmail] = useState('')
@@ -54,7 +55,24 @@ export const Login = ({ openModal, setOpenModal }) => {
   return (
     <Section>
       <div className='login-form'>
-        <h1>This is where the world connects better</h1>
+        <ContainerLogo className='container-logo'>
+          <div className='inner-container'>
+            <p className='title-logo'><span className='firstLetter'>S</span>wift Chat</p>
+            <p className='info'>
+              Chat with friends and family.
+              Connect with all with ease and speed
+            </p>
+
+            {/* <button
+              onClick={() => navigate('/login')}
+              >
+              Get Started
+            </button> */}
+          </div>
+
+          <h1>This is where the world connects better</h1>
+        </ContainerLogo>
+
         <form onSubmit={handleLogin}>
           <h2>Sign In</h2>
           {loading && <p className='loading'>{loading}</p>}
@@ -65,7 +83,7 @@ export const Login = ({ openModal, setOpenModal }) => {
           </div>
           <div className='form-input pass_reveal'>
             <label htmlFor="password">Password:</label>
-            <input type={reveal ? "text" : "password"} onFocus={() => setError('')} onChange={onPasswordChange} required placeholder='12doe77john'/>
+            <input type={reveal ? "text" : "password"} onFocus={() => setError('')} onChange={onPasswordChange} required placeholder='************'/>
             {
               reveal ? 
                       <AiFillEye 
@@ -79,7 +97,10 @@ export const Login = ({ openModal, setOpenModal }) => {
             }
           </div>
           <button disabled={!canSubmit}>Sign in</button>
-          <p>Don't have an account? <Link to='/register'>Register here</Link></p>
+          <p className='create-account'>
+            Don't have an account? 
+          <Link to='/register' className='register'>Register</Link>
+          </p>
         </form>
       {
         openModal && (
@@ -93,36 +114,39 @@ export const Login = ({ openModal, setOpenModal }) => {
   )
 }
 
+
 const Section = styled.div`
 height: calc(100vh - 36px);
 width: 100vw;
 font-size: 18px;
-// background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
-// background-position: center;
-// background-size: cover;
-// background-repeat: no-repeat;
-// background-blend-mode: color;
 background-image: conic-gradient(black, gray, black);
-overflow: hidden;
 justify-content: space-evenly;
+overflow-y: scroll;
+
+  &::-webkit-scrollbar{
+    width: 1px;
+  }
 
   .login-form{
     position: relative;
     flex-grow: 1;
     display: flex;
-    justify-content: center;
     width: 100%;
-    align-items: flex-start;
-    margin-top: 5rem;
-    gap: 1.5rem;
+    height: 100%;
+    margin-top: 3rem;
+    padding: 0rem 3rem;
+    gap: 3.5rem;
+    font-size: 16px;
 
       h1{
         text-align: center;
-        padding-top: 2rem;
+        align-self: center;
+        padding: 2rem 0.5rem 0;
         text-transform: capitalize;
       }
 
-      form{
+      form{        
+        height: 46%;
         background-color: rgba(0,0,0,0.45);
         display: flex;
         flex-direction: column;
@@ -130,7 +154,15 @@ justify-content: space-evenly;
         box-shadow: 2px 4px 12px rgba(0,0,0,0.4);
         border-radius: 10px; 
         padding: 1rem 1.5rem;
-        gap: 0.7rem;
+        gap: 0.6rem;
+        font-size: 16px;
+
+        ${MaxMobile(
+          {
+            width: '60%',
+            justifyContent: 'center',
+          }
+        )}
 
         .error{
           text-align: center;
@@ -160,11 +192,15 @@ justify-content: space-evenly;
           input{
             border: none;
             padding: 8px;
-            font-size: 18px;
+            font-size: 16px;
             border-radius: 7px;
           
             &:focus{
               outline: none;
+            }
+
+            &::placeholder{
+              font-size: 14px;
             }
           }
         }
@@ -182,12 +218,29 @@ justify-content: space-evenly;
           }
         }
 
+        .create-account {
+          font-size: 15px;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .register{
+            text-decoration: underline;
+
+            &:hover{
+              opacity: 0.7;
+            }
+          }
+        }
+
         button{
-          width: 100%;
-          padding: 8px;
+          align-self: center;
+          width: 60%;
+          padding: 10px;
           margin-top: 5px;
-          font-size: 20px;
+          font-size: 16px;
           border-radius: 5px;
+          border: 0;
           cursor: pointer;
 
           &:hover{
@@ -237,5 +290,64 @@ justify-content: space-evenly;
       top: 20rem;
     }
   }
+
+`
+
+const ContainerLogo = styled.div`
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  .inner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    ${Midscreen(
+      {
+        display: 'none',
+      }
+    )}
+    
+    .title-logo {
+    font-size: 2.9rem;
+    text-transform: capitalize;
+    text-shadow: -2px 0 3px #FF0000, 0 2px 10px #0000FF;
+
+    .firstLetter {
+      font-size: 4rem;
+    }
+  }
+
+  .info {
+    font-size: 17px;
+    line-height: 18px;
+    word-spacing: 2px;
+    letter-spacing: 1px;
+    width: 260px;
+    padding: 10px;
+    text-align: center;
+    font-family: sans;
+    white-space: pre-wrap;
+  }
+  
+  button{
+    ${CustomStyles.button({
+      "background": 'linear-gradient(rgba(220,180,0,0.5),rgba(20,200,50,0.5));',
+      "padding": '10px 20px;',
+    })}
+    
+    &:focus{
+      outline: 0;
+    }
+    
+    &:hover{
+      background-color: rgba(20,200,50,0.6);
+    }
+  }
+}
 
 `
