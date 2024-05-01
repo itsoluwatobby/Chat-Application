@@ -60,6 +60,8 @@ export const App = () => {
 const Container = styled.div`
 min-height: 100svh;
 width: 100vw;
+max-width: 1440px;
+margin: auto;
 
 // background-image: url(https://www.welovesolo.com/wp-content/uploads/vector02/49/27104511768.jpg);
 // background-position: center;
